@@ -1,8 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  Roll Call List
+  <v-container> Roll Call List </v-container>
 </template>
 
 <style module></style>

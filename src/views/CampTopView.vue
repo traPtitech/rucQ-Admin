@@ -1,8 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  Camp Top
+  <v-container> Camp Top </v-container>
 </template>
 
 <style module></style>

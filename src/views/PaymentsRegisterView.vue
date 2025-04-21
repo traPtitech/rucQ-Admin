@@ -1,8 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  Payments Register
+  <v-container> Payments Register </v-container>
 </template>
 
 <style module></style>

@@ -1,8 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  Rooms
+  <v-container> Rooms </v-container>
 </template>
 
 <style module></style>

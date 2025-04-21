@@ -1,8 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  Questions Edit
+  <v-container> Questions Edit </v-container>
 </template>
 
 <style module></style>

@@ -1,8 +1,7 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  Top
+  <v-container> Top </v-container>
 </template>
 
 <style module></style>

@@ -1,21 +1,67 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      name: 'Top',
+      component: () => import('@/views/TopView.vue'),
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
+      path: '/:campname',
+      children: [
+        {
+          path: '',
+          name: 'CampTop',
+          component: () => import('@/views/CampTopView.vue'),
+        },
+        {
+          path: 'guidebook',
+          name: 'GuidebookEdit',
+          component: () => import('@/views/GuidebookEditView.vue'),
+        },
+        {
+          path: 'questions',
+          name: 'QuestionsEdit',
+          component: () => import('@/views/QuestionsEditView.vue'),
+        },
+        {
+          path: 'questions/result',
+          name: 'QuestionsResult',
+          component: () => import('@/views/QuestionsResultView.vue'),
+        },
+        {
+          path: 'users/:userid',
+          name: 'UserInformation',
+          component: () => import('@/views/UserInformationView.vue'),
+        },
+        {
+          path: 'rooms',
+          name: 'Rooms',
+          component: () => import('@/views/RoomsView.vue'),
+        },
+        {
+          path: 'rollcall',
+          name: 'RollCallList',
+          component: () => import('@/views/RollCallListView.vue'),
+        },
+        {
+          path: 'rollcall/:rollcallid',
+          name: 'RollCall',
+          component: () => import('@/views/RollCallView.vue'),
+        },
+        {
+          path: 'payments',
+          name: 'Payments',
+          component: () => import('@/views/PaymentsView.vue'),
+        },
+        {
+          path: 'payments/register',
+          name: 'PaymentsRegister',
+          component: () => import('@/views/PaymentsRegisterView.vue'),
+        },
+      ],
     },
   ],
 })
