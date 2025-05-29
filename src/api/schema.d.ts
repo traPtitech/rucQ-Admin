@@ -775,8 +775,8 @@ export interface components {
     }
     Dashboard: {
       readonly id: string
-      payment: components['schemas']['Payment']
-      room: components['schemas']['Room']
+      payment?: components['schemas']['Payment']
+      room?: components['schemas']['Room']
     }
     Message: {
       content: string
