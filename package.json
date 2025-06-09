@@ -32,7 +32,9 @@
     "eslint-plugin-oxlint": "^0.15.13",
     "eslint-plugin-vue": "~10.0.0",
     "jiti": "^2.4.2",
+    "msw": "^2.9.0",
     "npm-run-all2": "^7.0.2",
+    "openapi-msw": "^1.2.0",
     "openapi-typescript": "^7.6.1",
     "oxlint": "^0.15.13",
     "prettier": "3.5.3",
@@ -40,5 +42,10 @@
     "vite": "^6.2.1",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vue-tsc": "^2.2.8"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
