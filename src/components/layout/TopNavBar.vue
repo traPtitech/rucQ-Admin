@@ -7,7 +7,9 @@ const title = computed(() => route.meta.title || 'Unknown Page')
 </script>
 
 <template>
-  <v-app-bar scroll-behavior="hide">
-    <v-app-bar-title>{{ title }}</v-app-bar-title>
-  </v-app-bar>
+  <header>
+    <v-app-bar scroll-behavior="hide">
+      <v-app-bar-title>{{ title }}</v-app-bar-title>
+    </v-app-bar>
+  </header>
 </template>
