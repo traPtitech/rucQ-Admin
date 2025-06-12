@@ -14,6 +14,7 @@ defineProps<{
       :prepend-icon="nav.icon"
       :title="nav.title"
       :to="nav.to"
+      exact
     />
   </v-navigation-drawer>
 </template>

@@ -6,8 +6,8 @@ import { RouterView } from 'vue-router'
 
 <template>
   <v-app>
-    <NavigationBar />
     <TopNavBar />
+    <NavigationBar />
     <v-main>
       <router-view />
     </v-main>

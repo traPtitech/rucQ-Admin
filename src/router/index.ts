@@ -43,7 +43,7 @@ const router = createRouter({
           meta: { title: '質問結果' },
         },
         {
-          path: 'users/',
+          path: 'users',
           name: 'UserInformation',
           component: () => import('@/views/UserInformationView.vue'),
           meta: { title: 'ユーザー情報' },

@@ -8,7 +8,7 @@ defineProps<{
 
 <template>
   <v-bottom-navigation>
-    <v-btn v-for="nav in navs" :key="nav.title" :to="nav.to" :value="nav.value">
+    <v-btn v-for="nav in navs" :key="nav.title" :to="nav.to" :value="nav.value" exact>
       <v-icon>{{ nav.icon }}</v-icon>
       <span>{{ nav.title }}</span>
     </v-btn>
