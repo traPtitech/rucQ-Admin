@@ -1,12 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { apiClient } from '@/api/apiClient'
+import type { components } from '@/api/schema'
 
-interface Camp {
-  id: number
-  displayId: string
-  name: string
-}
+type Camp = components['schemas']['Camp']
 
 export const useCampStore = defineStore('camp', () => {
   const camp = ref<Camp | undefined>(undefined)
