@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 
-type Camp = components['schemas']['Camp']
+type Camp = components['schemas']['CampResponse']
 
 export const useCampStore = defineStore('camp', () => {
   const camp = ref<Camp | undefined>(undefined)
