@@ -11,7 +11,7 @@ const router = createRouter({
     },
     {
       path: '/:campname',
-      component: () => import('@/components/layout/CampPageLayout.vue'),
+      component: () => import('@/layouts/CampPageLayout.vue'),
       children: [
         {
           path: '',

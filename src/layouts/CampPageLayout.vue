@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import BottomNavBar from '@/components/layout/BottomNavBar.vue'
-import SideNavBar from '@/components/layout/SideNavBar.vue'
-import TopNavBar from '@/components/layout/TopNavBar.vue'
+import BottomNavBar from '@/layouts/BottomNavBar.vue'
+import SideNavBar from '@/layouts/SideNavBar.vue'
+import TopNavBar from '@/layouts/TopNavBar.vue'
 import { computed, watch } from 'vue'
 import { useRoute, type RouteLocationNamedRaw } from 'vue-router'
 import { useCampStore } from '@/store/camp'

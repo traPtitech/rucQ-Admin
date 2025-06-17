@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NavItem } from '@/components/layout/CampPageLayout.vue'
+import type { NavItem } from '@/layouts/CampPageLayout.vue'
 
 defineProps<{
   navs: NavItem[]
