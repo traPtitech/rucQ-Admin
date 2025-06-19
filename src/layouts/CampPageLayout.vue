@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import BottomNavBar from '@/components/layout/BottomNavBar.vue'
-import SideNavBar from '@/components/layout/SideNavBar.vue'
-import { computed } from 'vue'
+import BottomNavBar from '@/layouts/BottomNavBar.vue'
+import SideNavBar from '@/layouts/SideNavBar.vue'
+import TopNavBar from '@/layouts/TopNavBar.vue'
+import { computed, watch } from 'vue'
+import { useRoute, type RouteLocationNamedRaw } from 'vue-router'
+import { useCampStore } from '@/store/camp'
 import { useDisplay } from 'vuetify'
-import { useRoute } from 'vue-router'
-import type { RouteLocationNamedRaw } from 'vue-router'
 
 export interface NavItem {
   title: string
@@ -13,9 +14,19 @@ export interface NavItem {
   to: RouteLocationNamedRaw
 }
 
-const { mobile } = useDisplay()
 const route = useRoute()
-const campname = computed(() => route.params.campname as string | undefined)
+const campname = computed(() => route.params.campname as string)
+const campStore = useCampStore()
+const { mobile } = useDisplay()
+
+watch(
+  campname,
+  async (newCampname) => {
+    await campStore.fetchCamp(newCampname)
+  },
+  { immediate: true },
+)
+
 const navs = computed<NavItem[]>(() => [
   {
     title: '合宿トップ',
@@ -45,8 +56,12 @@ const navs = computed<NavItem[]>(() => [
 </script>
 
 <template>
-  <nav v-if="campname != undefined">
+  <nav>
     <BottomNavBar v-if="mobile" :navs="navs" />
     <SideNavBar v-else :navs="navs" />
   </nav>
+  <TopNavBar />
+  <v-main>
+    <router-view />
+  </v-main>
 </template>
