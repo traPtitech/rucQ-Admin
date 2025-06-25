@@ -1,7 +1,39 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import QuestionGroupItem from '@/components/QuestionsEdit/QuestionGroupItem.vue'
+import CreateQuestionGroupButton from '@/components/QuestionsEdit/CreateQuestionGroupButton.vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { apiClient } from '@/api/apiClient'
+import type { components } from '@/api/schema'
+
+const route = useRoute()
+const campname = route.params.campname as string
+const camp = ref<components['schemas']['CampResponse']>()
+const questionGroups = ref<components['schemas']['QuestionGroupResponse'][]>([])
+
+onMounted(async () => {
+  await fetchCamp()
+  await fetchQuestionGroups()
+})
+
+const fetchCamp = async () => {
+  if (!campname) return
+  const { data } = await apiClient.GET('/api/camps')
+  camp.value = data?.find(c => c.displayId === campname)
+}
+
+const fetchQuestionGroups = async () => {
+  if (!camp.value) return
+  const { data } = await apiClient.GET('/api/camps/{campId}/question-groups', {
+    params: { path: { campId: camp.value.id } },
+  })
+  questionGroups.value = data ?? []
+}
+</script>
 
 <template>
-  <v-container> Questions Edit </v-container>
+  <v-container max-width="800" class="d-flex flex-column justify-center ga-6">
+    <question-group-item v-for="group in questionGroups" :key="group.id" :question-group="group" />
+    <create-question-group-button />
+  </v-container>
 </template>
-
-<style module></style>
