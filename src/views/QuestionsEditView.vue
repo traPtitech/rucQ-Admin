@@ -5,9 +5,10 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
+import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
 
 const newQuestionGroup: components['schemas']['QuestionGroupResponse'] = {
-  id: -1, // 一時的なID
+  id: generateNewTemporaryId(),
   name: '',
   description: '',
   due: '',
@@ -19,8 +20,6 @@ const campname = route.params.campname as string
 const camp = ref<components['schemas']['CampResponse']>()
 const questionGroups = ref<components['schemas']['QuestionGroupResponse'][]>([])
 const isCreatingNewGroup = ref(false)
-
-const isTemporaryId = (id: number) => id < 0
 
 const fetchCamp = async () => {
   if (!campname) return
@@ -41,7 +40,7 @@ const handleCreateQuestionGroup = async (
   questionGroup: components['schemas']['QuestionGroupRequest'],
 ) => {
   if (!camp.value) return
-  if (!isTemporaryId(questionGroupId)) return
+  if (isAssignedId(questionGroupId)) return
   await apiClient.POST('/api/admin/camps/{campId}/question-groups', {
     params: { path: { campId: camp.value.id } },
     body: questionGroup,

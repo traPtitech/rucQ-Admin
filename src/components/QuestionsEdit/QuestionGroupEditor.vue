@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import QuestionItemEditor from '@/components/QuestionsEdit/QuestionItemEditor.vue'
+import QuestionItemEditor from '@/components/QuestionsEdit/QuestionEditor.vue'
 import { ref, watch, toRaw } from 'vue'
 import type { components } from '@/api/schema'
+import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
 
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
 
@@ -15,13 +16,8 @@ const emit = defineEmits<{
   (e: 'update', questionGroupId: number, questionGroup: QuestionGroup): void
 }>()
 
-// questionIdを自動生成する
-let questionIdCounter = 0
-const generateQuestionId = () => --questionIdCounter
-const isTemporaryId = (id: number) => id < 0
-
 const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
-  id: generateQuestionId(),
+  id: generateNewTemporaryId(),
   questionGroupId: props.questionGroup.id,
   title: '',
   type: 'free_text',
@@ -30,8 +26,10 @@ const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
   isOpen: true,
 })
 
+// ディープコピーして編集用のオブジェクトを作成
 const editingQuestionGroup = ref<QuestionGroup>(structuredClone(toRaw(props.questionGroup)))
 
+// 予期しない変更があった場合に編集モードを終了
 watch(
   () => props.questionGroup,
   () => emit('cancel'),
@@ -75,20 +73,15 @@ watch(
         質問を追加
       </v-btn>
       <div class="d-flex ga-2 align-self-end">
-        <v-btn color="secondary" class="w-auto ml-2" @click="emit('cancel')"> キャンセル </v-btn>
+        <v-btn color="secondary" @click="emit('cancel')"> キャンセル </v-btn>
         <v-btn
-          v-if="!isTemporaryId(questionGroup.id)"
+          v-if="isAssignedId(questionGroup.id)"
           color="error"
-          class="w-auto"
           @click="emit('delete', questionGroup.id)"
         >
           削除
         </v-btn>
-        <v-btn
-          color="primary"
-          class="w-auto"
-          @click="emit('update', questionGroup.id, editingQuestionGroup)"
-        >
+        <v-btn color="primary" @click="emit('update', questionGroup.id, editingQuestionGroup)">
           保存
         </v-btn>
       </div>

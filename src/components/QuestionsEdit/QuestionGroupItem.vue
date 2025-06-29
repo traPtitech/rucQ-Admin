@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import QuestionItem from '@/components/QuestionsEdit/QuestionItem.vue'
 import QuestionGroupEditor from './QuestionGroupEditor.vue'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { components } from '@/api/schema'
 
 type QuestionGroupResponse = components['schemas']['QuestionGroupResponse']
 
-const props = defineProps<{
-  questionGroup: components['schemas']['QuestionGroupResponse']
+defineProps<{
+  questionGroup: QuestionGroupResponse
 }>()
 
 const emit = defineEmits<{
@@ -16,12 +16,6 @@ const emit = defineEmits<{
 }>()
 
 const editMode = ref(false)
-
-watch(
-  () => props.questionGroup,
-  () => (editMode.value = false),
-  { deep: true },
-)
 </script>
 
 <template>
@@ -49,10 +43,3 @@ watch(
     @update="emit('update', questionGroup.id, questionGroup)"
   />
 </template>
-
-<style scoped>
-.title-input :deep(.v-field__input) {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-</style>

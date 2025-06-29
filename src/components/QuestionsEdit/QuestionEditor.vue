@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { components } from '@/api/schema'
+import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
 
 const question = defineModel<components['schemas']['QuestionResponse']>({ required: true })
 
@@ -11,17 +12,12 @@ const types = [
   { value: 'multiple', title: 'チェックボックス' },
 ]
 
-// questionIdを自動生成する
-let questionIdCounter = 0
-const generateQuestionId = () => --questionIdCounter
-const isTemporaryId = (id: number) => id < 0
-
 const newOptionContent = ref<string>('')
 
 const addOption = () => {
   if ('options' in question.value) {
     question.value.options.push({
-      id: generateQuestionId(),
+      id: generateNewTemporaryId(),
       questionId: question.value.id,
       content: newOptionContent.value,
     })
@@ -36,13 +32,12 @@ const removeOption = (optionId: number) => {
 }
 
 const handleTypeChange = () => {
-  if(question.value.type === 'single' || question.value.type === 'multiple') {
+  if (question.value.type === 'single' || question.value.type === 'multiple') {
     question.value = {
       ...question.value,
       options: [],
     }
-  }
-  else if ('options' in question.value) {
+  } else if ('options' in question.value) {
     delete question.value.options
   }
 }
@@ -65,17 +60,12 @@ const handleTypeChange = () => {
             v-model="question.type"
             :items="types"
             placeholder="質問タイプ"
-            @update:model-value="handleTypeChange"
+            :disabled="isAssignedId(question.id)"
             variant="outlined"
-            :disabled="!isTemporaryId(question.id)"
             hide-details
+            @update:model-value="handleTypeChange"
           />
-          <v-btn
-            class="ma-2"
-            icon="mdi-delete"
-            size="medium"
-            variant="plain"
-          />
+          <v-btn class="ma-2" icon="mdi-delete" size="medium" variant="plain" />
         </div>
       </v-col>
     </v-row>
@@ -114,19 +104,14 @@ const handleTypeChange = () => {
         </v-text-field>
         <v-text-field
           v-model="newOptionContent"
-          variant="underlined"
           placeholder="新しい選択肢を追加"
+          variant="underlined"
         >
           <template #prepend>
             <v-radio class="disabled-field" density="compact" hide-details />
           </template>
           <template #append>
-            <v-btn
-              icon="mdi-plus"
-              size="medium"
-              variant="plain"
-              @click="addOption()"
-            />
+            <v-btn icon="mdi-plus" size="medium" variant="plain" @click="addOption()" />
           </template>
         </v-text-field>
       </div>
@@ -154,19 +139,14 @@ const handleTypeChange = () => {
         </v-text-field>
         <v-text-field
           v-model="newOptionContent"
-          variant="underlined"
           placeholder="新しい選択肢を追加"
+          variant="underlined"
         >
           <template #prepend>
             <v-checkbox-btn class="disabled-field" density="compact" hide-details />
           </template>
           <template #append>
-            <v-btn
-              icon="mdi-plus"
-              size="medium"
-              variant="plain"
-              @click="addOption()"
-            />
+            <v-btn icon="mdi-plus" size="medium" variant="plain" @click="addOption()" />
           </template>
         </v-text-field>
       </div>
