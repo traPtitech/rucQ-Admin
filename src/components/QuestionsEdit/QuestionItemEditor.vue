@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { components } from '@/api/schema'
 
 const question = defineModel<components['schemas']['QuestionResponse']>({ required: true })
@@ -10,12 +11,39 @@ const types = [
   { value: 'multiple', title: 'チェックボックス' },
 ]
 
+// questionIdを自動生成する
+let questionIdCounter = 0
+const generateQuestionId = () => --questionIdCounter
 const isTemporaryId = (id: number) => id < 0
+
+const newOptionContent = ref<string>('')
+
+const addOption = () => {
+  if ('options' in question.value) {
+    question.value.options.push({
+      id: generateQuestionId(),
+      questionId: question.value.id,
+      content: newOptionContent.value,
+    })
+    newOptionContent.value = ''
+  }
+}
 
 const removeOption = (optionId: number) => {
   if ('options' in question.value) {
     question.value.options = question.value.options.filter((option) => option.id !== optionId)
-    console.log('Option removed:', optionId)
+  }
+}
+
+const handleTypeChange = () => {
+  if(question.value.type === 'single' || question.value.type === 'multiple') {
+    question.value = {
+      ...question.value,
+      options: [],
+    }
+  }
+  else if ('options' in question.value) {
+    delete question.value.options
   }
 }
 </script>
@@ -32,14 +60,23 @@ const removeOption = (optionId: number) => {
         />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-select
-          v-model="question.type"
-          :items="types"
-          :class="{ 'disabled-field': !isTemporaryId(question.id) }"
-          placeholder="質問タイプ"
-          variant="outlined"
-          hide-details
-        />
+        <div class="d-flex align-center ga-2">
+          <v-select
+            v-model="question.type"
+            :items="types"
+            placeholder="質問タイプ"
+            @update:model-value="handleTypeChange"
+            variant="outlined"
+            :disabled="!isTemporaryId(question.id)"
+            hide-details
+          />
+          <v-btn
+            class="ma-2"
+            icon="mdi-delete"
+            size="medium"
+            variant="plain"
+          />
+        </div>
       </v-col>
     </v-row>
     <v-text-field
@@ -60,7 +97,7 @@ const removeOption = (optionId: number) => {
           v-for="option in question.options"
           :key="option.id"
           v-model="option.content"
-          variant="plain"
+          variant="underlined"
           hide-details
         >
           <template #prepend>
@@ -68,10 +105,27 @@ const removeOption = (optionId: number) => {
           </template>
           <template #append>
             <v-btn
-              icon="mdi-delete"
-              size="xsmall"
+              icon="mdi-close"
+              size="medium"
               variant="plain"
               @click="removeOption(option.id)"
+            />
+          </template>
+        </v-text-field>
+        <v-text-field
+          v-model="newOptionContent"
+          variant="underlined"
+          placeholder="新しい選択肢を追加"
+        >
+          <template #prepend>
+            <v-radio class="disabled-field" density="compact" hide-details />
+          </template>
+          <template #append>
+            <v-btn
+              icon="mdi-plus"
+              size="medium"
+              variant="plain"
+              @click="addOption()"
             />
           </template>
         </v-text-field>
@@ -91,10 +145,27 @@ const removeOption = (optionId: number) => {
           </template>
           <template #append>
             <v-btn
-              icon="mdi-delete"
-              size="xsmall"
+              icon="mdi-close"
+              size="medium"
               variant="plain"
               @click="removeOption(option.id)"
+            />
+          </template>
+        </v-text-field>
+        <v-text-field
+          v-model="newOptionContent"
+          variant="underlined"
+          placeholder="新しい選択肢を追加"
+        >
+          <template #prepend>
+            <v-checkbox-btn class="disabled-field" density="compact" hide-details />
+          </template>
+          <template #append>
+            <v-btn
+              icon="mdi-plus"
+              size="medium"
+              variant="plain"
+              @click="addOption()"
             />
           </template>
         </v-text-field>

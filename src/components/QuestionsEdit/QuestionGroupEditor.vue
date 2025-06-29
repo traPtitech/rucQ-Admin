@@ -15,12 +15,22 @@ const emit = defineEmits<{
   (e: 'update', questionGroupId: number, questionGroup: QuestionGroup): void
 }>()
 
-const editingQuestionGroup = ref<QuestionGroup>(structuredClone(toRaw(props.questionGroup)))
-
 // questionIdを自動生成する
-// let questionIdCounter = 0
-// const generateQuestionId = () => --questionIdCounter
+let questionIdCounter = 0
+const generateQuestionId = () => --questionIdCounter
 const isTemporaryId = (id: number) => id < 0
+
+const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
+  id: generateQuestionId(),
+  questionGroupId: props.questionGroup.id,
+  title: '',
+  type: 'free_text',
+  description: '',
+  isPublic: true,
+  isOpen: true,
+})
+
+const editingQuestionGroup = ref<QuestionGroup>(structuredClone(toRaw(props.questionGroup)))
 
 watch(
   () => props.questionGroup,
@@ -56,23 +66,32 @@ watch(
         v-model="editingQuestionGroup.questions[index]"
       />
     </div>
-    <div class="d-flex ga-2 mt-2 align-self-end">
-      <v-btn color="secondary" class="w-auto ml-2" @click="emit('cancel')"> キャンセル </v-btn>
+    <div class="d-flex justify-space-between align-center mt-2">
       <v-btn
-        v-if="!isTemporaryId(questionGroup.id)"
-        color="error"
-        class="w-auto"
-        @click="emit('delete', questionGroup.id)"
+        prepend-icon="mdi-plus"
+        variant="outlined"
+        @click="editingQuestionGroup.questions.push(generateQuestion())"
       >
-        削除
+        質問を追加
       </v-btn>
-      <v-btn
-        color="primary"
-        class="w-auto"
-        @click="emit('update', questionGroup.id, editingQuestionGroup)"
-      >
-        保存
-      </v-btn>
+      <div class="d-flex ga-2 align-self-end">
+        <v-btn color="secondary" class="w-auto ml-2" @click="emit('cancel')"> キャンセル </v-btn>
+        <v-btn
+          v-if="!isTemporaryId(questionGroup.id)"
+          color="error"
+          class="w-auto"
+          @click="emit('delete', questionGroup.id)"
+        >
+          削除
+        </v-btn>
+        <v-btn
+          color="primary"
+          class="w-auto"
+          @click="emit('update', questionGroup.id, editingQuestionGroup)"
+        >
+          保存
+        </v-btn>
+      </div>
     </div>
   </v-sheet>
 </template>
