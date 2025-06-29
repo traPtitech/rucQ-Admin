@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import type { components } from '@/api/schema'
 
-const question = defineModel<components['schemas']['QuestionRequest']>({ required: true })
+const question = defineModel<components['schemas']['QuestionResponse']>({ required: true })
 
-const removeOption = (optionId?: number) => {
-  if (optionId == undefined) return
+const types = [
+  { value: 'free_text', title: '記述式' },
+  { value: 'free_number', title: '数値' },
+  { value: 'single', title: 'ラジオボタン' },
+  { value: 'multiple', title: 'チェックボックス' },
+]
+
+const isTemporaryId = (id: number) => id < 0
+
+const removeOption = (optionId: number) => {
   if ('options' in question.value) {
     question.value.options = question.value.options.filter((option) => option.id !== optionId)
     console.log('Option removed:', optionId)
@@ -16,17 +24,35 @@ const removeOption = (optionId?: number) => {
   <v-sheet elevation="2" rounded class="pa-4">
     <v-row>
       <v-col cols="12" sm="6">
-        <v-text-field v-model="question.title" placeholder="質問" hide-details />
+        <v-text-field
+          v-model="question.title"
+          class="label-input"
+          placeholder="質問"
+          hide-details
+        />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-text-field v-model="question.description" placeholder="説明" hide-details />
+        <v-select
+          v-model="question.type"
+          :items="types"
+          :class="{ 'disabled-field': !isTemporaryId(question.id) }"
+          placeholder="質問タイプ"
+          variant="outlined"
+          hide-details
+        />
       </v-col>
     </v-row>
+    <v-text-field
+      v-model="question.description"
+      placeholder="説明"
+      variant="underlined"
+      hide-details
+    />
     <template v-if="question.type === 'free_text'">
-      <v-text-field class="py-4 disabled-field" label="自由記述" hide-details />
+      <v-text-field class="disabled-field mt-4" label="自由記述" hide-details />
     </template>
     <template v-if="question.type === 'free_number'">
-      <v-text-field class="py-4 disabled-field" label="数値入力" hide-details />
+      <v-text-field class="disabled-field mt-4" label="数値入力" hide-details />
     </template>
     <template v-if="question.type === 'single'">
       <div class="pa-2">
@@ -34,14 +60,19 @@ const removeOption = (optionId?: number) => {
           v-for="option in question.options"
           :key="option.id"
           v-model="option.content"
-          variant="underlined"
+          variant="plain"
           hide-details
         >
           <template #prepend>
             <v-radio class="disabled-field" density="compact" hide-details />
           </template>
           <template #append>
-            <v-btn icon="mdi-delete" size="xsmall" variant="plain" @click="removeOption(option.id)" />
+            <v-btn
+              icon="mdi-delete"
+              size="xsmall"
+              variant="plain"
+              @click="removeOption(option.id)"
+            />
           </template>
         </v-text-field>
       </div>
@@ -59,7 +90,12 @@ const removeOption = (optionId?: number) => {
             <v-checkbox-btn class="disabled-field" density="compact" hide-details />
           </template>
           <template #append>
-            <v-btn icon="mdi-delete" size="xsmall" variant="plain" @click="removeOption(option.id)" />
+            <v-btn
+              icon="mdi-delete"
+              size="xsmall"
+              variant="plain"
+              @click="removeOption(option.id)"
+            />
           </template>
         </v-text-field>
       </div>
@@ -70,5 +106,8 @@ const removeOption = (optionId?: number) => {
 <style scoped>
 .disabled-field {
   pointer-events: none;
+}
+.label-input :deep(.v-field__input) {
+  font-size: 1.17rem;
 }
 </style>

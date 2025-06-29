@@ -1,3 +1,0 @@
-<template>
-  <v-btn />
-</template>

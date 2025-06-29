@@ -1,29 +1,27 @@
 <script setup lang="ts">
 import QuestionItem from '@/components/QuestionsEdit/QuestionItem.vue'
-import QuestionItemEditor from '@/components/QuestionsEdit/QuestionItemEditor.vue'
-import { ref, watch, toRaw } from 'vue'
+import QuestionGroupEditor from './QuestionGroupEditor.vue'
+import { ref, watch } from 'vue'
 import type { components } from '@/api/schema'
 
-type QuestionGroupRequest = components['schemas']['QuestionGroupRequest']
+type QuestionGroupResponse = components['schemas']['QuestionGroupResponse']
 
 const props = defineProps<{
   questionGroup: components['schemas']['QuestionGroupResponse']
 }>()
 
 const emit = defineEmits<{
-  (e: 'update', questionGroupId: number, questionGroup: QuestionGroupRequest): void
   (e: 'delete', questionGroupId: number): void
+  (e: 'update', questionGroupId: number, questionGroup: QuestionGroupResponse): void
 }>()
 
 const editMode = ref(false)
-const editingQuestionGroup = ref<QuestionGroupRequest>(structuredClone(toRaw(props.questionGroup)))
 
-const resetEditingState = () => {
-  editMode.value = false
-  editingQuestionGroup.value = structuredClone(toRaw(props.questionGroup))
-}
-
-watch(() => props.questionGroup, resetEditingState, { deep: true })
+watch(
+  () => props.questionGroup,
+  () => (editMode.value = false),
+  { deep: true },
+)
 </script>
 
 <template>
@@ -43,29 +41,18 @@ watch(() => props.questionGroup, resetEditingState, { deep: true })
       編集
     </v-btn>
   </v-sheet>
-
-  <v-sheet v-else elevation="4" class="d-flex flex-column ga-2 pa-4">
-    <div class="">
-      <v-text-field v-model="editingQuestionGroup.name" placeholder="タイトル" />
-      <v-textarea v-model="editingQuestionGroup.description" placeholder="説明" rows="1" auto-grow />
-    </div>
-    <div class="d-flex flex-column ga-2">
-      <question-item-editor
-        v-for="(question, index) in editingQuestionGroup.questions"
-        :key="question.id"
-        v-model="editingQuestionGroup.questions[index]"
-      />
-    </div>
-    <div class="d-flex ga-2 mt-2 align-self-end">
-      <v-btn color="secondary" class="w-auto ml-2" @click="resetEditingState"> キャンセル </v-btn>
-      <v-btn color="error" class="w-auto" @click="emit('delete', questionGroup.id)"> 削除 </v-btn>
-      <v-btn
-        color="primary"
-        class="w-auto"
-        @click="emit('update', questionGroup.id, editingQuestionGroup)"
-      >
-        保存
-      </v-btn>
-    </div>
-  </v-sheet>
+  <question-group-editor
+    v-else
+    :question-group="questionGroup"
+    @cancel="editMode = false"
+    @delete="emit('delete', questionGroup.id)"
+    @update="emit('update', questionGroup.id, questionGroup)"
+  />
 </template>
+
+<style scoped>
+.title-input :deep(.v-field__input) {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+</style>
