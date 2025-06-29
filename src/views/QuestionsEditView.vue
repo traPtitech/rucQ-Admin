@@ -24,6 +24,35 @@ const fetchQuestionGroups = async () => {
   questionGroups.value = data ?? []
 }
 
+// const handleCreateQuestionGroup = async (
+//   questionGroup: components['schemas']['QuestionGroupRequest'],
+// ) => {
+//   if (!camp.value) return
+//   await apiClient.POST('/api/admin/camps/{campId}/question-groups', {
+//     params: { path: { campId: camp.value.id } },
+//     body: questionGroup,
+//   })
+//   await fetchQuestionGroups()
+// }
+
+const handleUpdateQuestionGroup = async (
+  questionGroupId: number,
+  updatedQuestionGroup: components['schemas']['QuestionGroupRequest'],
+) => {
+  await apiClient.PUT('/api/admin/question-groups/{questionGroupId}', {
+    params: { path: { questionGroupId: questionGroupId } },
+    body: updatedQuestionGroup,
+  })
+  await fetchQuestionGroups()
+}
+
+const handleDeleteQuestionGroup = async (questionGroupId: number) => {
+  await apiClient.DELETE('/api/admin/question-groups/{questionGroupId}', {
+    params: { path: { questionGroupId } },
+  })
+  await fetchQuestionGroups()
+}
+
 onMounted(async () => {
   await fetchCamp()
   await fetchQuestionGroups()
@@ -32,6 +61,12 @@ onMounted(async () => {
 
 <template>
   <v-container max-width="800" class="d-flex flex-column justify-center ga-6">
-    <question-group-item v-for="group in questionGroups" :key="group.id" :question-group="group" />
+    <question-group-item
+      v-for="group in questionGroups"
+      :key="group.id"
+      :question-group="group"
+      @update="handleUpdateQuestionGroup"
+      @delete="handleDeleteQuestionGroup"
+    />
   </v-container>
 </template>
