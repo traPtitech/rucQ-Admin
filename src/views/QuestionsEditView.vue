@@ -72,7 +72,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-container max-width="800" class="d-flex flex-column justify-center ga-6">
+  <v-container max-width="800" class="d-flex flex-column ga-6">
     <question-group-card
       v-for="group in questionGroups"
       :key="group.id"
@@ -80,9 +80,17 @@ onMounted(async () => {
       @delete="handleDeleteQuestionGroup"
       @update="handleUpdateQuestionGroup"
     />
-    <v-btn v-if="!isCreatingNewGroup" color="primary" @click="isCreatingNewGroup = true">
-      新規作成
-    </v-btn>
+    <div v-if="!isCreatingNewGroup" class="d-flex justify-center">
+      <v-btn
+        color="primary"
+        class="flex-grow-1"
+        prepend-icon="mdi-plus"
+        max-width="400"
+        @click="isCreatingNewGroup = true"
+      >
+        新規作成
+      </v-btn>
+    </div>
     <question-group-editor
       v-else
       :question-group="newQuestionGroup"

@@ -8,12 +8,12 @@ defineProps<{
 
 <template>
   <v-sheet elevation="2" rounded class="question-sheet px-4 py-2">
-    <div class="d-flex align-center justify-space-between ga-2">
-      <div class="d-flex align-end ga-1">
-        <h3>{{ question.title }}</h3>
+    <div class="d-flex align-start justify-space-between ga-2">
+      <div class="d-flex flex-column flex-sm-row align-sm-end">
+        <h3 class="mr-1">{{ question.title }}</h3>
         <span class="text-body-2 text-medium-emphasis">{{ question.description }}</span>
       </div>
-      <div class="d-flex ga-1">
+      <div class="d-flex ga-1 pa-1">
         <v-chip v-if="question.isPublic" variant="outlined" color="blue" size="small">
           public
         </v-chip>

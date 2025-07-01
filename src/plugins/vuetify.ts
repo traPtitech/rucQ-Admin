@@ -15,4 +15,7 @@ export const vuetify = createVuetify({
       mdi,
     },
   },
+  display: {
+    mobileBreakpoint: 'md',
+  },
 })

@@ -53,26 +53,20 @@ const handleTypeChange = () => {
 
 <template>
   <v-sheet elevation="2" rounded class="question-sheet pa-4">
-    <v-row>
+    <v-row class="mb-0">
       <v-col cols="12" sm="6">
-        <v-text-field
-          v-model="question.title"
-          class="label-input"
-          placeholder="質問"
-          hide-details
-        />
+        <v-text-field v-model="question.title" class="label-input" label="質問" hide-details />
       </v-col>
       <v-col cols="12" sm="6">
         <div class="d-flex align-center ga-2">
           <v-select
             v-model="question.type"
             :items="questionTypes"
-            placeholder="質問タイプ"
+            label="質問タイプ"
             :prepend-inner-icon="selectedIcon"
             :disabled="isAssignedId(question.id)"
             variant="outlined"
             hide-details
-            active
             @update:model-value="handleTypeChange"
           />
           <v-btn
@@ -85,22 +79,30 @@ const handleTypeChange = () => {
         </div>
       </v-col>
     </v-row>
-    <div class="d-flex ga-2">
+    <div class="d-flex flex-column flex-sm-row align-sm-center ga-2 mx-2">
       <v-text-field
         v-model="question.description"
-        placeholder="説明"
+        label="説明"
         variant="underlined"
+        density="comfortable"
         hide-details
       />
-      <div class="d-flex ga-2 mx-2">
+      <div class="d-flex ga-2">
         <v-checkbox
           v-model="question.isPublic"
           label="回答を公開"
           color="primary"
+          density="compact"
           :disabled="isAssignedId(question.id)"
           hide-details
         />
-        <v-checkbox v-model="question.isOpen" label="回答可能" color="primary" hide-details />
+        <v-checkbox
+          v-model="question.isOpen"
+          label="回答可能"
+          color="primary"
+          density="compact"
+          hide-details
+        />
       </div>
     </div>
     <template v-if="question.type === 'free_text'">
@@ -134,6 +136,7 @@ const handleTypeChange = () => {
           v-model="newOptionContent"
           placeholder="新しい選択肢を追加"
           variant="underlined"
+          hide-details
         >
           <template #prepend>
             <v-radio class="disabled-field" density="compact" hide-details />
@@ -169,6 +172,7 @@ const handleTypeChange = () => {
           v-model="newOptionContent"
           placeholder="新しい選択肢を追加"
           variant="underlined"
+          hide-details
         >
           <template #prepend>
             <v-checkbox-btn class="disabled-field" density="compact" hide-details />
@@ -191,5 +195,6 @@ const handleTypeChange = () => {
 }
 .label-input :deep(.v-field__input) {
   font-size: 1.17rem;
+  font-weight: 500;
 }
 </style>

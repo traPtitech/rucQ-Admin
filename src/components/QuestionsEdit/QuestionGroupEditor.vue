@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import QuestionItemEditor from '@/components/QuestionsEdit/QuestionEditor.vue'
+import QuestionGroupSummaryEditor from '@/components/QuestionsEdit/QuestionGroupSummaryEditor.vue'
+import QuestionEditor from '@/components/QuestionsEdit/QuestionEditor.vue'
 import QuestionGroupEditorActions from '@/components/QuestionsEdit/QuestionGroupEditorActions.vue'
 import { ref, watch, toRaw } from 'vue'
 import type { components } from '@/api/schema'
@@ -39,27 +40,10 @@ watch(
 </script>
 
 <template>
-  <v-sheet elevation="4" class="d-flex flex-column ga-2 pa-4">
-    <div class="mb-2">
-      <v-text-field
-        v-model="editingQuestionGroup.name"
-        class="title-input pa-0"
-        placeholder="質問グループ名"
-        variant="underlined"
-        density="compact"
-        hide-details
-      />
-      <v-textarea
-        v-model="editingQuestionGroup.description"
-        placeholder="説明"
-        variant="underlined"
-        rows="1"
-        auto-grow
-        hide-details
-      />
-    </div>
+  <v-sheet elevation="4" class="d-flex flex-column ga-4 pa-4 pt-6">
+    <question-group-summary-editor v-model="editingQuestionGroup" />
     <div class="d-flex flex-column ga-4">
-      <question-item-editor
+      <question-editor
         v-for="(question, index) in editingQuestionGroup.questions"
         :key="question.id"
         v-model="editingQuestionGroup.questions[index]"
@@ -75,10 +59,3 @@ watch(
     />
   </v-sheet>
 </template>
-
-<style scoped>
-.title-input :deep(.v-field__input) {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-</style>
