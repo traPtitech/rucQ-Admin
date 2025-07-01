@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import QuestionGroupItem from '@/components/QuestionsEdit/QuestionGroupItem.vue'
+import QuestionGroupCard from '@/components/QuestionsEdit/QuestionGroupCard.vue'
 import QuestionGroupEditor from '@/components/QuestionsEdit/QuestionGroupEditor.vue'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
-import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
+import { generateNewTemporaryId, isAssignedId, removeTemporaryId } from '@/utils/temporaryIdManager'
 
 const newQuestionGroup: components['schemas']['QuestionGroupResponse'] = {
   id: generateNewTemporaryId(),
@@ -37,13 +37,13 @@ const fetchQuestionGroups = async () => {
 
 const handleCreateQuestionGroup = async (
   questionGroupId: number,
-  questionGroup: components['schemas']['QuestionGroupRequest'],
+  questionGroup: components['schemas']['QuestionGroupResponse'],
 ) => {
   if (!camp.value) return
   if (isAssignedId(questionGroupId)) return
   await apiClient.POST('/api/admin/camps/{campId}/question-groups', {
     params: { path: { campId: camp.value.id } },
-    body: questionGroup,
+    body: removeTemporaryId(questionGroup),
   })
   await fetchQuestionGroups()
 }
@@ -56,12 +56,11 @@ const handleDeleteQuestionGroup = async (questionGroupId: number) => {
 }
 
 const handleUpdateQuestionGroup = async (
-  questionGroupId: number,
-  updatedQuestionGroup: components['schemas']['QuestionGroupRequest'],
+  questionGroup: components['schemas']['QuestionGroupResponse'],
 ) => {
   await apiClient.PUT('/api/admin/question-groups/{questionGroupId}', {
-    params: { path: { questionGroupId: questionGroupId } },
-    body: updatedQuestionGroup,
+    params: { path: { questionGroupId: questionGroup.id } },
+    body: removeTemporaryId(questionGroup as components['schemas']['QuestionGroupRequest']),
   })
   await fetchQuestionGroups()
 }
@@ -74,7 +73,7 @@ onMounted(async () => {
 
 <template>
   <v-container max-width="800" class="d-flex flex-column justify-center ga-6">
-    <question-group-item
+    <question-group-card
       v-for="group in questionGroups"
       :key="group.id"
       :question-group="group"

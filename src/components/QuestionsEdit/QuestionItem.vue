@@ -7,17 +7,19 @@ defineProps<{
 </script>
 
 <template>
-  <v-sheet elevation="2" rounded class="px-4 py-2">
+  <v-sheet elevation="2" rounded class="question-sheet px-4 py-2">
     <div class="d-flex align-center justify-space-between ga-2">
       <div class="d-flex align-end ga-1">
         <h3>{{ question.title }}</h3>
         <span class="text-body-2 text-medium-emphasis">{{ question.description }}</span>
       </div>
-      <div>
-        <v-icon v-if="question.isPublic" size="small">mdi-web</v-icon>
-        <v-icon v-else size="small">mdi-lock</v-icon>
-        <v-icon v-if="question.isOpen" size="small">mdi-content-save</v-icon>
-        <v-icon v-else size="small">mdi-content-save-off</v-icon>
+      <div class="d-flex ga-1">
+        <v-chip v-if="question.isPublic" variant="outlined" color="blue" size="small">
+          public
+        </v-chip>
+        <v-chip v-else variant="outlined" color="brown" size="small"> private </v-chip>
+        <v-chip v-if="question.isOpen" variant="outlined" color="green" size="small"> open </v-chip>
+        <v-chip v-else variant="outlined" color="red" size="small"> closed </v-chip>
       </div>
     </div>
     <template v-if="question.type === 'free_text'">
@@ -52,6 +54,9 @@ defineProps<{
 </template>
 
 <style scoped>
+.question-sheet {
+  border-left: 4px solid rgb(var(--v-theme-accent));
+}
 .disabled-field {
   pointer-events: none;
 }

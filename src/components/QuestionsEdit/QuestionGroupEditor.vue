@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import QuestionItemEditor from '@/components/QuestionsEdit/QuestionEditor.vue'
+import QuestionGroupEditorActions from '@/components/QuestionsEdit/QuestionGroupEditorActions.vue'
 import { ref, watch, toRaw } from 'vue'
 import type { components } from '@/api/schema'
-import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
+import { generateNewTemporaryId, isTemporaryId } from '@/utils/temporaryIdManager'
 
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
 
@@ -22,7 +23,7 @@ const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
   title: '',
   type: 'free_text',
   description: '',
-  isPublic: true,
+  isPublic: false,
   isOpen: true,
 })
 
@@ -39,7 +40,7 @@ watch(
 
 <template>
   <v-sheet elevation="4" class="d-flex flex-column ga-2 pa-4">
-    <div>
+    <div class="mb-2">
       <v-text-field
         v-model="editingQuestionGroup.name"
         class="title-input pa-0"
@@ -57,35 +58,21 @@ watch(
         hide-details
       />
     </div>
-    <div class="d-flex flex-column ga-2">
+    <div class="d-flex flex-column ga-4">
       <question-item-editor
         v-for="(question, index) in editingQuestionGroup.questions"
         :key="question.id"
         v-model="editingQuestionGroup.questions[index]"
+        @delete="editingQuestionGroup.questions.splice(index, 1)"
       />
     </div>
-    <div class="d-flex justify-space-between align-center mt-2">
-      <v-btn
-        prepend-icon="mdi-plus"
-        variant="outlined"
-        @click="editingQuestionGroup.questions.push(generateQuestion())"
-      >
-        質問を追加
-      </v-btn>
-      <div class="d-flex ga-2 align-self-end">
-        <v-btn color="secondary" @click="emit('cancel')"> キャンセル </v-btn>
-        <v-btn
-          v-if="isAssignedId(questionGroup.id)"
-          color="error"
-          @click="emit('delete', questionGroup.id)"
-        >
-          削除
-        </v-btn>
-        <v-btn color="primary" @click="emit('update', questionGroup.id, editingQuestionGroup)">
-          保存
-        </v-btn>
-      </div>
-    </div>
+    <question-group-editor-actions
+      :is-new-question-group="isTemporaryId(editingQuestionGroup.id)"
+      @create="editingQuestionGroup.questions.push(generateQuestion())"
+      @cancel="emit('cancel')"
+      @delete="emit('delete', questionGroup.id)"
+      @update="emit('update', questionGroup.id, editingQuestionGroup)"
+    />
   </v-sheet>
 </template>
 

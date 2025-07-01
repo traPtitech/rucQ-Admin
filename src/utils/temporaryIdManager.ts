@@ -35,3 +35,33 @@ export const isAssignedId = (id: number): boolean => {
   // 正の整数かつ、有効な数値であるかをチェック
   return typeof id === 'number' && id >= 0 && Number.isInteger(id)
 }
+
+/**
+ * オブジェクトまたは配列内のすべての仮ID（`id`プロパティがisTemporaryIdでtrueを返すもの）を再帰的に削除します。
+ * 元のデータは変更せず、仮IDが削除された新しいオブジェクトまたは配列を返します。
+ *
+ * @param {T} data - 処理対象のデータ。オブジェクト、配列、またはプリミティブ型。
+ * @returns {T} 仮IDが削除されたデータ。
+ */
+export const removeTemporaryId = <T>(data: T): T => {
+  // データがプリミティブ型ならそのまま返す
+  if (data === null || typeof data !== 'object') {
+    return data
+  }
+
+  // データが配列なら、各要素に対して再帰的に処理を行う
+  if (Array.isArray(data)) {
+    return data.map((item) => removeTemporaryId(item)) as T
+  }
+
+  // データがオブジェクトなら、各プロパティに対して再帰的に処理を行う
+  const newEntries = Object.entries(data)
+    .filter(([key, value]) => {
+      if (key === 'id' && typeof value === 'number' && isTemporaryId(value)) {
+        return false
+      }
+      return true
+    })
+    .map(([key, value]) => [key, removeTemporaryId(value)])
+  return Object.fromEntries(newEntries) as T
+}

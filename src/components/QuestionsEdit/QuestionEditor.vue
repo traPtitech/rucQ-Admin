@@ -1,16 +1,24 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { components } from '@/api/schema'
 import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
 
 const question = defineModel<components['schemas']['QuestionResponse']>({ required: true })
 
-const types = [
-  { value: 'free_text', title: '記述式' },
-  { value: 'free_number', title: '数値' },
-  { value: 'single', title: 'ラジオボタン' },
-  { value: 'multiple', title: 'チェックボックス' },
+const emit = defineEmits<{
+  (e: 'delete', questionId: number): void
+}>()
+
+const questionTypes = [
+  { value: 'free_text', title: '記述式', props: { prependIcon: 'mdi-text-short' } },
+  { value: 'free_number', title: '数値', props: { prependIcon: 'mdi-numeric' } },
+  { value: 'single', title: 'ラジオボタン', props: { prependIcon: 'mdi-radiobox-marked' } },
+  { value: 'multiple', title: 'チェックボックス', props: { prependIcon: 'mdi-checkbox-outline' } },
 ]
+const selectedIcon = computed(() => {
+  const type = question.value.type
+  return questionTypes.find((q) => q.value === type)?.props?.prependIcon
+})
 
 const newOptionContent = ref<string>('')
 
@@ -44,7 +52,7 @@ const handleTypeChange = () => {
 </script>
 
 <template>
-  <v-sheet elevation="2" rounded class="pa-4">
+  <v-sheet elevation="2" rounded class="question-sheet pa-4">
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
@@ -58,23 +66,43 @@ const handleTypeChange = () => {
         <div class="d-flex align-center ga-2">
           <v-select
             v-model="question.type"
-            :items="types"
+            :items="questionTypes"
             placeholder="質問タイプ"
+            :prepend-inner-icon="selectedIcon"
             :disabled="isAssignedId(question.id)"
             variant="outlined"
             hide-details
+            active
             @update:model-value="handleTypeChange"
           />
-          <v-btn class="ma-2" icon="mdi-delete" size="medium" variant="plain" />
+          <v-btn
+            class="ma-2"
+            icon="mdi-delete"
+            size="medium"
+            variant="plain"
+            @click="emit('delete', question.id)"
+          />
         </div>
       </v-col>
     </v-row>
-    <v-text-field
-      v-model="question.description"
-      placeholder="説明"
-      variant="underlined"
-      hide-details
-    />
+    <div class="d-flex ga-2">
+      <v-text-field
+        v-model="question.description"
+        placeholder="説明"
+        variant="underlined"
+        hide-details
+      />
+      <div class="d-flex ga-2 mx-2">
+        <v-checkbox
+          v-model="question.isPublic"
+          label="回答を公開"
+          color="primary"
+          :disabled="isAssignedId(question.id)"
+          hide-details
+        />
+        <v-checkbox v-model="question.isOpen" label="回答可能" color="primary" hide-details />
+      </div>
+    </div>
     <template v-if="question.type === 'free_text'">
       <v-text-field class="disabled-field mt-4" label="自由記述" hide-details />
     </template>
@@ -155,6 +183,9 @@ const handleTypeChange = () => {
 </template>
 
 <style scoped>
+.question-sheet {
+  border-left: 4px solid rgb(var(--v-theme-accent));
+}
 .disabled-field {
   pointer-events: none;
 }
