@@ -25,6 +25,6 @@ const editMode = ref(false)
     :question-group="questionGroup"
     @cancel="editMode = false"
     @delete="emit('delete', questionGroup.id)"
-    @update="emit('update', questionGroup)"
+    @update="(qg) => emit('update', qg)"
   />
 </template>

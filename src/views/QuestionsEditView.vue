@@ -36,11 +36,10 @@ const fetchQuestionGroups = async () => {
 }
 
 const handleCreateQuestionGroup = async (
-  questionGroupId: number,
   questionGroup: components['schemas']['QuestionGroupResponse'],
 ) => {
   if (!camp.value) return
-  if (isAssignedId(questionGroupId)) return
+  if (isAssignedId(questionGroup.id)) return
   await apiClient.POST('/api/admin/camps/{campId}/question-groups', {
     params: { path: { campId: camp.value.id } },
     body: removeTemporaryId(questionGroup),
@@ -58,6 +57,7 @@ const handleDeleteQuestionGroup = async (questionGroupId: number) => {
 const handleUpdateQuestionGroup = async (
   questionGroup: components['schemas']['QuestionGroupResponse'],
 ) => {
+  console.log('Updating question group:', questionGroup)
   await apiClient.PUT('/api/admin/question-groups/{questionGroupId}', {
     params: { path: { questionGroupId: questionGroup.id } },
     body: removeTemporaryId(questionGroup as components['schemas']['QuestionGroupRequest']),

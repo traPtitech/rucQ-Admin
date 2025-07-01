@@ -14,7 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'delete', questionGroupId: number): void
-  (e: 'update', questionGroupId: number, questionGroup: QuestionGroup): void
+  (e: 'update', questionGroup: QuestionGroup): void
 }>()
 
 const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
@@ -71,7 +71,7 @@ watch(
       @create="editingQuestionGroup.questions.push(generateQuestion())"
       @cancel="emit('cancel')"
       @delete="emit('delete', questionGroup.id)"
-      @update="emit('update', questionGroup.id, editingQuestionGroup)"
+      @save="emit('update', editingQuestionGroup)"
     />
   </v-sheet>
 </template>
