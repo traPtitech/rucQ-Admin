@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
+import { format, formatISO, parseISO } from 'date-fns'
+import { tz } from "@date-fns/tz"
 import type { components } from '@/api/schema'
 
 const questionGroup = defineModel<components['schemas']['QuestionGroupResponse']>({
@@ -10,7 +12,17 @@ const questionGroup = defineModel<components['schemas']['QuestionGroupResponse']
 const display = useDisplay()
 const isSmAndUp = display.smAndUp
 
-const questionsDueDate = ref<string>(questionGroup.value.due)
+const questionsDueDate = computed({
+  get() {
+    if (!questionGroup.value.due) return
+    return format(parseISO(questionGroup.value.due), 'yyyy-MM-dd')
+  },
+  set(value: string) {
+    if (!value) return
+    const parsedDate = parseISO(value)
+    questionGroup.value.due = formatISO(parsedDate, { in: tz('Asia/Tokyo') })
+  }
+})
 </script>
 
 <template>

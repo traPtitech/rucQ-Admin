@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import QuestionItem from '@/components/QuestionsEdit/QuestionItem.vue'
 import { computed } from 'vue'
-import { useDate } from 'vuetify'
+import { parseISO, format } from 'date-fns'
 import type { components } from '@/api/schema'
 
 const props = defineProps<{
@@ -12,16 +12,11 @@ const emit = defineEmits<{
   (e: 'edit'): void
 }>()
 
-const date = useDate()
 const formatDueDate = computed(() => {
-  if (!props.questionGroup.due) {
-    return '未設定'
-  }
-  const dueDateObject = new Date(props.questionGroup.due)
-  if (isNaN(dueDateObject.getTime())) {
-    return '日付形式エラー'
-  }
-  return date.format(dueDateObject, 'yyyy/MM/dd HH:mm')
+  if (!props.questionGroup.due) return
+  const dueDate = parseISO(props.questionGroup.due)
+  console.log('Due date:', dueDate)
+  return format(dueDate, 'yyyy/MM/dd')
 })
 </script>
 
