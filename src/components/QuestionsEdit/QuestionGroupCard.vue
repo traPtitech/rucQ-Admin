@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import QuestionGroupItem from '@/components/QuestionsEdit/QuestionGroupItem.vue'
 import QuestionGroupEditor from './QuestionGroupEditor.vue'
-import { ref } from 'vue'
 import type { components } from '@/api/schema'
 
 type QuestionGroup = components['schemas']['QuestionGroupResponse']

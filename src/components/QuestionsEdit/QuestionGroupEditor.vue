@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { ref, watch, toRaw } from 'vue'
+import type { VForm } from 'vuetify/components'
 import QuestionGroupSummaryEditor from '@/components/QuestionsEdit/QuestionGroupSummaryEditor.vue'
 import QuestionEditor from '@/components/QuestionsEdit/QuestionEditor.vue'
 import QuestionGroupEditorActions from '@/components/QuestionsEdit/QuestionGroupEditorActions.vue'
-import { ref, watch, toRaw } from 'vue'
-import type { VForm } from 'vuetify/components'
-import type { components } from '@/api/schema'
 import { generateNewTemporaryId, isTemporaryId } from '@/utils/temporaryIdManager'
+import type { components } from '@/api/schema'
 
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
 

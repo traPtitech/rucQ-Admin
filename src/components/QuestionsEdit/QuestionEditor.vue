@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import type { components } from '@/api/schema'
 import { generateNewTemporaryId, isAssignedId } from '@/utils/temporaryIdManager'
+import type { components } from '@/api/schema'
 
 const question = defineModel<components['schemas']['QuestionResponse']>({ required: true })
 

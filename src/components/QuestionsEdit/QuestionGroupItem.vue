@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import QuestionItem from '@/components/QuestionsEdit/QuestionItem.vue'
 import { computed } from 'vue'
 import { parseISO, format } from 'date-fns'
+import QuestionItem from '@/components/QuestionsEdit/QuestionItem.vue'
 import type { components } from '@/api/schema'
 
 const props = defineProps<{
