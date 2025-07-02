@@ -15,7 +15,6 @@ const emit = defineEmits<{
 const formatDueDate = computed(() => {
   if (!props.questionGroup.due) return
   const dueDate = parseISO(props.questionGroup.due)
-  console.log('Due date:', dueDate)
   return format(dueDate, 'yyyy/MM/dd')
 })
 </script>
@@ -25,9 +24,7 @@ const formatDueDate = computed(() => {
     <div class="mb-2">
       <div class="d-flex align-end justify-between ga-2">
         <h2>{{ questionGroup.name }}</h2>
-        <span class="text-body-2 text-medium-emphasis pb-1">
-          {{ formatDueDate }} まで
-        </span>
+        <span class="text-body-2 text-medium-emphasis pb-1"> {{ formatDueDate }} まで </span>
       </div>
       <p>{{ questionGroup.description }}</p>
     </div>

@@ -197,7 +197,7 @@ const handleTypeChange = () => {
 
 <style scoped>
 .question-sheet {
-  border-left: 4px solid rgb(var(--v-theme-accent));
+  border-left: 4px solid rgb(var(--v-theme-primary));
 }
 .disabled-field {
   pointer-events: none;

@@ -4,18 +4,27 @@ import QuestionGroupEditor from './QuestionGroupEditor.vue'
 import { ref } from 'vue'
 import type { components } from '@/api/schema'
 
-type QuestionGroupResponse = components['schemas']['QuestionGroupResponse']
+type QuestionGroup = components['schemas']['QuestionGroupResponse']
 
 defineProps<{
-  questionGroup: QuestionGroupResponse
+  questionGroup: QuestionGroup
 }>()
 
 const emit = defineEmits<{
   (e: 'delete', questionGroupId: number): void
-  (e: 'update', questionGroup: QuestionGroupResponse): void
+  (e: 'update', questionGroup: QuestionGroup): void
 }>()
 
 const editMode = ref(false)
+
+const handleDelete = (questionGroupId: number) => {
+  emit('delete', questionGroupId)
+  editMode.value = false
+}
+const handleUpdate = (questionGroup: QuestionGroup) => {
+  emit('update', questionGroup)
+  editMode.value = false
+}
 </script>
 
 <template>
@@ -24,7 +33,7 @@ const editMode = ref(false)
     v-else
     :question-group="questionGroup"
     @cancel="editMode = false"
-    @delete="emit('delete', questionGroup.id)"
-    @update="(qg) => emit('update', qg)"
+    @delete="handleDelete(questionGroup.id)"
+    @update="handleUpdate"
   />
 </template>
