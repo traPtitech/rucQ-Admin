@@ -8,6 +8,7 @@ const question = defineModel<components['schemas']['QuestionResponse']>({ requir
 const emit = defineEmits<{
   (e: 'delete', questionId: number): void
 }>()
+const required = [(v: unknown) => !!v]
 
 const questionTypes = [
   { value: 'free_text', title: '記述式', props: { prependIcon: 'mdi-text-short' } },
@@ -55,7 +56,14 @@ const handleTypeChange = () => {
   <v-sheet elevation="2" rounded class="question-sheet pa-4">
     <v-row class="mb-0">
       <v-col cols="12" sm="6">
-        <v-text-field v-model="question.title" class="label-input" label="質問" hide-details />
+        <v-text-field
+          v-model="question.title"
+          class="label-input"
+          label="質問*"
+          hide-details
+          :rules="required"
+          required
+        />
       </v-col>
       <v-col cols="12" sm="6">
         <div class="d-flex align-center ga-2">
@@ -67,6 +75,7 @@ const handleTypeChange = () => {
             :disabled="isAssignedId(question.id)"
             variant="outlined"
             hide-details
+            required
             @update:model-value="handleTypeChange"
           />
           <v-btn

@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import { format, formatISO, parseISO } from 'date-fns'
-import { tz } from "@date-fns/tz"
 import type { components } from '@/api/schema'
 
 const questionGroup = defineModel<components['schemas']['QuestionGroupResponse']>({
@@ -12,6 +11,8 @@ const questionGroup = defineModel<components['schemas']['QuestionGroupResponse']
 const display = useDisplay()
 const isSmAndUp = display.smAndUp
 
+const required = [(v: unknown) => !!v]
+
 const questionsDueDate = computed({
   get() {
     if (!questionGroup.value.due) return
@@ -20,32 +21,36 @@ const questionsDueDate = computed({
   set(value: string) {
     if (!value) return
     const parsedDate = parseISO(value)
-    questionGroup.value.due = formatISO(parsedDate, { in: tz('Asia/Tokyo') })
-  }
+    questionGroup.value.due = formatISO(parsedDate)
+  },
 })
 </script>
 
 <template>
   <div class="mb-1">
-    <div class="d-flex align-end ga-4 mb-4">
+    <div class="d-flex align-start ga-4 mb-4">
       <v-text-field
         v-model="questionGroup.name"
         class="title-input"
-        label="質問グループ名"
+        label="質問グループ名*"
         variant="underlined"
         density="compact"
         hide-details
+        :rules="required"
+        required
       />
       <v-text-field
         v-if="isSmAndUp"
         v-model="questionsDueDate"
         class="flex-grow-0 mx-2"
-        label="回答期限"
+        label="回答期限*"
         variant="outlined"
         density="compact"
         min-width="150"
         hide-details
         type="date"
+        :rules="required"
+        required
       />
     </div>
     <v-textarea
@@ -66,6 +71,7 @@ const questionsDueDate = computed({
       density="compact"
       hide-details
       type="date"
+      :rules="required"
     />
   </div>
 </template>
