@@ -39,7 +39,9 @@ const isDeleteModalOpen = ref(false)
       </v-btn>
       <div class="d-flex align-self-end justify-end flex-grow-1 ga-2">
         <v-btn variant="outlined" @click="emit('cancel')"> キャンセル </v-btn>
-        <v-btn color="error" @click="isDeleteModalOpen = true"> 削除 </v-btn>
+        <v-btn v-if="!isNewQuestionGroup" color="error" @click="isDeleteModalOpen = true">
+          削除
+        </v-btn>
         <v-btn color="primary" @click="emit('validate')"> 保存 </v-btn>
       </div>
     </div>
