@@ -15,7 +15,6 @@ const questionGroups: QuestionGroup[] = [
     questions: [
       {
         id: 0,
-        questionGroupId: 0,
         title: '行き',
         description: '9:00集合',
         type: 'single',
@@ -24,19 +23,16 @@ const questionGroups: QuestionGroup[] = [
         options: [
           {
             id: 0,
-            questionId: 0,
             content: '乗る',
           },
           {
             id: 1,
-            questionId: 0,
             content: '乗らない',
           },
         ],
       },
       {
         id: 1,
-        questionGroupId: 0,
         title: '帰り',
         description: '18:00解散',
         type: 'single',
@@ -45,12 +41,10 @@ const questionGroups: QuestionGroup[] = [
         options: [
           {
             id: 2,
-            questionId: 1,
             content: '乗る',
           },
           {
             id: 3,
-            questionId: 1,
             content: '乗らない',
           },
         ],
@@ -65,7 +59,6 @@ const questionGroups: QuestionGroup[] = [
     questions: [
       {
         id: 2,
-        questionGroupId: 1,
         title: 'スキーをしますか',
         description: '',
         type: 'single',
@@ -74,19 +67,16 @@ const questionGroups: QuestionGroup[] = [
         options: [
           {
             id: 4,
-            questionId: 2,
             content: 'する',
           },
           {
             id: 5,
-            questionId: 2,
             content: 'しない',
           },
         ],
       },
       {
         id: 3,
-        questionGroupId: 1,
         title: 'スキー/スノボセット',
         description: '2500円',
         type: 'single',
@@ -95,24 +85,20 @@ const questionGroups: QuestionGroup[] = [
         options: [
           {
             id: 6,
-            questionId: 3,
             content: 'スキーセットを借りる',
           },
           {
             id: 7,
-            questionId: 3,
             content: 'スノボセットを借りる',
           },
           {
             id: 8,
-            questionId: 3,
             content: '借りない',
           },
         ],
       },
       {
         id: 4,
-        questionGroupId: 1,
         title: 'スキーウェア',
         description: '2500円',
         type: 'single',
@@ -121,34 +107,28 @@ const questionGroups: QuestionGroup[] = [
         options: [
           {
             id: 9,
-            questionId: 4,
             content: 'S',
           },
           {
             id: 10,
-            questionId: 4,
             content: 'M',
           },
           {
             id: 11,
-            questionId: 4,
             content: 'L',
           },
           {
             id: 12,
-            questionId: 4,
             content: 'LL',
           },
           {
             id: 13,
-            questionId: 4,
             content: '借りない',
           },
         ],
       },
       {
         id: 5,
-        questionGroupId: 1,
         title: '小物',
         description: '各550円',
         type: 'multiple',
@@ -157,24 +137,20 @@ const questionGroups: QuestionGroup[] = [
         options: [
           {
             id: 14,
-            questionId: 5,
             content: 'ゴーグル',
           },
           {
             id: 15,
-            questionId: 5,
             content: 'ニット帽',
           },
           {
             id: 16,
-            questionId: 5,
             content: 'グローブ',
           },
         ],
       },
       {
         id: 6,
-        questionGroupId: 1,
         title: '身長',
         description: '',
         type: 'free_number',
@@ -183,7 +159,6 @@ const questionGroups: QuestionGroup[] = [
       },
       {
         id: 7,
-        questionGroupId: 1,
         title: '足のサイズ',
         description: 'スキー/スノボセットを借りる人のみ',
         type: 'free_number',
@@ -200,7 +175,6 @@ const questionGroups: QuestionGroup[] = [
     questions: [
       {
         id: 8,
-        questionGroupId: 2,
         title: 'アレルギー',
         description: '',
         type: 'free_text',
@@ -209,7 +183,6 @@ const questionGroups: QuestionGroup[] = [
       },
       {
         id: 9,
-        questionGroupId: 2,
         title: '合宿係への連絡事項',
         description: '',
         type: 'free_text',
@@ -240,16 +213,19 @@ export const questionsHandlers = [
           options.push({
             ...option,
             id: nextOptionId++,
-            questionId,
           })
         }
+        questions.push({
+          ...question,
+          id: questionId,
+          options,
+        } as Question)
+      } else {
+        questions.push({
+          ...question,
+          id: questionId,
+        } as Question)
       }
-      questions.push({
-        ...question,
-        id: questionId,
-        questionGroupId,
-        options,
-      } as Question)
     }
 
     const createdQuestionGroup: QuestionGroup = {
@@ -266,42 +242,16 @@ export const questionsHandlers = [
     const questionGroupId = Number.parseInt(params.questionGroupId, 10)
     const updatedQuestionGroupReq = await request.json()
 
-    const questionGroup = questionGroups.find((g) => g.id === questionGroupId)
-    if (questionGroup === undefined) {
+    const index = questionGroups.findIndex((g) => g.id === questionGroupId)
+    if (index === -1) {
       return new HttpResponse(null, { status: 404 })
     }
-
-    const questions: Question[] = []
-    for (const question of updatedQuestionGroupReq.questions) {
-      const questionId = question.id ?? nextQuestionId++
-      const options: Option[] = []
-      if ('options' in question && question.options !== undefined) {
-        for (const option of question.options) {
-          options.push({
-            ...option,
-            id: option.id ?? nextOptionId++,
-            questionId,
-          })
-        }
-      }
-      questions.push({
-        ...question,
-        id: questionId,
-        questionGroupId,
-        options,
-      } as Question)
-    }
-
-    const updatedQuestionGroup: QuestionGroup = {
+    questionGroups[index] = {
+      ...questionGroups[index],
       ...updatedQuestionGroupReq,
-      id: questionGroupId,
-      questions,
     }
 
-    const index = questionGroups.findIndex((g) => g.id === questionGroupId)
-    questionGroups[index] = updatedQuestionGroup
-
-    return HttpResponse.json(updatedQuestionGroup)
+    return HttpResponse.json(questionGroups[index])
   }),
   http.delete('/api/admin/question-groups/{questionGroupId}', ({ params }) => {
     const questionGroupId = Number.parseInt(params.questionGroupId, 10)
@@ -311,5 +261,50 @@ export const questionsHandlers = [
     }
     questionGroups.splice(index, 1)
     return new HttpResponse(null, { status: 204 })
+  }),
+  http.post('/api/question-groups/{questionGroupId}/questions', async ({ params, request }) => {
+    const questionGroupId = Number.parseInt(params.questionGroupId, 10)
+    const questionGroup = questionGroups.find((g) => g.id === questionGroupId)
+    if (!questionGroup) {
+      return new HttpResponse(null, { status: 404 })
+    }
+
+    const newQuestion = await request.json()
+    const options: Option[] = []
+    if ('options' in newQuestion && newQuestion.options !== undefined) {
+      for (const option of newQuestion.options) {
+        options.push({
+          ...option,
+          id: nextOptionId++,
+        })
+      }
+    }
+
+    const createdQuestion = {
+      ...newQuestion,
+      id: nextQuestionId++,
+      options: options.length > 0 ? options : undefined,
+    } as Question
+
+    questionGroup.questions.push(createdQuestion)
+
+    return HttpResponse.json(createdQuestion, { status: 201 })
+  }),
+  http.put('/api/admin/questions/{questionId}', async ({ params, request }) => {
+    const questionId = Number.parseInt(params.questionId, 10)
+    const updatedQuestionReq = await request.json()
+
+    for (const questionGroup of questionGroups) {
+      const index = questionGroup.questions.findIndex((q) => q.id === questionId)
+      if (index !== -1) {
+        questionGroup.questions[index] = {
+          ...questionGroup.questions[index],
+          ...updatedQuestionReq,
+        }
+        return HttpResponse.json(questionGroup.questions[index])
+      }
+    }
+
+    return new HttpResponse(null, { status: 404 })
   }),
 ]

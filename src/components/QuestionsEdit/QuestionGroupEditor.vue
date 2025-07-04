@@ -35,7 +35,6 @@ const validateAndOpenModal = async () => {
 
 const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
   id: generateNewTemporaryId(),
-  questionGroupId: props.questionGroup.id,
   title: '',
   type: 'free_text',
   description: '',

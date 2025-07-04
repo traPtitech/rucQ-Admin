@@ -27,7 +27,6 @@ const addOption = () => {
   if ('options' in question.value) {
     question.value.options.push({
       id: generateNewTemporaryId(),
-      questionId: question.value.id,
       content: newOptionContent.value,
     })
     newOptionContent.value = ''

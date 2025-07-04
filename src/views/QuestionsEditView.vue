@@ -54,11 +54,36 @@ const handleDeleteQuestionGroup = async (questionGroupId: number) => {
   await fetchQuestionGroups()
 }
 
+// TODO: 書き直す
 const handleUpdateQuestionGroup = async (questionGroup: QuestionGroup) => {
-  await apiClient.PUT('/api/admin/question-groups/{questionGroupId}', {
-    params: { path: { questionGroupId: questionGroup.id } },
-    body: removeTemporaryId(questionGroup as components['schemas']['QuestionGroupRequest']),
-  })
+  type QuestionGroupUpdate = components['schemas']['PutQuestionGroupRequest'] & {
+    questions: (
+      | components['schemas']['QuestionResponse']
+      | components['schemas']['PostQuestionRequest']
+    )[]
+  }
+  const updatedGroup = removeTemporaryId(questionGroup as QuestionGroupUpdate)
+  console.log('Updated Group:', updatedGroup)
+  for (const question of updatedGroup.questions) {
+    if ('id' in question) {
+      await apiClient.PUT('/api/admin/questions/{questionId}', {
+        params: { path: { questionId: question.id } },
+        body: question,
+      })
+    } else {
+      await apiClient.POST('/api/question-groups/{questionGroupId}/questions', {
+        params: { path: { questionGroupId: questionGroup.id } },
+        body: question,
+      })
+    }
+  }
+  for (const question of questionGroup.questions) {
+    if (!updatedGroup.questions.some((q) => 'id' in q && q.id === question.id)) {
+      await apiClient.DELETE('/api/admin/questions/{questionId}', {
+        params: { path: { questionId: question.id } },
+      })
+    }
+  }
   await fetchQuestionGroups()
 }
 
