@@ -15,4 +15,25 @@ export const vuetify = createVuetify({
       mdi,
     },
   },
+  display: {
+    mobileBreakpoint: 'md',
+  },
+  theme: {
+    defaultTheme: 'light',
+    themes: {
+      light: {
+        colors: {
+          background: '#F6F6F6',
+          surface: '#FFFFFF',
+          primary: '#FF7300',
+          secondary: '#005CDD',
+          success: '#4CAF50',
+          warning: '#FF7300',
+          error: '#FF4D00',
+          info: '#008CFF',
+          accent: '#FF7300',
+        },
+      },
+    },
+  },
 })
