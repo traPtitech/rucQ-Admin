@@ -55,30 +55,41 @@ const handleDeleteQuestionGroup = async (questionGroupId: number) => {
 }
 
 // TODO: 書き直す
-const handleUpdateQuestionGroup = async (questionGroup: QuestionGroup) => {
+const handleUpdateQuestionGroup = async (updatedGroup: QuestionGroup) => {
   type QuestionGroupUpdate = components['schemas']['PutQuestionGroupRequest'] & {
+    id: number
     questions: (
       | components['schemas']['QuestionResponse']
       | components['schemas']['PostQuestionRequest']
     )[]
   }
-  const updatedGroup = removeTemporaryId(questionGroup as QuestionGroupUpdate)
-  console.log('Updated Group:', updatedGroup)
-  for (const question of updatedGroup.questions) {
+  const questionGroup = questionGroups.value.find((g) => g.id === updatedGroup.id)
+  if (!questionGroup) return
+  const formattedUpdatedGroup = removeTemporaryId(updatedGroup as QuestionGroupUpdate)
+  await apiClient.PUT('/api/admin/question-groups/{questionGroupId}', {
+    params: { path: { questionGroupId: formattedUpdatedGroup.id } },
+    body: {
+      name: formattedUpdatedGroup.name,
+      description: formattedUpdatedGroup.description,
+      due: formattedUpdatedGroup.due,
+    },
+  })
+  for (const question of formattedUpdatedGroup.questions) {
     if ('id' in question) {
       await apiClient.PUT('/api/admin/questions/{questionId}', {
         params: { path: { questionId: question.id } },
         body: question,
       })
     } else {
-      await apiClient.POST('/api/question-groups/{questionGroupId}/questions', {
-        params: { path: { questionGroupId: questionGroup.id } },
+      await apiClient.POST('/api/admin/question-groups/{questionGroupId}/questions', {
+        params: { path: { questionGroupId: formattedUpdatedGroup.id } },
         body: question,
       })
     }
   }
+
   for (const question of questionGroup.questions) {
-    if (!updatedGroup.questions.some((q) => 'id' in q && q.id === question.id)) {
+    if (!formattedUpdatedGroup.questions.some((q) => 'id' in q && q.id === question.id)) {
       await apiClient.DELETE('/api/admin/questions/{questionId}', {
         params: { path: { questionId: question.id } },
       })

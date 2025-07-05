@@ -192,6 +192,7 @@ const questionGroups: QuestionGroup[] = [
     ],
   },
 ]
+
 let nextQuestionGroupId = 3
 let nextQuestionId = 10
 let nextOptionId = 17
@@ -200,6 +201,7 @@ export const questionsHandlers = [
   http.get('/api/camps/{campId}/question-groups', () => {
     return HttpResponse.json(questionGroups)
   }),
+
   http.post('/api/admin/camps/{campId}/question-groups', async ({ request }) => {
     const newQuestionGroup = await request.json()
 
@@ -207,23 +209,31 @@ export const questionsHandlers = [
     const questions: Question[] = []
     for (const question of newQuestionGroup.questions) {
       const questionId = nextQuestionId++
-      const options: Option[] = []
-      if ('options' in question && question.options !== undefined) {
-        for (const option of question.options) {
-          options.push({
-            ...option,
-            id: nextOptionId++,
-          })
+      if (question.type === 'free_text' || question.type === 'free_number') {
+        if ('options' in question) {
+          return new HttpResponse(
+            { message: 'Options are not allowed for this question type.' },
+            { status: 400 },
+          )
         }
         questions.push({
           ...question,
           id: questionId,
-          options,
         } as Question)
       } else {
+        if (!question.options || question.options.length === 0) {
+          return new HttpResponse(
+            { message: 'Options are required for this question type.' },
+            { status: 400 },
+          )
+        }
         questions.push({
           ...question,
           id: questionId,
+          options: question.options.map((option) => ({
+            ...option,
+            id: nextOptionId++,
+          })),
         } as Question)
       }
     }
@@ -238,6 +248,7 @@ export const questionsHandlers = [
 
     return HttpResponse.json(createdQuestionGroup, { status: 201 })
   }),
+
   http.put('/api/admin/question-groups/{questionGroupId}', async ({ params, request }) => {
     const questionGroupId = Number.parseInt(params.questionGroupId, 10)
     const updatedQuestionGroupReq = await request.json()
@@ -246,13 +257,12 @@ export const questionsHandlers = [
     if (index === -1) {
       return new HttpResponse(null, { status: 404 })
     }
-    questionGroups[index] = {
-      ...questionGroups[index],
-      ...updatedQuestionGroupReq,
-    }
-
+    questionGroups[index].name = updatedQuestionGroupReq.name
+    questionGroups[index].description = updatedQuestionGroupReq.description
+    questionGroups[index].due = updatedQuestionGroupReq.due
     return HttpResponse.json(questionGroups[index])
   }),
+
   http.delete('/api/admin/question-groups/{questionGroupId}', ({ params }) => {
     const questionGroupId = Number.parseInt(params.questionGroupId, 10)
     const index = questionGroups.findIndex((g) => g.id === questionGroupId)
@@ -262,34 +272,55 @@ export const questionsHandlers = [
     questionGroups.splice(index, 1)
     return new HttpResponse(null, { status: 204 })
   }),
-  http.post('/api/question-groups/{questionGroupId}/questions', async ({ params, request }) => {
-    const questionGroupId = Number.parseInt(params.questionGroupId, 10)
-    const questionGroup = questionGroups.find((g) => g.id === questionGroupId)
-    if (!questionGroup) {
-      return new HttpResponse(null, { status: 404 })
-    }
 
-    const newQuestion = await request.json()
-    const options: Option[] = []
-    if ('options' in newQuestion && newQuestion.options !== undefined) {
-      for (const option of newQuestion.options) {
-        options.push({
-          ...option,
-          id: nextOptionId++,
-        })
+  http.post(
+    '/api/admin/question-groups/{questionGroupId}/questions',
+    async ({ params, request }) => {
+      const questionGroupId = Number.parseInt(params.questionGroupId, 10)
+      const questionGroup = questionGroups.find((g) => g.id === questionGroupId)
+      if (!questionGroup) {
+        return new HttpResponse(null, { status: 404 })
       }
-    }
 
-    const createdQuestion = {
-      ...newQuestion,
-      id: nextQuestionId++,
-      options: options.length > 0 ? options : undefined,
-    } as Question
+      const question = await request.json()
+      if (question.type === 'free_text' || question.type === 'free_number') {
+        if ('options' in question) {
+          return new HttpResponse(
+            { message: 'Options are not allowed for this question type.' },
+            { status: 400 },
+          )
+        }
+        const createdQuestion: Question = {
+          ...question,
+          id: nextQuestionId++,
+        }
+        questionGroup.questions.push(createdQuestion)
+        return HttpResponse.json(createdQuestion, { status: 201 })
+      } else {
+        if (!question.options || question.options.length === 0) {
+          return new HttpResponse(
+            { message: 'Options are required for this question type.' },
+            { status: 400 },
+          )
+        }
+        const options: Option[] = []
+        for (const option of question.options) {
+          options.push({
+            ...option,
+            id: nextOptionId++,
+          })
+        }
+        const createdQuestion: Question = {
+          ...question,
+          id: nextQuestionId++,
+          options: options,
+        }
+        questionGroup.questions.push(createdQuestion)
+        return HttpResponse.json(createdQuestion, { status: 201 })
+      }
+    },
+  ),
 
-    questionGroup.questions.push(createdQuestion)
-
-    return HttpResponse.json(createdQuestion, { status: 201 })
-  }),
   http.put('/api/admin/questions/{questionId}', async ({ params, request }) => {
     const questionId = Number.parseInt(params.questionId, 10)
     const updatedQuestionReq = await request.json()
@@ -297,14 +328,29 @@ export const questionsHandlers = [
     for (const questionGroup of questionGroups) {
       const index = questionGroup.questions.findIndex((q) => q.id === questionId)
       if (index !== -1) {
-        questionGroup.questions[index] = {
-          ...questionGroup.questions[index],
-          ...updatedQuestionReq,
+        if (updatedQuestionReq.type !== questionGroup.questions[index].type) {
+          return new HttpResponse({ message: 'Type cannot be changed.' }, { status: 400 })
         }
+        questionGroup.questions[index].title = updatedQuestionReq.title
+        questionGroup.questions[index].description = updatedQuestionReq.description
+        questionGroup.questions[index].isPublic = updatedQuestionReq.isPublic
+        questionGroup.questions[index].isOpen = updatedQuestionReq.isOpen
         return HttpResponse.json(questionGroup.questions[index])
       }
     }
 
+    return new HttpResponse(null, { status: 404 })
+  }),
+
+  http.delete('/api/admin/questions/{questionId}', ({ params }) => {
+    const questionId = Number.parseInt(params.questionId, 10)
+    for (const group of questionGroups) {
+      const index = group.questions.findIndex((q) => q.id === questionId)
+      if (index !== -1) {
+        group.questions.splice(index, 1)
+        return new HttpResponse(null, { status: 204 })
+      }
+    }
     return new HttpResponse(null, { status: 404 })
   }),
 ]

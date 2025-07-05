@@ -5,6 +5,10 @@ import type { components } from '@/api/schema'
 
 const question = defineModel<components['schemas']['QuestionResponse']>({ required: true })
 
+defineProps<{
+  isNewQuestionGroup?: boolean
+}>()
+
 const emit = defineEmits<{
   (e: 'delete', questionId: number): void
 }>()
@@ -131,7 +135,7 @@ const handleTypeChange = () => {
           <template #prepend>
             <v-radio class="disabled-field" density="compact" hide-details />
           </template>
-          <template #append>
+          <template v-if="isNewQuestionGroup" #append>
             <v-btn
               icon="mdi-close"
               size="medium"
@@ -141,6 +145,7 @@ const handleTypeChange = () => {
           </template>
         </v-text-field>
         <v-text-field
+          v-if="isNewQuestionGroup"
           v-model="newOptionContent"
           placeholder="新しい選択肢を追加"
           variant="underlined"
@@ -167,7 +172,7 @@ const handleTypeChange = () => {
           <template #prepend>
             <v-checkbox-btn class="disabled-field" density="compact" hide-details />
           </template>
-          <template #append>
+          <template v-if="isNewQuestionGroup" #append>
             <v-btn
               icon="mdi-close"
               size="medium"
@@ -177,6 +182,7 @@ const handleTypeChange = () => {
           </template>
         </v-text-field>
         <v-text-field
+          v-if="isNewQuestionGroup"
           v-model="newOptionContent"
           placeholder="新しい選択肢を追加"
           variant="underlined"

@@ -61,6 +61,7 @@ watch(
         <question-editor
           v-for="(question, index) in editingQuestionGroup.questions"
           :key="question.id"
+          :is-new-question-group="isTemporaryId(editingQuestionGroup.id)"
           v-model="editingQuestionGroup.questions[index]"
           @delete="editingQuestionGroup.questions.splice(index, 1)"
         />

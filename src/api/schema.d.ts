@@ -260,12 +260,29 @@ export interface paths {
     get?: never
     /**
      * 質問グループを更新（管理者用）
-     * @description 質問グループを更新します。グループに属する質問や、その選択肢も同時に更新できます。（質問と選択肢はIDが指定されている場合に更新され、IDがない場合は新規作成されます）
+     * @description 質問グループを更新します。グループに属する質問は編集できません。
      */
-    put: operations['adminPutQuestionGroup']
+    put: operations['adminPutQuestionGroupMetadata']
     post?: never
     /** 質問グループを削除（管理者用） */
     delete: operations['adminDeleteQuestionGroup']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/question-groups/{questionGroupId}/questions': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** 質問を追加 */
+    post: operations['adminPostQuestion']
+    delete?: never
     options?: never
     head?: never
     patch?: never
@@ -284,24 +301,6 @@ export interface paths {
     post?: never
     /** 質問を削除（管理者用） */
     delete: operations['adminDeleteQuestion']
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/api/admin/options/{optionId}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    /** 選択肢を更新（管理者用） */
-    put: operations['adminPutOption']
-    post?: never
-    /** 選択肢を削除（管理者用） */
-    delete: operations['adminDeleteOption']
     options?: never
     head?: never
     patch?: never
@@ -822,7 +821,6 @@ export interface components {
       description?: string
       /** Format: date */
       due: string
-      questions: components['schemas']['QuestionRequest'][]
     }
     PostQuestionGroupRequest: components['schemas']['PutQuestionGroupRequest'] & {
       questions: components['schemas']['PostQuestionRequest'][]
@@ -852,12 +850,7 @@ export interface components {
       | components['schemas']['FreeNumberQuestionResponse']
       | components['schemas']['SingleChoiceQuestionResponse']
       | components['schemas']['MultipleChoiceQuestionResponse']
-    FreeTextQuestionRequest: {
-      /** @description 質問ID（編集時のみ、新規作成時は不要） */
-      id?: number
-      questionGroupId: number
-      title: string
-      description: string | null
+    FreeTextQuestionRequest: components['schemas']['QuestionRequestBase'] & {
       /** @enum {string} */
       type: 'free_text'
     }
@@ -870,12 +863,7 @@ export interface components {
       isPublic: boolean
       isOpen: boolean
     }
-    FreeNumberQuestionRequest: {
-      /** @description 質問ID（編集時のみ、新規作成時は不要） */
-      id?: number
-      questionGroupId: number
-      title: string
-      description: string | null
+    FreeNumberQuestionRequest: components['schemas']['QuestionRequestBase'] & {
       /** @enum {string} */
       type: 'free_number'
     }
@@ -888,17 +876,15 @@ export interface components {
       isPublic: boolean
       isOpen: boolean
     }
-    SingleChoiceQuestionRequest: {
-      /** @description 質問ID（編集時のみ、新規作成時は不要） */
-      id?: number
-      questionGroupId: number
-      title: string
-      description: string | null
+    PostSingleChoiceQuestionRequest: components['schemas']['QuestionRequestBase'] & {
       /** @enum {string} */
       type: 'single'
-      isPublic: boolean
-      isOpen: boolean
-      options: components['schemas']['OptionRequest'][]
+      options: components['schemas']['PostOptionRequest'][]
+    }
+    PutSingleChoiceQuestionRequest: components['schemas']['QuestionRequestBase'] & {
+      /** @enum {string} */
+      type: 'single'
+      options: components['schemas']['PutOptionRequest'][]
     }
     SingleChoiceQuestionResponse: {
       id: number
@@ -910,17 +896,15 @@ export interface components {
       isOpen: boolean
       options: components['schemas']['OptionResponse'][]
     }
-    MultipleChoiceQuestionRequest: {
-      /** @description 質問ID（編集時のみ、新規作成時は不要） */
-      id?: number
-      questionGroupId: number
-      title: string
-      description: string | null
+    PostMultipleChoiceQuestionRequest: components['schemas']['QuestionRequestBase'] & {
       /** @enum {string} */
       type: 'multiple'
-      isPublic: boolean
-      isOpen: boolean
-      options: components['schemas']['OptionRequest'][]
+      options: components['schemas']['PostOptionRequest'][]
+    }
+    PutMultipleChoiceQuestionRequest: components['schemas']['QuestionRequestBase'] & {
+      /** @enum {string} */
+      type: 'multiple'
+      options: components['schemas']['PutOptionRequest'][]
     }
     MultipleChoiceQuestionResponse: {
       id: number
@@ -932,10 +916,7 @@ export interface components {
       isOpen: boolean
       options: components['schemas']['OptionResponse'][]
     }
-    OptionRequest: {
-      /** @description 選択肢ID（編集時のみ、新規作成時は不要） */
-      id?: number
-      questionId: number
+    PostOptionRequest: {
       content: string
     }
     PutOptionRequest: components['schemas']['PostOptionRequest'] & {
@@ -1733,6 +1714,40 @@ export interface operations {
       500: components['responses']['InternalServerError']
     }
   }
+  adminPostQuestion: {
+    parameters: {
+      query?: never
+      header?: {
+        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
+        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
+      }
+      path: {
+        /** @description 質問グループのID */
+        questionGroupId: components['parameters']['QuestionGroupId']
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PostQuestionRequest']
+      }
+    }
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['QuestionResponse']
+        }
+      }
+      400: components['responses']['BadRequest']
+      403: components['responses']['Forbidden']
+      404: components['responses']['NotFound']
+      500: components['responses']['InternalServerError']
+    }
+  }
   adminPutQuestion: {
     parameters: {
       query?: never
@@ -1777,62 +1792,6 @@ export interface operations {
       path: {
         /** @description 質問ID */
         questionId: components['parameters']['QuestionId']
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      204: components['responses']['NoContent']
-      400: components['responses']['BadRequest']
-      403: components['responses']['Forbidden']
-      404: components['responses']['NotFound']
-      500: components['responses']['InternalServerError']
-    }
-  }
-  adminPutOption: {
-    parameters: {
-      query?: never
-      header?: {
-        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
-        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
-      }
-      path: {
-        /** @description 選択肢ID */
-        optionId: components['parameters']['OptionId']
-      }
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['OptionRequest']
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          'application/json': components['schemas']['OptionResponse']
-        }
-      }
-      400: components['responses']['BadRequest']
-      403: components['responses']['Forbidden']
-      404: components['responses']['NotFound']
-      500: components['responses']['InternalServerError']
-    }
-  }
-  adminDeleteOption: {
-    parameters: {
-      query?: never
-      header?: {
-        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
-        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
-      }
-      path: {
-        /** @description 選択肢ID */
-        optionId: components['parameters']['OptionId']
       }
       cookie?: never
     }
