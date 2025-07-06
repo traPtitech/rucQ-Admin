@@ -33,7 +33,6 @@ const pastCamps = computed(() => {
   return camps.value.filter((camp) => new Date(camp.dateEnd) < new Date())
 })
 const plannedCamps = computed(() => {
-  console.log(camps.value)
   return camps.value.filter((camp) => new Date(camp.dateStart) >= new Date())
 })
 
