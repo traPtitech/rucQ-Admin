@@ -2,9 +2,8 @@
 import BottomNavBar from '@/layouts/BottomNavBar.vue'
 import SideNavBar from '@/layouts/SideNavBar.vue'
 import TopNavBar from '@/layouts/TopNavBar.vue'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute, type RouteLocationNamedRaw } from 'vue-router'
-import { useCampStore } from '@/store/camp'
 import { useDisplay } from 'vuetify'
 
 export interface NavItem {
@@ -16,16 +15,7 @@ export interface NavItem {
 
 const route = useRoute()
 const campname = computed(() => route.params.campname as string)
-const campStore = useCampStore()
 const { mobile } = useDisplay()
-
-watch(
-  campname,
-  async (newCampname) => {
-    await campStore.fetchCamp(newCampname)
-  },
-  { immediate: true },
-)
 
 const navs = computed<NavItem[]>(() => [
   {
