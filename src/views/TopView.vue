@@ -95,7 +95,7 @@ const addCampTarget = ref<CampRequest>({
   name: '',
   dateStart: '',
   dateEnd: '',
-  description: '',
+  guidebook: '',
 } as CampRequest)
 const addCamp = async () => {
   if (!addCampTarget.value.displayId) {
@@ -115,7 +115,7 @@ const addCamp = async () => {
     name: '',
     dateStart: '',
     dateEnd: '',
-    description: '',
+    guidebook: '',
   } as CampRequest
 }
 
@@ -148,7 +148,7 @@ const campRules = {
               <v-card v-for="camp in plannedCamps" :key="camp.id" class="ma-4">
                 <v-card-title>{{ camp.name }}</v-card-title>
                 <v-card-subtitle>{{ camp.dateStart }} 〜 {{ camp.dateEnd }}</v-card-subtitle>
-                <v-card-text>{{ camp.description }}</v-card-text>
+                <v-card-text>{{ camp.guidebook }}</v-card-text>
                 <v-card-actions>
                   <v-btn color="primary" :to="`/${camp.displayId}`">詳細</v-btn>
                 </v-card-actions>
@@ -159,7 +159,7 @@ const campRules = {
               <v-card v-for="camp in pastCamps" :key="camp.id" class="ma-4">
                 <v-card-title>{{ camp.name }}</v-card-title>
                 <v-card-subtitle>{{ camp.dateStart }} 〜 {{ camp.dateEnd }}</v-card-subtitle>
-                <v-card-text>{{ camp.description }}</v-card-text>
+                <v-card-text>{{ camp.guidebook }}</v-card-text>
                 <v-card-actions>
                   <v-btn color="primary" :to="`/${camp.displayId}`">詳細</v-btn>
                 </v-card-actions>
