@@ -16,6 +16,7 @@
     "generate:api": "npx openapi-typescript https://raw.githubusercontent.com/traPtitech/rucQ/main/openapi.yaml -o src/api/schema.d.ts && npm run format"
   },
   "dependencies": {
+    "@date-fns/tz": "^1.2.0",
     "date-fns": "^4.1.0",
     "openapi-fetch": "^0.14.0",
     "pinia": "^3.0.3",

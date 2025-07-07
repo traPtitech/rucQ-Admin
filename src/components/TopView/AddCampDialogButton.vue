@@ -10,7 +10,7 @@ const emit = defineEmits<{
 
 const defaultCamp: CampRequest = {
   name: '',
-  description: '',
+  guidebook: '',
   dateStart: '',
   dateEnd: '',
   displayId: '',
