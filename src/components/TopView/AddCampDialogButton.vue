@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
+import { parseISO, isValid } from 'date-fns'
 type CampRequest = components['schemas']['CampRequest']
 
 const emit = defineEmits<{
@@ -34,8 +35,7 @@ const addCamp = async () => {
 
 const campRules = {
   required: (value: string) => !!value || '必須項目です',
-  date: (value: string) =>
-    /^\d{4}-\d{2}-\d{2}$/.test(value) || '日付はYYYY-MM-DD形式で入力してください',
+  date: (value: string) => isValid(parseISO(value)) || '日付はYYYY-MM-DD形式で入力してください',
 }
 const form = ref()
 const validate = async () => {
