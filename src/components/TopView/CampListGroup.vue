@@ -45,7 +45,7 @@ watch(addCampDialog, async (val) => {
         "
       />
     </div>
-    <CampList :title="'予定された合宿'" :camps="plannedCamps" />
-    <CampList :title="'以前の合宿'" :camps="pastCamps" />
+    <CampList title="'予定された合宿'" :camps="plannedCamps" />
+    <CampList title="'以前の合宿'" :camps="pastCamps" />
   </div>
 </template>

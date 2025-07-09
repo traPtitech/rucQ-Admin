@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 import { parseISO, isValid } from 'date-fns'
+import { VForm } from 'vuetify/components'
 type CampRequest = components['schemas']['CampRequest']
 
 const emit = defineEmits<{
@@ -37,11 +38,9 @@ const campRules = {
   required: (value: string) => !!value || '必須項目です',
   date: (value: string) => isValid(parseISO(value)) || '日付はYYYY-MM-DD形式で入力してください',
 }
-const form = ref()
+const form = ref<VForm | null>()
 const validate = async () => {
-  const { valid } = await form.value?.validate()
-  if (valid) return true
-  return false
+  return (await form.value?.validate())?.valid ?? false
 }
 </script>
 
