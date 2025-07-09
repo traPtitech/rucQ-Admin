@@ -24,7 +24,7 @@ onMounted(async () => {
       <h2>スタッフ一覧</h2>
       <AddStaffDialogButton :staffs="staffs" />
     </div>
-    <v-list>
+    <v-list elevation="1" rounded>
       <v-list-item v-for="staff in staffs" :key="staff.id">
         <v-list-title>@{{ staff.id }}</v-list-title>
         <template v-slot:prepend>
