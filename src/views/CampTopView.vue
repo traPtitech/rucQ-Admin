@@ -34,6 +34,6 @@ const handleUpdate = async (updatedCamp: components['schemas']['CampRequest']) =
 <template>
   <v-container class="d-flex flex-column ga-4">
     <CampSummaryCard :camp="camp" @update="handleUpdate" />
-    <GuidebookCard :guidebook="camp?.guidebook" />
+    <GuidebookCard :camp="camp" />
   </v-container>
 </template>
