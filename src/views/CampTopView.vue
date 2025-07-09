@@ -9,6 +9,7 @@ import type { components } from '@/api/schema'
 const route = useRoute()
 const campname = route.params.campname as string
 const camp = ref<components['schemas']['CampResponse']>()
+const participants = ref<components['schemas']['UserResponse'][]>()
 
 const fetchCamp = async () => {
   if (!campname) return
@@ -16,8 +17,17 @@ const fetchCamp = async () => {
   return data?.find((c) => c.displayId === campname)
 }
 
+const fetchCampParticipants = async () => {
+  if (!camp.value) return
+  const { data } = await apiClient.GET('/api/camps/{campId}/participants', {
+    params: { path: { campId: camp.value.id } },
+  })
+  return data
+}
+
 onMounted(async () => {
   camp.value = await fetchCamp()
+  participants.value = await fetchCampParticipants()
 })
 
 const handleUpdate = async (updatedCamp: components['schemas']['CampRequest']) => {
@@ -33,7 +43,7 @@ const handleUpdate = async (updatedCamp: components['schemas']['CampRequest']) =
 
 <template>
   <v-container class="d-flex flex-column ga-4">
-    <CampSummaryCard :camp="camp" @update="handleUpdate" />
+    <CampSummaryCard :camp="camp" :participants="participants" @update="handleUpdate" />
     <GuidebookCard :camp="camp" />
   </v-container>
 </template>

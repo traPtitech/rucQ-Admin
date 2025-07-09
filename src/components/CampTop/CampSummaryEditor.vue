@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import type { VForm } from 'vuetify/components'
 import { isAfter, isEqual, isValid, parseISO } from 'date-fns'
 import type { components } from '@/api/schema'
@@ -28,24 +28,6 @@ const endAfterStart = (startDate: string | undefined) => (v: string | undefined)
 
 const form = ref<VForm | null>(null)
 const editedCamp = ref<CampRequest>({ ...props.camp })
-
-watch(
-  () => editedCamp.value.isDraft,
-  (isDraft) => {
-    if (isDraft) {
-      editedCamp.value.isRegistrationOpen = false
-      editedCamp.value.isPaymentOpen = false
-    }
-  },
-)
-watch(
-  () => editedCamp.value.isRegistrationOpen,
-  (isRegistrationOpen) => {
-    if (isRegistrationOpen) {
-      editedCamp.value.isPaymentOpen = false
-    }
-  },
-)
 </script>
 
 <template>
@@ -55,7 +37,7 @@ watch(
         <v-text-field
           v-model="editedCamp.displayId"
           label="合宿ID"
-          placeholder="XXsummer"
+          placeholder="campXXsummer"
           hint="合宿IDを変更すると、合宿のURLも変更されます"
           :rules="[required]"
           required
@@ -93,7 +75,6 @@ watch(
           label="参加登録を受け付ける"
           color="primary"
           density="compact"
-          :disabled="editedCamp.isDraft"
           hide-details
         />
         <v-checkbox
@@ -101,7 +82,6 @@ watch(
           label="合宿費の振込期間中として設定する"
           color="primary"
           density="compact"
-          :disabled="editedCamp.isDraft || editedCamp.isRegistrationOpen"
           hide-details
         />
       </div>
