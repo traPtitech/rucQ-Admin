@@ -1,20 +1,44 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { parseISO, format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import CampSummaryEditor from '@/components/CampTop/CampSummaryEditor.vue'
 import type { components } from '@/api/schema'
 
 defineProps<{
   camp?: components['schemas']['CampResponse']
 }>()
 
+const emit = defineEmits<{
+  (e: 'update', camp: components['schemas']['CampRequest']): void
+}>()
+
+const dialog = ref(false)
+
 const formatDate = (date: string) => {
   return format(parseISO(date), 'M/d(EEEEE)', { locale: ja })
+}
+
+const handleUpdate = (updatedCamp: components['schemas']['CampRequest']) => {
+  dialog.value = false
+  emit('update', updatedCamp)
 }
 </script>
 
 <template>
   <div>
-    <h2 class="font-weight-regular">概要</h2>
+    <div class="d-flex align-center">
+      <h2 class="font-weight-regular">概要</h2>
+      <v-spacer />
+      <v-btn
+        v-if="camp"
+        class="mr-2"
+        icon="mdi-pencil"
+        size="medium"
+        variant="plain"
+        @click="dialog = true"
+      />
+    </div>
     <v-sheet v-if="camp" elevation="2" class="pa-4">
       <div class="mb-2">
         <h1>{{ camp.name }}</h1>
@@ -26,5 +50,8 @@ const formatDate = (date: string) => {
         <p v-if="camp.isPaymentOpen">この合宿は現在参加費の振込期間中です</p>
       </div>
     </v-sheet>
+    <v-dialog v-if="camp" v-model="dialog" max-width="600">
+      <CampSummaryEditor :camp="camp" @update="handleUpdate" />
+    </v-dialog>
   </div>
 </template>

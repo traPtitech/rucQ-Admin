@@ -16,14 +16,24 @@ const fetchCamp = async () => {
   return data?.find((c) => c.displayId === campname)
 }
 
-onMounted( async () => {
+onMounted(async () => {
   camp.value = await fetchCamp()
 })
+
+const handleUpdate = async (updatedCamp: components['schemas']['CampRequest']) => {
+  if (!camp.value) return
+  const { error } = await apiClient.PUT('/api/admin/camps/{campId}', {
+    params: { path: { campId: camp.value.id } },
+    body: updatedCamp,
+  })
+  if (error) return
+  camp.value = { ...camp.value, ...updatedCamp }
+}
 </script>
 
 <template>
   <v-container class="d-flex flex-column ga-4">
-    <CampSummaryCard :camp="camp" />
+    <CampSummaryCard :camp="camp" @update="handleUpdate" />
     <GuidebookCard :guidebook="camp?.guidebook" />
   </v-container>
 </template>

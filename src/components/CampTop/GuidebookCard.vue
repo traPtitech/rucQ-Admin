@@ -7,20 +7,24 @@ defineProps<{
 }>()
 
 const sanitizedHtml = (markdown: string) => {
-  const html = marked.parse(markdown, { gfm: true }) as string
+  const html = marked.parse(markdown, { gfm: true, breaks: true }) as string
   return sanitizeHtml(html, {
     allowedAttributes: {
       ...sanitizeHtml.defaults.allowedAttributes,
       th: ['align'],
       td: ['align'],
-    }
+    },
   })
 }
 </script>
 
 <template>
   <div>
-    <h2 class="font-weight-regular">合宿のしおり</h2>
+    <div class="d-flex align-center">
+      <h2 class="font-weight-regular">合宿のしおり</h2>
+      <v-spacer />
+      <v-btn class="mr-2" icon="mdi-pencil" size="medium" variant="plain" />
+    </div>
     <v-sheet v-if="!!guidebook" elevation="2" class="pa-4">
       <div v-html="sanitizedHtml(guidebook)" class="markdown-body pa-4"></div>
     </v-sheet>
