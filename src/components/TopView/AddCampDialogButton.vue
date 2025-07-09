@@ -74,14 +74,14 @@ const validate = async () => {
               label="開始日"
               type="date"
               placeholder="YYYY-MM-DD"
-              :rules="[campRules.required, campRules.date]"
+              :rules="[campRules.date, campRules.required]"
             />
             <v-text-field
               v-model="addCampTarget.dateEnd"
               label="終了日"
               type="date"
               placeholder="YYYY-MM-DD"
-              :rules="[campRules.required, campRules.date]"
+              :rules="[campRules.date, campRules.required]"
             />
           </v-card-text>
           <v-card-actions>

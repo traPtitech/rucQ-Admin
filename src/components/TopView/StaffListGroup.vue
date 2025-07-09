@@ -19,17 +19,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <v-card>
-    <v-row>
-      <v-col class="text-center">
-        <h2>スタッフ一覧</h2>
-      </v-col>
-      <v-col class="flex-grow-0">
-        <AddStaffDialogButton :staffs="staffs" />
-      </v-col>
-    </v-row>
+  <div>
+    <div class="d-flex align-center justify-space-between my-4">
+      <h2>スタッフ一覧</h2>
+      <AddStaffDialogButton :staffs="staffs" />
+    </div>
     <v-list>
-      <v-divider />
       <v-list-item v-for="staff in staffs" :key="staff.id">
         <v-list-title>@{{ staff.id }}</v-list-title>
         <template v-slot:prepend>
@@ -42,5 +37,5 @@ onMounted(async () => {
         </template>
       </v-list-item>
     </v-list>
-  </v-card>
+  </div>
 </template>

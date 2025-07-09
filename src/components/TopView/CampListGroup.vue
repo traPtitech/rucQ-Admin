@@ -34,22 +34,18 @@ watch(addCampDialog, async (val) => {
 })
 </script>
 <template>
-  <v-card>
-    <v-row>
-      <v-col class="text-center">
-        <h2>合宿一覧</h2>
-      </v-col>
-      <v-col class="flex-grow-0">
-        <AddCampDialogButton
-          @submit="
-            async () => {
-              camps = await fetchCamps()
-            }
-          "
-        />
-      </v-col>
-    </v-row>
+  <div>
+    <div class="d-flex align-center justify-space-between my-4">
+      <h2>合宿一覧</h2>
+      <AddCampDialogButton
+        @submit="
+          async () => {
+            camps = await fetchCamps()
+          }
+        "
+      />
+    </div>
     <CampList :title="'予定された合宿'" :camps="plannedCamps" />
     <CampList :title="'以前の合宿'" :camps="pastCamps" />
-  </v-card>
+  </div>
 </template>

@@ -42,11 +42,7 @@ const addStaff = async () => {
       <v-card>
         <v-card-title>スタッフ追加</v-card-title>
         <v-card-text>
-          <v-text-field
-            v-model="addStaffTarget"
-            label="ユーザーID"
-            placeholder="追加するユーザーのID"
-          />
+          <v-text-field v-model="addStaffTarget" label="ユーザーID" prefix="@" placeholder="traP" />
         </v-card-text>
         <v-card-actions>
           <v-spacer />

@@ -35,7 +35,7 @@ const deleteStaff = async () => {
 <template>
   <v-dialog max-width="500px">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" icon>
+      <v-btn v-bind="props" variant="plain" icon>
         <v-icon>mdi-delete</v-icon>
       </v-btn>
     </template>
@@ -46,7 +46,7 @@ const deleteStaff = async () => {
         <v-card-actions>
           <v-spacer />
           <v-btn @click="isActive.value = false">キャンセル</v-btn>
-          <v-btn @click="((isActive.value = false), deleteStaff())" color="red">削除</v-btn>
+          <v-btn @click="((isActive.value = false), deleteStaff())" color="error">削除</v-btn>
         </v-card-actions>
       </v-card>
     </template>

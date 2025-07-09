@@ -6,7 +6,7 @@ import StaffListGroup from '@/components/TopView/StaffListGroup.vue'
 <template>
   <v-container>
     <h1>合宿Adminトップ</h1>
-    <v-container>
+    <div>
       <v-row>
         <v-col cols="12" md="6">
           <CampListGroup />
@@ -15,6 +15,6 @@ import StaffListGroup from '@/components/TopView/StaffListGroup.vue'
           <StaffListGroup />
         </v-col>
       </v-row>
-    </v-container>
+    </div>
   </v-container>
 </template>
