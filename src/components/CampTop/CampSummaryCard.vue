@@ -39,7 +39,7 @@ const handleUpdate = (updatedCamp: components['schemas']['CampRequest']) => {
         @click="dialog = true"
       />
     </div>
-    <v-sheet v-if="camp" elevation="2" class="pa-4">
+    <v-sheet v-if="camp" class="pa-4" elevation="2">
       <div class="mb-2">
         <h1>{{ camp.name }}</h1>
         <p>{{ formatDate(camp.dateStart) }} - {{ formatDate(camp.dateEnd) }}</p>
@@ -50,8 +50,11 @@ const handleUpdate = (updatedCamp: components['schemas']['CampRequest']) => {
         <p v-if="camp.isPaymentOpen">この合宿は現在参加費の振込期間中です</p>
       </div>
     </v-sheet>
-    <v-dialog v-if="camp" v-model="dialog" max-width="600">
-      <CampSummaryEditor :camp="camp" @update="handleUpdate" />
-    </v-dialog>
+    <v-sheet v-else class="pa-4" elevation="2">
+      <p class="text-medium-emphasis">合宿の取得に失敗しました</p>
+    </v-sheet>
   </div>
+  <v-dialog v-if="camp" v-model="dialog" max-width="600">
+    <CampSummaryEditor :camp="camp" @update="handleUpdate" />
+  </v-dialog>
 </template>
