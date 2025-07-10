@@ -9,44 +9,44 @@ interface Notification {
   type: 'info' | 'warning' | 'error'
 }
 
-const props = defineProps<{
+const { camp } = defineProps<{
   camp: components['schemas']['CampResponse']
 }>()
 
 // 通知する条件と内容を定義
 const notifications = computed<Notification[]>(() => [
   {
-    condition: props.camp.isDraft,
+    condition: camp.isDraft,
     message: 'この合宿は現在下書きに設定されています',
     type: 'info',
   },
   {
-    condition: props.camp.isRegistrationOpen,
+    condition: camp.isRegistrationOpen,
     message: 'この合宿は現在参加登録を受け付けています',
     type: 'info',
   },
   {
-    condition: props.camp.isPaymentOpen,
+    condition: camp.isPaymentOpen,
     message: 'この合宿は現在参加費の振込期間中です',
     type: 'info',
   },
   {
-    condition: props.camp.isDraft && props.camp.isRegistrationOpen,
+    condition: camp.isDraft && camp.isRegistrationOpen,
     message: '下書き設定と参加登録の設定が同時に有効になっています',
     type: 'warning',
   },
   {
-    condition: props.camp.isDraft && props.camp.isPaymentOpen,
+    condition: camp.isDraft && camp.isPaymentOpen,
     message: '下書き設定と合宿費の振込期間中の設定が同時に有効になっています',
     type: 'warning',
   },
   {
-    condition: props.camp.isPaymentOpen && props.camp.isRegistrationOpen,
+    condition: camp.isPaymentOpen && camp.isRegistrationOpen,
     message: '参加登録の設定と合宿費の振込期間中の設定が同時に有効になっています',
     type: 'warning',
   },
   {
-    condition: props.camp.isRegistrationOpen && isAfter(new Date(), parseISO(props.camp.dateStart)),
+    condition: camp.isRegistrationOpen && isAfter(new Date(), parseISO(camp.dateStart)),
     message: 'この合宿は開始日を過ぎていますが、参加登録が有効になっています',
     type: 'error',
   },
