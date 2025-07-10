@@ -1,39 +1,27 @@
-# .
+# rucQ-Admin
 
-This template should help get you started developing with Vue 3 in Vite.
+- server: [traPtitech/rucQ](https://github.com/traPtitech/rucQ)
+- Client: [traPtitech/rucQ-UI](https://github.com/traPtitech/rucQ-UI)
+- Client(Admin): here
 
-## Recommended IDE Setup
+## 環境構築
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### 共通設定
 
-## Type Support for `.vue` Imports in TS
+1. Node.jsをインストールする
+2. `npm install` を実行する
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### MSWのMock APIを使う方法
 
-## Customize configuration
+1. `npm run dev` を実行する
+2. <http://localhost:5173> にアクセスする
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## スクリプト
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- `npm run dev`: 開発サーバーを起動する
+- `npm run build`: プロダクション用にビルドする
+- `npm run preview`: プロダクションビルドをプレビューする
+- `npm run type-check`: TypeScriptの型チェックを実行する
+- `npm run lint`: コードの静的解析を実行する
+- `npm run format`: コードのフォーマットを実行する
+- `npm run generate:api`: APIスキーマから型定義ファイルを生成する
