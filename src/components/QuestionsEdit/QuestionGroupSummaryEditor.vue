@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
-import { format, formatISO, parseISO } from 'date-fns'
+import { isValid, parseISO } from 'date-fns'
 import type { components } from '@/api/schema'
 
 const questionGroup = defineModel<components['schemas']['QuestionGroupResponse']>({
@@ -11,19 +10,10 @@ const questionGroup = defineModel<components['schemas']['QuestionGroupResponse']
 const display = useDisplay()
 const isSmAndUp = display.smAndUp
 
-const required = [(v: unknown) => !!v]
-
-const questionsDueDate = computed({
-  get() {
-    if (!questionGroup.value.due) return
-    return format(parseISO(questionGroup.value.due), 'yyyy-MM-dd')
-  },
-  set(value: string) {
-    if (!value) return
-    const parsedDate = parseISO(value)
-    questionGroup.value.due = formatISO(parsedDate)
-  },
-})
+const required = (v: unknown) => !!v
+const date = (v: string | undefined) => {
+  return !!v && isValid(parseISO(v))
+}
 </script>
 
 <template>
@@ -36,12 +26,12 @@ const questionsDueDate = computed({
         variant="underlined"
         density="compact"
         hide-details
-        :rules="required"
+        :rules="[required]"
         required
       />
       <v-text-field
         v-if="isSmAndUp"
-        v-model="questionsDueDate"
+        v-model="questionGroup.due"
         class="flex-grow-0 mx-2"
         label="回答期限*"
         variant="outlined"
@@ -49,7 +39,7 @@ const questionsDueDate = computed({
         min-width="150"
         hide-details
         type="date"
-        :rules="required"
+        :rules="[required, date]"
         required
       />
     </div>
@@ -64,14 +54,14 @@ const questionsDueDate = computed({
     />
     <v-text-field
       v-if="!isSmAndUp"
-      v-model="questionsDueDate"
+      v-model="questionGroup.due"
       class="mt-5"
-      label="回答期限"
+      label="回答期限*"
       variant="outlined"
       density="compact"
       hide-details
       type="date"
-      :rules="required"
+      :rules="[required, date]"
     />
   </div>
 </template>

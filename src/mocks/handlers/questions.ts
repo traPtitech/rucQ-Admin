@@ -11,7 +11,7 @@ const questionGroups: QuestionGroup[] = [
     id: 0,
     name: 'バス',
     description: 'バス代は行き帰りそれぞれ4000円ほどです',
-    due: '2024-12-27T00:00:00+09:00',
+    due: '2024-12-27',
     questions: [
       {
         id: 0,
@@ -55,7 +55,7 @@ const questionGroups: QuestionGroup[] = [
     id: 1,
     name: 'スキー用品レンタル',
     description: '',
-    due: '2024-12-27T00:00:00+09:00',
+    due: '2024-12-27',
     questions: [
       {
         id: 2,
@@ -171,7 +171,7 @@ const questionGroups: QuestionGroup[] = [
     id: 2,
     name: 'その他',
     description: '',
-    due: '2024-12-27T00:00:00+09:00',
+    due: '2024-12-27',
     questions: [
       {
         id: 8,
