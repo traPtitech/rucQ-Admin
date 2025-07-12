@@ -35,7 +35,7 @@ const deleteStaff = async () => {
 <template>
   <v-dialog max-width="500px">
     <template v-slot:activator="{ props }">
-      <v-btn v-bind="props" variant="plain" icon>
+      <v-btn v-bind="props" class="mr-2" icon size="medium" variant="plain">
         <v-icon>mdi-delete</v-icon>
       </v-btn>
     </template>
