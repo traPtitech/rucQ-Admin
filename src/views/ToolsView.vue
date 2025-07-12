@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ToolCard from '@/components/Tools/ToolCard.vue'
+import ContentCard from '@/components/shared/ContentCard.vue'
 import { useRoute, type RouteLocationAsRelativeGeneric } from 'vue-router'
 
 interface Tool {
@@ -44,7 +44,12 @@ const tools: Tool[] = [
   <v-container>
     <v-row class="pa-3">
       <v-col v-for="tool in tools" :key="tool.title" cols="6" md="4">
-        <ToolCard :title="tool.title" :icon="tool.icon" :to="tool.to" />
+        <ContentCard :to="tool.to">
+          <div class="d-flex flex-column align-center ga-1 pa-3">
+            <v-icon size="40" :icon="tool.icon" />
+            <span class="text-h5">{{ tool.title }}</span>
+          </div>
+        </ContentCard>
       </v-col>
     </v-row>
   </v-container>
