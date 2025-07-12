@@ -42,7 +42,7 @@ const handleUpdate = async (updatedCamp: components['schemas']['CampRequest']) =
 </script>
 
 <template>
-  <v-container class="d-flex flex-column ga-4">
+  <v-container>
     <CampSummaryCard :camp="camp" :participants="participants" @update="handleUpdate" />
     <GuidebookCard :camp="camp" />
   </v-container>

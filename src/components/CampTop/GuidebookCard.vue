@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import SectionTitle from '@/components/shared/SectionTitle.vue'
+import SectionCard from '@/components/shared/SectionCard.vue'
 import type { components } from '@/api/schema'
 import { convertMarkdownToSafeHtml } from '@/utils/markdownConverter'
 
@@ -8,31 +10,35 @@ defineProps<{
 }>()
 
 const route = useRoute()
+const router = useRouter()
 const campname = route.params.campname as string
 </script>
 
 <template>
-  <div>
-    <div class="d-flex align-center">
-      <h2 class="font-weight-regular">合宿のしおり</h2>
-      <v-spacer />
-      <v-btn
-        v-if="camp"
-        class="mr-2"
-        icon="mdi-pencil"
-        size="medium"
-        variant="plain"
-        :to="{ name: 'GuidebookEdit', params: { campname: campname } }"
-      />
-    </div>
-    <v-sheet v-if="!!camp?.guidebook" class="pa-4" elevation="2">
-      <div v-html="convertMarkdownToSafeHtml(camp.guidebook)" class="markdown-body pa-4"></div>
-    </v-sheet>
-    <v-sheet v-else-if="camp" class="pa-4" elevation="2">
+  <div v-if="!!camp?.guidebook">
+    <section-title
+      title="合宿のしおり"
+      action-icon="mdi-pencil"
+      @action="router.push({ name: 'GuidebookEdit', params: { campname: campname } })"
+    />
+    <section-card>
+      <div v-html="convertMarkdownToSafeHtml(camp.guidebook)" class="markdown-body"></div>
+    </section-card>
+  </div>
+  <div v-else-if="camp">
+    <section-title
+      title="合宿のしおり"
+      action-icon="mdi-pencil"
+      @action="router.push({ name: 'GuidebookEdit', params: { campname: campname } })"
+    />
+    <section-card>
       <p class="text-medium-emphasis">合宿のしおりはまだ作成されていません</p>
-    </v-sheet>
-    <v-sheet v-else class="pa-4" elevation="2">
+    </section-card>
+  </div>
+  <div v-else>
+    <section-title title="合宿のしおり" />
+    <section-card>
       <p class="text-medium-emphasis">合宿の取得に失敗しました</p>
-    </v-sheet>
+    </section-card>
   </div>
 </template>

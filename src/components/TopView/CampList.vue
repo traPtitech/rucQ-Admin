@@ -1,21 +1,32 @@
 <script setup lang="ts">
+import { format, parseISO } from 'date-fns'
+import SectionCard from '@/components/shared/SectionCard.vue'
+import ContentCard from '@/components/shared/ContentCard.vue'
 import type { components } from '@/api/schema'
 type Camp = components['schemas']['CampResponse']
+
 const { title, camps } = defineProps<{
   title: string
   camps: Camp[]
 }>()
+
+const formatDate = (date: string) => {
+  return format(parseISO(date), 'yyyy/MM/dd')
+}
 </script>
+
 <template>
-  <v-card class="mb-4">
-    <h3 class="pl-4">{{ title }}</h3>
-    <v-card v-for="camp in camps" :key="camp.id" class="ma-4">
-      <v-card-title>{{ camp.name }}</v-card-title>
-      <v-card-subtitle>{{ camp.dateStart }} 〜 {{ camp.dateEnd }}</v-card-subtitle>
-      <v-card-text>{{ camp.guidebook }}</v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" :to="`/${camp.displayId}`">詳細</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-card>
+  <section-card>
+    <h3>{{ title }}</h3>
+    <content-card
+      v-for="camp in camps"
+      :key="camp.id"
+      :to="{ name: 'CampTop', params: { campname: camp.displayId } }"
+    >
+      <h4 class="text-h6">{{ camp.name }}</h4>
+      <p class="text-medium-emphasis">
+        {{ formatDate(camp.dateStart) }} - {{ formatDate(camp.dateEnd) }}
+      </p>
+    </content-card>
+  </section-card>
 </template>

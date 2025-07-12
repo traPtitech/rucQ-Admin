@@ -2,7 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
-import GuidebookPreviewCard from '@/components/GuidebookEdit/GuidebookPreviewCard.vue'
+import GuidebookEditorDesktop from '@/components/GuidebookEdit/GuidebookEditorDesktop.vue'
+import GuidebookEditorMobile from '@/components/GuidebookEdit/GuidebookEditorMobile.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 
@@ -13,8 +14,6 @@ const campname = route.params.campname as string
 const isLgAndUp = display.lgAndUp
 
 const camp = ref<components['schemas']['CampResponse']>()
-const guidebook = ref<string>('')
-const mode = ref<'edit' | 'preview'>('edit')
 
 const fetchCamp = async () => {
   if (!campname) return
@@ -24,7 +23,6 @@ const fetchCamp = async () => {
 
 onMounted(async () => {
   camp.value = await fetchCamp()
-  guidebook.value = camp.value?.guidebook ?? ''
 })
 
 const handleUpdate = async (updatedGuidebook: string) => {
@@ -47,57 +45,18 @@ const goToCampTop = () => {
 </script>
 
 <template>
-  <v-container>
-    <v-row v-if="isLgAndUp">
-      <v-col cols="6">
-        <h2 class="font-weight-regular">編集</h2>
-        <v-sheet class="pa-4" elevation="2">
-          <v-textarea v-model="guidebook" placeholder="# 20XX年度 夏合宿" rows="10" auto-grow />
-        </v-sheet>
-      </v-col>
-      <v-col cols="6">
-        <h2 class="font-weight-regular">プレビュー</h2>
-        <guidebook-preview-card :guidebook="guidebook" />
-      </v-col>
-    </v-row>
-    <div v-else>
-      <div v-if="mode === 'edit'">
-        <div class="d-flex align-center mb-1">
-          <h2 class="font-weight-regular">編集</h2>
-          <v-spacer />
-          <v-btn
-            prepend-icon="mdi-eye"
-            text="preview"
-            color="secondary"
-            variant="outlined"
-            density="comfortable"
-            @click="mode = 'preview'"
-          />
-        </div>
-        <v-sheet class="pa-4" elevation="2">
-          <v-textarea v-model="guidebook" placeholder="# 20XX年度 夏合宿" rows="10" auto-grow />
-        </v-sheet>
-      </div>
-      <div v-else>
-        <div class="d-flex align-center mb-1">
-          <h2 class="font-weight-regular">プレビュー</h2>
-          <v-spacer />
-          <v-btn
-            prepend-icon="mdi-pencil"
-            text="edit"
-            color="secondary"
-            variant="outlined"
-            density="comfortable"
-            @click="mode = 'edit'"
-          />
-        </div>
-        <guidebook-preview-card :guidebook="guidebook" />
-      </div>
-    </div>
-    <div class="d-flex ga-2 mt-2">
-      <v-spacer />
-      <v-btn variant="outlined" @click="goToCampTop"> キャンセル </v-btn>
-      <v-btn color="primary" @click="handleUpdate(guidebook)"> 保存 </v-btn>
-    </div>
+  <v-container v-if="camp">
+    <guidebook-editor-desktop
+      v-if="isLgAndUp"
+      :guidebook="camp.guidebook"
+      @cancel="goToCampTop"
+      @update="handleUpdate"
+    />
+    <guidebook-editor-mobile
+      v-else
+      :guidebook="camp.guidebook"
+      @cancel="goToCampTop"
+      @update="handleUpdate"
+    />
   </v-container>
 </template>
