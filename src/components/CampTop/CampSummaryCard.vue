@@ -57,7 +57,7 @@ const handleUpdate = (updatedCamp: components['schemas']['CampRequest']) => {
                   query: { id: participant.id },
                 }"
               >
-                <UserAvatar :userId="participant.id" size="small" />
+                <user-avatar :user-id="participant.id" size="small" />
               </router-link>
             </span>
           </div>

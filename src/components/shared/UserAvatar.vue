@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { size = 'small' } = defineProps<{
-  trapId?: string
+  userId?: string
   size?: number | 'x-small' | 'small' | 'default' | 'large' | 'x-large'
 }>()
 
@@ -11,7 +11,7 @@ const avatarUrl = (id: string | undefined) => {
 
 <template>
   <v-avatar :size="size">
-    <v-img :src="avatarUrl(trapId)" :alt="trapId ?? 'undefined'">
+    <v-img :src="avatarUrl(userId)" :alt="userId ?? 'undefined'">
       <template #error>
         <v-img :src="avatarUrl('traP')" alt="unknown" />
       </template>

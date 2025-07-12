@@ -34,7 +34,7 @@ onMounted(async () => {
           <v-list-item class="py-2">
             <v-list-title>@{{ staff.id }}</v-list-title>
             <template v-slot:prepend>
-              <UserAvatar :trapId="staff.id" />
+              <user-avatar :user-id="staff.id" />
             </template>
             <template v-slot:append>
               <DeleteStaffDialogButton :deleteStaffTarget="staff.id" :staffs="staffs" />
