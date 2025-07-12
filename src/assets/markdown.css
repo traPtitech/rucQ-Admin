@@ -1,5 +1,9 @@
 /* 合宿のしおり用CSS
 rucQ-UIのものに準拠 */
+.markdown-body {
+  overflow-wrap: break-word;
+}
+
 .markdown-body p {
   font-size: 1em;
   line-height: 1.4;
