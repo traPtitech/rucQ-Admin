@@ -79,6 +79,12 @@ const router = createRouter({
           component: () => import('@/views/PaymentsRegisterView.vue'),
           meta: { title: '支払い登録' },
         },
+        {
+          path: 'events',
+          name: 'Events',
+          component: () => import('@/views/EventsView.vue'),
+          meta: { title: 'イベント' },
+        },
       ],
     },
   ],
