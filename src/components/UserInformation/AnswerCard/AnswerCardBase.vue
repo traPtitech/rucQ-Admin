@@ -52,9 +52,11 @@ const handleSave = () => {
   <v-dialog v-model="isModalOpen" max-width="600">
     <v-card title="回答の保存">
       <v-card-text>
-        回答を編集すると、@{{ userId }} にDMで通知されます。<br />
-        トラブル防止のため、必ず本人の了解を得てから編集してください。 <br />
-        編集を保存しますか？
+        <p>編集を保存しますか？</p>
+        <p>
+          回答を編集すると、@{{ userId }}にDMで通知されます。<br />
+          トラブル防止のため、必ず本人の了解を得てから編集してください。
+        </p>
       </v-card-text>
       <v-card-actions>
         <v-btn text @click="isModalOpen = false">キャンセル</v-btn>

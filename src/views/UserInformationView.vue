@@ -36,6 +36,14 @@ onMounted(async () => {
   participants.value = await fetchParticipants()
 })
 
+const deleteRegistration = async (campId: number, userId: string) => {
+  // TODO: 本番用のAPIエンドポイントに変更する
+  await apiClient.DELETE('/api/camps/{campId}/register', {
+    params: { path: { campId: campId, userId: userId } },
+  })
+  selectedId.value = undefined
+}
+
 // IDが変更されたときにフォーカスを外す
 watch(selectedId, (newId, oldId) => {
   if (autoCompleteRef.value === null) return
@@ -69,7 +77,13 @@ watch(selectedId, (newId, oldId) => {
         </template>
       </v-autocomplete>
     </div>
-    <user-details v-if="selectedId" class="mt-4" :camp-id="camp.id" :user-id="selectedId" />
+    <user-details
+      v-if="selectedId"
+      class="mt-4"
+      :camp-id="camp.id"
+      :user-id="selectedId"
+      @delete-registration="deleteRegistration"
+    />
     <div v-else class="mt-10 text-center text-h5 text-medium-emphasis">ユーザー未選択</div>
   </v-container>
 </template>
