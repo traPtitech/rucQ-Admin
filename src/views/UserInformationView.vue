@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useDisplay } from 'vuetify'
 import UserAvatar from '@/components/shared/UserAvatar.vue'
 import UserDetails from '@/components/UserInformation/UserDetails.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
+import type { VAutocomplete } from 'vuetify/components'
 
 const route = useRoute()
 const campname = route.params.campname as string
 const idQuery = route.query.id as string | undefined
+const display = useDisplay()
+const isSmAndUp = display.smAndUp
+const autoCompleteRef = ref<VAutocomplete | null>(null)
+
 const camp = ref<components['schemas']['CampResponse']>()
 const participants = ref<components['schemas']['UserResponse'][]>([])
 const selectedId = ref<string | undefined>(idQuery ?? undefined)
@@ -29,18 +35,26 @@ onMounted(async () => {
   camp.value = await fetchCamp()
   participants.value = await fetchParticipants()
 })
+
+// IDが変更されたときにフォーカスを外す
+watch(selectedId, (newId, oldId) => {
+  if (autoCompleteRef.value === null) return
+  if (!newId || newId === oldId) return
+  autoCompleteRef.value.blur()
+})
 </script>
 
 <template>
   <v-container v-if="camp" max-width="800">
     <div class="d-flex align-center ga-4">
-      <user-avatar :user-id="selectedId" :size="64" />
+      <user-avatar :user-id="selectedId" :size="isSmAndUp ? 64 : 48" />
       <v-autocomplete
+        ref="autoCompleteRef"
         v-model="selectedId"
         :items="participants"
         item-title="id"
         item-value="id"
-        class="title-input"
+        :class="isSmAndUp ? 'title-input-desktop' : 'title-input-mobile'"
         label="traQ ID"
         variant="outlined"
         auto-select-first
@@ -61,8 +75,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.title-input :deep(.v-field__input) {
+.title-input-desktop :deep(.v-field__input) {
   font-size: 2rem;
+  font-weight: 700;
+}
+.title-input-mobile :deep(.v-field__input) {
+  font-size: 1.5rem;
   font-weight: 700;
 }
 </style>

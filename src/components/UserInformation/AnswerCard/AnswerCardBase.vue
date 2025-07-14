@@ -41,20 +41,13 @@ const handleSave = () => {
         variant="plain"
         @click="emit('edit')"
       />
-      <div v-else class="d-flex ga-2">
-        <v-btn class="px-2" variant="outlined" density="comfortable" @click="emit('cancel')"
-          >キャンセル</v-btn
-        >
-        <v-btn
-          color="primary"
-          density="comfortable"
-          :disabled="!AnswerExists"
-          @click="isModalOpen = true"
-          >保存</v-btn
-        >
-      </div>
     </div>
     <slot />
+    <div v-if="isEditing" class="d-flex ga-2">
+      <v-spacer />
+      <v-btn variant="outlined" @click="emit('cancel')">キャンセル</v-btn>
+      <v-btn color="primary" :disabled="!AnswerExists" @click="isModalOpen = true">保存</v-btn>
+    </div>
   </content-card>
   <v-dialog v-model="isModalOpen" max-width="600">
     <v-card title="回答の保存">

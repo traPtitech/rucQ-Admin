@@ -66,6 +66,7 @@ watch([() => props.userId, () => props.answer], cancelEditing, { immediate: true
       ref="textFieldRef"
       v-model="editingContent"
       :class="{ 'disabled-field': !isEditing }"
+      class="mb-2"
       type="number"
       label="数値入力"
       hide-details
