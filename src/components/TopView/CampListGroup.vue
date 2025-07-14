@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SectionTitle from '@/components/shared/SectionTitle.vue'
 import { apiClient } from '@/api/apiClient'
 import { compareAsc } from 'date-fns'
 import { ref, onMounted, computed, watch } from 'vue'
@@ -35,16 +36,11 @@ watch(addCampDialog, async (val) => {
 </script>
 <template>
   <div>
-    <div class="d-flex align-center justify-space-between my-4">
-      <h2>合宿一覧</h2>
-      <AddCampDialogButton
-        @submit="
-          async () => {
-            camps = await fetchCamps()
-          }
-        "
-      />
-    </div>
+    <section-title title="合宿一覧">
+      <template #actions>
+        <AddCampDialogButton @submit="async () => (camps = await fetchCamps())" />
+      </template>
+    </section-title>
     <CampList title="予定された合宿" :camps="plannedCamps" />
     <CampList title="以前の合宿" :camps="pastCamps" />
   </div>
