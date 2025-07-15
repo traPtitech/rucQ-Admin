@@ -1,0 +1,57 @@
+<script setup lang="ts">
+import { parseISO, format } from 'date-fns'
+import { convertMarkdownToSafeHtml } from '@/utils/markdownConverter'
+import type { components } from '@/api/schema'
+
+defineProps<{
+  date: string
+  event: components['schemas']['EventResponse']
+}>()
+
+const emit = defineEmits<{
+  (e: 'edit'): void
+}>()
+
+const formatDate = (date: string) => {
+  return format(parseISO(date), 'M/d')
+}
+const formatTime = (time: string) => {
+  return format(parseISO(time), 'HH:mm')
+}
+</script>
+
+<template>
+  <v-card class="my-6">
+    <div class="d-flex align-center px-6 pt-4 mb-2">
+      <v-card-title class="text-h5 pa-0">{{ event.name }}</v-card-title>
+      <v-spacer />
+      <v-btn
+        icon="mdi-pencil"
+        size="small"
+        density="comfortable"
+        variant="plain"
+        @click="emit('edit')"
+      />
+    </div>
+    <v-card-text class="px-6 pt-0">
+      <div class="text-body-1">
+        <p>
+          日時: {{ formatDate(date) }}
+          {{
+            event.type === 'moment'
+              ? formatTime(event.time)
+              : `${formatTime(event.timeStart)} - ${formatTime(event.timeEnd)}`
+          }}
+        </p>
+        <p>場所: {{ event.location }}</p>
+        <p>主催: {{ event.type === 'duration' ? `@${event.organizerId}` : 'staff' }}</p>
+      </div>
+      <div v-if="event.description">
+        <v-divider class="my-4" />
+        <article>
+          <div v-html="convertMarkdownToSafeHtml(event.description)" class="markdown-body"></div>
+        </article>
+      </div>
+    </v-card-text>
+  </v-card>
+</template>
