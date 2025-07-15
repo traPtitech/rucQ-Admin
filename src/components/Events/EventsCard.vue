@@ -61,7 +61,7 @@ const handleDelete = (eventId: number) => {
       @delete="handleDelete"
     />
   </section-card>
-  <v-dialog v-model="isModalOpen" max-width="600" max-height="80vh">
+  <v-dialog v-model="isModalOpen" max-width="600" max-height="85vh" persistent scrollable>
     <event-editor
       :date="date"
       @cancel="isModalOpen = false"

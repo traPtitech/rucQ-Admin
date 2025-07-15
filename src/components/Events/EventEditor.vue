@@ -115,7 +115,7 @@ const handleUpdate = (event: EditedEvent) => {
 <template>
   <v-form ref="formRef" @submit.prevent="handleUpdate(editingEvent)">
     <v-card class="px-6 py-4">
-      <div class="d-flex flex-column ga-1 pt-4">
+      <v-card-text class="d-flex flex-column ga-1 py-4">
         <v-text-field
           v-model="editingEvent.name"
           class="title-input"
@@ -126,7 +126,7 @@ const handleUpdate = (event: EditedEvent) => {
           required
         />
         <v-row class="my-0">
-          <v-col cols="12" sm="6" class="py-0 mb-1">
+          <v-col cols="12" sm="6" class="py-0 mb-1 mb-sm-0">
             <time-input-field
               v-model="editingEvent.timeStart"
               label="開始時刻*"
@@ -147,9 +147,11 @@ const handleUpdate = (event: EditedEvent) => {
           label="説明"
           placeholder="# Markdownも書けます"
           rows="1"
+          variant="outlined"
           auto-grow
+          hide-details
         />
-      </div>
+      </v-card-text>
       <event-editor-actions
         :is-new-event="!props.event"
         @cancel="emit('cancel')"

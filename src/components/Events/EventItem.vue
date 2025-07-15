@@ -78,7 +78,13 @@ watch(isDetailOpen, (newValue) => {
       </div>
     </div>
   </content-card>
-  <v-dialog v-model="isDetailOpen" max-width="600" max-height="80vh">
+  <v-dialog
+    v-model="isDetailOpen"
+    max-width="600"
+    max-height="85vh"
+    :persistent="isEditing"
+    scrollable
+  >
     <event-detail v-if="!isEditing" :date="date" :event="props.event" @edit="isEditing = true" />
     <event-editor
       v-else

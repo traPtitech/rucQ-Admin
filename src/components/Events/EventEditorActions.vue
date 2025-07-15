@@ -20,6 +20,7 @@ const handleDelete = () => {
 </script>
 
 <template>
+  <v-divider class="mb-2" />
   <div class="d-flex ga-2">
     <v-spacer />
     <v-btn variant="outlined" @click="emit('cancel')"> キャンセル </v-btn>
