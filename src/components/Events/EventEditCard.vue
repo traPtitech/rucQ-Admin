@@ -1,1 +1,0 @@
-<template>EventEditCard</template>

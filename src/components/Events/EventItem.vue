@@ -3,8 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import { format, parseISO } from 'date-fns'
 import ContentCard from '@/components/shared/ContentCard.vue'
-import EventDetailCard from '@/components/Events/EventDetailCard.vue'
-import EventEditCard from '@/components/Events/EventEditCard.vue'
+import EventDetail from '@/components/Events/EventDetail.vue'
+import EventEditor from '@/components/Events/EventEditor.vue'
 import type { components } from '@/api/schema'
 
 const props = defineProps<{
@@ -78,14 +78,9 @@ watch(isDetailOpen, (newValue) => {
       </div>
     </div>
   </content-card>
-  <v-dialog v-model="isDetailOpen" max-width="600">
-    <event-detail-card
-      v-if="!isEditing"
-      :date="date"
-      :event="props.event"
-      @edit="isEditing = true"
-    />
-    <event-edit-card
+  <v-dialog v-model="isDetailOpen" max-width="600" max-height="80vh">
+    <event-detail v-if="!isEditing" :date="date" :event="props.event" @edit="isEditing = true" />
+    <event-editor
       v-else
       :date="date"
       :event="props.event"

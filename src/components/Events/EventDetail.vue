@@ -21,7 +21,7 @@ const formatTime = (time: string) => {
 </script>
 
 <template>
-  <v-card class="my-6">
+  <v-card>
     <div class="d-flex align-center px-6 pt-4 mb-2">
       <v-card-title class="text-h5 pa-0">{{ event.name }}</v-card-title>
       <v-spacer />
