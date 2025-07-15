@@ -60,13 +60,9 @@ const handleDelete = (eventId: number) => {
       @update="handleUpdate"
       @delete="handleDelete"
     />
+    <p v-if="!sortedEvents.length" class="text-medium-emphasis text-center">イベントはありません</p>
   </section-card>
   <v-dialog v-model="isModalOpen" max-width="600" max-height="85vh" persistent scrollable>
-    <event-editor
-      :date="date"
-      @cancel="isModalOpen = false"
-      @update="handleCreate"
-      @delete="handleDelete"
-    />
+    <event-editor :date="date" @cancel="isModalOpen = false" @update="handleCreate" />
   </v-dialog>
 </template>

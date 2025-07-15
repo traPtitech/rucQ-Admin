@@ -20,12 +20,14 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <v-divider class="mb-2" />
-  <div class="d-flex ga-2">
-    <v-spacer />
-    <v-btn variant="outlined" @click="emit('cancel')"> キャンセル </v-btn>
-    <v-btn v-if="!isNewEvent" color="error" @click="isDeleteModalOpen = true"> 削除 </v-btn>
-    <v-btn color="primary" type="submit"> 保存 </v-btn>
+  <div class="px-2">
+    <v-divider class="mb-2" />
+    <div class="d-flex ga-2">
+      <v-spacer />
+      <v-btn variant="outlined" @click="emit('cancel')"> キャンセル </v-btn>
+      <v-btn v-if="!isNewEvent" color="error" @click="isDeleteModalOpen = true"> 削除 </v-btn>
+      <v-btn color="primary" type="submit"> 保存 </v-btn>
+    </div>
   </div>
   <v-dialog v-model="isDeleteModalOpen" max-width="400">
     <v-card title="イベントの削除">

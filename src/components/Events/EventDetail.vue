@@ -33,21 +33,33 @@ const formatTime = (time: string) => {
         @click="emit('edit')"
       />
     </div>
-    <v-card-text class="px-6 pt-0">
-      <div class="text-body-1">
-        <p>
-          日時: {{ formatDate(date) }}
-          {{
-            event.type === 'moment'
-              ? formatTime(event.time)
-              : `${formatTime(event.timeStart)} - ${formatTime(event.timeEnd)}`
-          }}
-        </p>
-        <p>場所: {{ event.location }}</p>
-        <p>主催: {{ event.type === 'duration' ? `@${event.organizerId}` : 'staff' }}</p>
+    <v-divider class="mx-4" />
+    <v-card-text class="px-6 pt-3 pb-4">
+      <div>
+        <div>
+          <div class="text-body-2">日時</div>
+          <div class="text-h6">
+            {{ formatDate(date) }}
+            {{
+              event.type === 'moment'
+                ? formatTime(event.time)
+                : `${formatTime(event.timeStart)} - ${formatTime(event.timeEnd)}`
+            }}
+          </div>
+        </div>
+        <div>
+          <div class="text-body-2">場所</div>
+          <div class="text-h6">{{ event.location }}</div>
+        </div>
+        <div>
+          <div class="text-body-2">主催</div>
+          <div class="text-h6">
+            {{ event.type === 'duration' ? `@${event.organizerId}` : 'staff' }}
+          </div>
+        </div>
       </div>
       <div v-if="event.description">
-        <v-divider class="my-4" />
+        <v-divider class="my-4 mx-n2" />
         <article>
           <div v-html="convertMarkdownToSafeHtml(event.description)" class="markdown-body"></div>
         </article>

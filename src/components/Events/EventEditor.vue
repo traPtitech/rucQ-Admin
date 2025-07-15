@@ -67,7 +67,7 @@ watch(
 )
 
 const handleDelete = () => {
-  if (props.event?.id) {
+  if (props.event) {
     emit('delete', props.event.id)
   }
 }
@@ -114,8 +114,8 @@ const handleUpdate = (event: EditedEvent) => {
 
 <template>
   <v-form ref="formRef" @submit.prevent="handleUpdate(editingEvent)">
-    <v-card class="px-6 py-4">
-      <v-card-text class="d-flex flex-column ga-1 py-4">
+    <v-card class="px-2 py-4">
+      <v-card-text class="d-flex flex-column ga-1 px-4 py-4">
         <v-text-field
           v-model="editingEvent.name"
           class="title-input"
