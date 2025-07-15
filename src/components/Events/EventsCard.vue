@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { format, parseISO } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import SectionTitle from '@/components/shared/SectionTitle.vue'
@@ -20,6 +20,13 @@ const emit = defineEmits<{
 }>()
 
 const isModalOpen = ref(false)
+const sortedEvents = computed(() => {
+  return props.events.toSorted((a, b) => {
+    const timeA = a.type === 'moment' ? a.time : a.timeStart
+    const timeB = b.type === 'moment' ? b.time : b.timeStart
+    return parseISO(timeA).getTime() - parseISO(timeB).getTime()
+  })
+})
 
 const formatDate = (date: string) => {
   return format(parseISO(date), 'M/d(EEEEE)', { locale: ja })
@@ -46,7 +53,7 @@ const handleDelete = (eventId: number) => {
   />
   <section-card>
     <event-item
-      v-for="event in props.events"
+      v-for="event in sortedEvents"
       :key="event.id"
       :date="date"
       :event="event"
