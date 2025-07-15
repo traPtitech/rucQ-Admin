@@ -1,11 +1,14 @@
 import { HttpResponse } from 'msw'
 import { http } from '@/mocks/http'
+import { getYear } from 'date-fns'
 import type { components } from '@/api/schema'
 
 type Event = components['schemas']['EventResponse']
 
+const nextYearString = (getYear(new Date()) + 1).toString()
+
 const markdownSample: string = `\
-# 2024年度夏合宿 体力テスト
+# ${nextYearString}年度冬合宿 体力テスト
 
 ## 概要
 1/1-1/3 大岡山
@@ -20,12 +23,17 @@ const markdownSample: string = `\
 | 9:45 | 握力 | 体育館 |
 
 ### 2日目
+| 時間 | | 場所 |
+| ----: | - | ---- |
 | 10:30 | 上体起こし | 体育館 |
 | 11:15 | 長座体前屈 | 体育館 |
 
 ### 3日目
+| 時間 | | 場所 |
+| ----: | - | ---- |
 | 10:00 | 持久走 | 陸上競技場 |
 | 10:00 | 20mシャトルラン | 体育館 |
+| 11:00 | 反復横跳び | 体育館 |
 `
 
 const events: Event[] = [
@@ -35,7 +43,7 @@ const events: Event[] = [
     name: '集合',
     description: '',
     location: '大岡山駅',
-    time: '2024-09-01T09:00:00+09:00',
+    time: `${nextYearString}-02-01T09:00:00+09:00`,
   },
   {
     id: 1,
@@ -43,8 +51,8 @@ const events: Event[] = [
     name: '開会式',
     description: markdownSample,
     location: '部室',
-    timeStart: '2024-09-01T09:15:00+09:00',
-    timeEnd: '2024-09-01T09:30:00+09:00',
+    timeStart: `${nextYearString}-02-01T09:15:00+09:00`,
+    timeEnd: `${nextYearString}-02-01T09:30:00+09:00`,
   },
   {
     id: 2,
@@ -52,8 +60,8 @@ const events: Event[] = [
     name: '握力測定',
     description: '',
     location: '体育館',
-    timeStart: '2024-09-01T09:45:00+09:00',
-    timeEnd: '2024-09-01T10:00:00+09:00',
+    timeStart: `${nextYearString}-02-01T09:45:00+09:00`,
+    timeEnd: `${nextYearString}-02-01T10:00:00+09:00`,
     organizerId: 'trap1',
     displayColor: 'orange',
   },
@@ -63,8 +71,8 @@ const events: Event[] = [
     name: '上体起こし',
     description: '',
     location: '体育館',
-    timeStart: '2024-09-02T10:30:00+09:00',
-    timeEnd: '2024-09-02T11:00:00+09:00',
+    timeStart: `${nextYearString}-02-02T10:30:00+09:00`,
+    timeEnd: `${nextYearString}-02-02T11:00:00+09:00`,
     organizerId: 'trap1',
     displayColor: 'green',
   },
@@ -74,8 +82,8 @@ const events: Event[] = [
     name: '長座体前屈',
     description: '',
     location: '体育館',
-    timeStart: '2024-09-02T11:15:00+09:00',
-    timeEnd: '2024-09-02T11:45:00+09:00',
+    timeStart: `${nextYearString}-02-02T11:15:00+09:00`,
+    timeEnd: `${nextYearString}-02-02T11:45:00+09:00`,
     organizerId: 'trap1',
     displayColor: 'red',
   },
@@ -85,10 +93,10 @@ const events: Event[] = [
     name: '持久走',
     description: '',
     location: '陸上競技場',
-    timeStart: '2024-09-03T10:00:00+09:00',
-    timeEnd: '2024-09-03T11:00:00+09:00',
+    timeStart: `${nextYearString}-02-03T10:00:00+09:00`,
+    timeEnd: `${nextYearString}-02-03T11:00:00+09:00`,
     organizerId: 'trap2',
-    displayColor: 'purple',
+    displayColor: 'blue',
   },
   {
     id: 6,
@@ -96,9 +104,20 @@ const events: Event[] = [
     name: '20mシャトルラン',
     description: '',
     location: '体育館',
-    timeStart: '2024-09-03T10:00:00+09:00',
-    timeEnd: '2024-09-03T11:00:00+09:00',
+    timeStart: `${nextYearString}-02-03T10:00:00+09:00`,
+    timeEnd: `${nextYearString}-02-03T11:00:00+09:00`,
     organizerId: 'trap3',
+    displayColor: 'purple',
+  },
+  {
+    id: 7,
+    type: 'duration',
+    name: '反復横跳び',
+    description: '',
+    location: '体育館',
+    timeStart: `${nextYearString}-02-03T11:00:00+09:00`,
+    timeEnd: `${nextYearString}-02-03T12:00:00+09:00`,
+    organizerId: 'trap4',
     displayColor: 'pink',
   },
 ]
