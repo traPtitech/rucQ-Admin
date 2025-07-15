@@ -113,7 +113,7 @@ const handleUpdate = (event: EditedEvent) => {
 </script>
 
 <template>
-  <v-form ref="formRef">
+  <v-form ref="formRef" @submit.prevent="handleUpdate(editingEvent)">
     <v-card class="px-6 py-4">
       <div class="d-flex flex-column ga-1 pt-4">
         <v-text-field
@@ -125,15 +125,15 @@ const handleUpdate = (event: EditedEvent) => {
           :rules="[required]"
           required
         />
-        <v-row>
-          <v-col cols="12" sm="6">
+        <v-row class="my-0">
+          <v-col cols="12" sm="6" class="py-0 mb-1">
             <time-input-field
               v-model="editingEvent.timeStart"
               label="開始時刻*"
               :rules="[required, time]"
             />
           </v-col>
-          <v-col cols="12" sm="6">
+          <v-col cols="12" sm="6" class="py-0">
             <time-input-field
               v-model="editingEvent.timeEnd"
               label="終了時刻*"

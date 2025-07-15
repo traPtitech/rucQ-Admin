@@ -64,6 +64,7 @@ const createEvent = async (event: components['schemas']['EventRequest']) => {
     params: { path: { campId: camp.value.id } },
     body: event,
   })
+  events.value = await fetchEvents()
 }
 const updateEvent = async (id: number, event: components['schemas']['EventRequest']) => {
   if (!camp.value) return
@@ -71,12 +72,14 @@ const updateEvent = async (id: number, event: components['schemas']['EventReques
     params: { path: { eventId: id } },
     body: event,
   })
+  events.value = await fetchEvents()
 }
 const deleteEvent = async (eventId: number) => {
   if (!camp.value) return
   await apiClient.DELETE('/api/events/{eventId}', {
     params: { path: { eventId } },
   })
+  events.value = await fetchEvents()
 }
 </script>
 
