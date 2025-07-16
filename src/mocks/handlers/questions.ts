@@ -20,6 +20,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'single',
         isPublic: true,
         isOpen: false,
+        isRequired: true,
         options: [
           {
             id: 0,
@@ -38,6 +39,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'single',
         isPublic: true,
         isOpen: false,
+        isRequired: true,
         options: [
           {
             id: 2,
@@ -64,6 +66,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'single',
         isPublic: true,
         isOpen: true,
+        isRequired: true,
         options: [
           {
             id: 4,
@@ -82,6 +85,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'single',
         isPublic: false,
         isOpen: true,
+        isRequired: true,
         options: [
           {
             id: 6,
@@ -104,6 +108,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'single',
         isPublic: false,
         isOpen: true,
+        isRequired: true,
         options: [
           {
             id: 9,
@@ -134,6 +139,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'multiple',
         isPublic: false,
         isOpen: true,
+        isRequired: false,
         options: [
           {
             id: 14,
@@ -152,10 +158,11 @@ const questionGroups: QuestionGroup[] = [
       {
         id: 6,
         title: '身長',
-        description: '',
+        description: 'スキー/スノボをする人のみ',
         type: 'free_number',
         isPublic: false,
         isOpen: true,
+        isRequired: false,
       },
       {
         id: 7,
@@ -164,6 +171,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'free_number',
         isPublic: false,
         isOpen: true,
+        isRequired: false,
       },
     ],
   },
@@ -180,6 +188,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'free_text',
         isPublic: false,
         isOpen: false,
+        isRequired: false,
       },
       {
         id: 9,
@@ -188,6 +197,7 @@ const questionGroups: QuestionGroup[] = [
         type: 'free_text',
         isPublic: false,
         isOpen: true,
+        isRequired: false,
       },
     ],
   },
@@ -292,6 +302,7 @@ export const questionsHandlers = [
         }
         const createdQuestion: Question = {
           ...question,
+          isRequired: question.isRequired ?? false,
           id: nextQuestionId++,
         }
         questionGroup.questions.push(createdQuestion)
@@ -312,6 +323,7 @@ export const questionsHandlers = [
         }
         const createdQuestion: Question = {
           ...question,
+          isRequired: question.isRequired ?? false,
           id: nextQuestionId++,
           options: options,
         }
