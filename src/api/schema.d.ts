@@ -323,6 +323,29 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/question-groups/{questionGroupId}/answers': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /**
+     * 質問グループに対する回答一覧を取得（管理者用）
+     * @description 質問グループに対する回答一覧を取得します。
+     *     userIdパラメータが指定された場合は特定のユーザーの回答のみを取得し、
+     *     指定されなかった場合は全ユーザーの回答を取得します。
+     *
+     */
+    get: operations['adminGetAnswersForQuestionGroup']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/questions/{questionId}/answers': {
     parameters: {
       query?: never
@@ -371,6 +394,23 @@ export interface paths {
      * @description 質問グループに対する回答を作成します。複数の質問に対する回答を一度に送信できます。
      */
     post: operations['postAnswers']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/users/{userId}/answers': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** ユーザーの回答を作成（管理者用） */
+    post: operations['adminPostAnswer']
     delete?: never
     options?: never
     head?: never
@@ -834,6 +874,7 @@ export interface components {
       description?: string
       isPublic: boolean
       isOpen: boolean
+      isRequired?: boolean
     }
     PostQuestionRequest:
       | components['schemas']['FreeTextQuestionRequest']
@@ -845,6 +886,14 @@ export interface components {
       | components['schemas']['FreeNumberQuestionRequest']
       | components['schemas']['PutSingleChoiceQuestionRequest']
       | components['schemas']['PutMultipleChoiceQuestionRequest']
+    QuestionResponseBase: {
+      id: number
+      title: string
+      description?: string
+      isPublic: boolean
+      isOpen: boolean
+      isRequired: boolean
+    }
     QuestionResponse:
       | components['schemas']['FreeTextQuestionResponse']
       | components['schemas']['FreeNumberQuestionResponse']
@@ -854,27 +903,17 @@ export interface components {
       /** @enum {string} */
       type: 'free_text'
     }
-    FreeTextQuestionResponse: {
-      id: number
-      title: string
-      description?: string
+    FreeTextQuestionResponse: components['schemas']['QuestionResponseBase'] & {
       /** @enum {string} */
       type: 'free_text'
-      isPublic: boolean
-      isOpen: boolean
     }
     FreeNumberQuestionRequest: components['schemas']['QuestionRequestBase'] & {
       /** @enum {string} */
       type: 'free_number'
     }
-    FreeNumberQuestionResponse: {
-      id: number
-      title: string
-      description?: string
+    FreeNumberQuestionResponse: components['schemas']['QuestionResponseBase'] & {
       /** @enum {string} */
       type: 'free_number'
-      isPublic: boolean
-      isOpen: boolean
     }
     PostSingleChoiceQuestionRequest: components['schemas']['QuestionRequestBase'] & {
       /** @enum {string} */
@@ -886,14 +925,9 @@ export interface components {
       type: 'single'
       options: components['schemas']['PutOptionRequest'][]
     }
-    SingleChoiceQuestionResponse: {
-      id: number
-      title: string
-      description?: string
+    SingleChoiceQuestionResponse: components['schemas']['QuestionResponseBase'] & {
       /** @enum {string} */
       type: 'single'
-      isPublic: boolean
-      isOpen: boolean
       options: components['schemas']['OptionResponse'][]
     }
     PostMultipleChoiceQuestionRequest: components['schemas']['QuestionRequestBase'] & {
@@ -906,14 +940,9 @@ export interface components {
       type: 'multiple'
       options: components['schemas']['PutOptionRequest'][]
     }
-    MultipleChoiceQuestionResponse: {
-      id: number
-      title: string
-      description?: string
+    MultipleChoiceQuestionResponse: components['schemas']['QuestionResponseBase'] & {
       /** @enum {string} */
       type: 'multiple'
-      isPublic: boolean
-      isOpen: boolean
       options: components['schemas']['OptionResponse'][]
     }
     PostOptionRequest: {
@@ -1117,7 +1146,7 @@ export interface components {
     'X-Forwarded-User': string
     /** @description User ID */
     UserId: string
-    /** @description User ID */
+    /** @description User ID（省略時は全ユーザーの回答を取得） */
     UserIdInQuery: string
     /** @description 合宿ID */
     CampId: number
@@ -1807,7 +1836,7 @@ export interface operations {
   adminGetAnswers: {
     parameters: {
       query?: {
-        /** @description User ID */
+        /** @description User ID（省略時は全ユーザーの回答を取得） */
         userId?: components['parameters']['UserIdInQuery']
       }
       header?: {
@@ -1832,6 +1861,38 @@ export interface operations {
         }
       }
       403: components['responses']['Forbidden']
+      500: components['responses']['InternalServerError']
+    }
+  }
+  adminGetAnswersForQuestionGroup: {
+    parameters: {
+      query?: {
+        /** @description User ID（省略時は全ユーザーの回答を取得） */
+        userId?: components['parameters']['UserIdInQuery']
+      }
+      header?: {
+        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
+        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
+      }
+      path: {
+        /** @description 質問グループのID */
+        questionGroupId: components['parameters']['QuestionGroupId']
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AnswerResponse'][]
+        }
+      }
+      403: components['responses']['Forbidden']
+      404: components['responses']['NotFound']
       500: components['responses']['InternalServerError']
     }
   }
@@ -1917,6 +1978,40 @@ export interface operations {
         }
       }
       400: components['responses']['BadRequest']
+      404: components['responses']['NotFound']
+      500: components['responses']['InternalServerError']
+    }
+  }
+  adminPostAnswer: {
+    parameters: {
+      query?: never
+      header?: {
+        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
+        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
+      }
+      path: {
+        /** @description User ID */
+        userId: components['parameters']['UserId']
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AnswerRequest']
+      }
+    }
+    responses: {
+      /** @description Created */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['AnswerResponse']
+        }
+      }
+      400: components['responses']['BadRequest']
+      403: components['responses']['Forbidden']
       404: components['responses']['NotFound']
       500: components['responses']['InternalServerError']
     }

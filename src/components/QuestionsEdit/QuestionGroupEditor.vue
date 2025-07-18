@@ -40,6 +40,7 @@ const generateQuestion = (): components['schemas']['QuestionResponse'] => ({
   description: '',
   isPublic: false,
   isOpen: true,
+  isRequired: false,
 })
 
 // ディープコピーして編集用のオブジェクトを作成
