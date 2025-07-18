@@ -29,7 +29,7 @@ const groupedEvents = (
         case 'duration':
           return isValid(parseISO(event.timeStart)) && isSameDay(parseISO(event.timeStart), day)
         case 'official':
-          return isValid(parseISO(event.timeStart)) && isSameDay(parseISO(event.timeEnd), day)
+          return isValid(parseISO(event.timeStart)) && isSameDay(parseISO(event.timeStart), day)
         case 'moment':
           return isValid(parseISO(event.time)) && isSameDay(parseISO(event.time), day)
         default:

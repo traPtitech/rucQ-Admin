@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { format, isAfter, isEqual, parse, parseISO } from 'date-fns'
+import { format, isAfter, isEqual, isValid, parse, parseISO } from 'date-fns'
 import EventEditorActions from '@/components/Events/EventEditorActions.vue'
 import TimeInputField from '@/components/shared/TimeInputField.vue'
 import { combineDateAndTime, isValidTime } from '@/utils/date-time-utils'
@@ -60,7 +60,13 @@ const endAfterStart = (timeStart: string | undefined) => (v: string | undefined)
 watch(
   () => editingEvent.value.timeStart,
   (newValue) => {
-    if (newValue && (!editingEvent.value.timeEnd || newValue > editingEvent.value.timeEnd)) {
+    if (!newValue) return
+    const referenceDate = new Date()
+    const start = parse(newValue, 'HH:mm', referenceDate)
+    const end = editingEvent.value.timeEnd
+      ? parse(editingEvent.value.timeEnd, 'HH:mm', referenceDate)
+      : undefined
+    if (!end || (isValid(start) && isValid(end) && isAfter(start, end))) {
       editingEvent.value.timeEnd = newValue
     }
   },

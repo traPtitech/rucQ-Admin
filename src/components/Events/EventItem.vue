@@ -64,13 +64,7 @@ watch(isDetailOpen, (newValue) => {
           {{ formatTime(event.timeEnd) }}
         </span>
       </div>
-      <div v-if="isSmAndUp" class="d-flex align-end ga-2">
-        <h3 class="text-h6">{{ event.name }}</h3>
-        <span class="text-body-1 text-medium-emphasis">
-          by {{ event.type === 'duration' ? `@${event.organizerId}` : 'staff' }}
-        </span>
-      </div>
-      <div v-else class="d-flex flex-column">
+      <div class="d-flex" :class="isSmAndUp ? ['align-end', 'ga-2'] : 'flex-column'">
         <h3 class="text-h6">{{ event.name }}</h3>
         <span class="text-body-1 text-medium-emphasis">
           by {{ event.type === 'duration' ? `@${event.organizerId}` : 'staff' }}

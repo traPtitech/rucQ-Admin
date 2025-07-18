@@ -122,7 +122,7 @@ const events: Event[] = [
   },
 ]
 
-let nextEventId = 7
+let nextEventId = 8
 
 export const eventsHandlers = [
   http.get('/api/camps/{campId}/events', () => {
