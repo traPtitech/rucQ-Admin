@@ -1,9 +1,12 @@
 import { HttpResponse } from 'msw'
 import { http } from '@/mocks/http'
+import { getYear } from 'date-fns'
 import type { components } from '@/api/schema'
 
 type Camp = components['schemas']['CampResponse']
 type User = components['schemas']['UserResponse']
+
+const nextYearString = (getYear(new Date()) + 1).toString()
 
 const guidebook = (name: string): string => {
   return `\
@@ -29,6 +32,7 @@ const guidebook = (name: string): string => {
 }
 
 const camps: Camp[] = [
+  // 以前の合宿
   {
     id: 0,
     displayId: 'camp24summer',
@@ -51,16 +55,17 @@ const camps: Camp[] = [
     dateStart: '2024-03-01',
     dateEnd: '2024-03-03',
   },
+  // 予定された合宿
   {
     id: 2,
-    displayId: 'camp25summer',
-    name: '2025年度夏合宿',
-    guidebook: guidebook('2025年度夏合宿'),
+    displayId: `camp${nextYearString.slice(-2)}winter`,
+    name: `${nextYearString}年度冬合宿`,
+    guidebook: guidebook(`${nextYearString}年度冬合宿`),
     isDraft: true,
     isRegistrationOpen: false,
     isPaymentOpen: false,
-    dateStart: '2025-09-01',
-    dateEnd: '2025-09-03',
+    dateStart: `${nextYearString}-02-01`,
+    dateEnd: `${nextYearString}-02-03`,
   },
 ]
 

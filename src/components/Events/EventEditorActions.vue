@@ -1,0 +1,43 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+
+defineProps<{
+  isNewEvent: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'cancel'): void
+  (e: 'delete'): void
+  (e: 'save'): void
+}>()
+
+const isDeleteModalOpen = ref(false)
+
+const handleDelete = () => {
+  isDeleteModalOpen.value = false
+  emit('delete')
+}
+</script>
+
+<template>
+  <div class="px-2">
+    <v-divider class="mb-2" />
+    <div class="d-flex ga-2">
+      <v-spacer />
+      <v-btn variant="outlined" @click="emit('cancel')"> キャンセル </v-btn>
+      <v-btn v-if="!isNewEvent" color="error" @click="isDeleteModalOpen = true"> 削除 </v-btn>
+      <v-btn color="primary" type="submit"> 保存 </v-btn>
+    </div>
+  </div>
+  <v-dialog v-model="isDeleteModalOpen" max-width="400">
+    <v-card title="イベントの削除">
+      <v-card-text>
+        本当にこのイベントを削除しますか？<br />この操作は元に戻せません。
+      </v-card-text>
+      <v-card-actions>
+        <v-btn text @click="isDeleteModalOpen = false">キャンセル</v-btn>
+        <v-btn color="error" @click="handleDelete">削除</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
