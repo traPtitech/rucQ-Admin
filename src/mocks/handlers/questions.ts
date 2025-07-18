@@ -396,6 +396,19 @@ let nextQuestionId = 10
 let nextOptionId = 17
 // let nextAnswerId = 27
 
+const findContent = (questionId: number, optionId: number) => {
+  const question = questionGroups.flatMap((g) => g.questions).find((q) => q.id === questionId)
+  if (
+    !question ||
+    question.type === 'free_text' ||
+    question.type === 'free_number' ||
+    !question.options
+  )
+    return ''
+  const option = question.options.find((o) => o.id === optionId)
+  return option ? option.content : ''
+}
+
 export const questionsHandlers = [
   http.get('/api/camps/{campId}/question-groups', () => {
     return HttpResponse.json(questionGroups)
@@ -408,32 +421,41 @@ export const questionsHandlers = [
     const questions: Question[] = []
     for (const question of newQuestionGroup.questions) {
       const questionId = nextQuestionId++
-      if (question.type === 'free_text' || question.type === 'free_number') {
-        if ('options' in question) {
-          return HttpResponse.json(
-            { message: 'Options are not allowed for this question type.' },
-            { status: 400 },
-          )
-        }
-        questions.push({
-          ...question,
-          id: questionId,
-        } as Question)
-      } else {
-        if (!question.options || question.options.length === 0) {
-          return HttpResponse.json(
-            { message: 'Options are required for this question type.' },
-            { status: 400 },
-          )
-        }
-        questions.push({
-          ...question,
-          id: questionId,
-          options: question.options.map((option) => ({
-            ...option,
-            id: nextOptionId++,
-          })),
-        } as Question)
+      const type = question.type
+      switch (type) {
+        case 'free_text':
+        case 'free_number':
+          if ('options' in question) {
+            return HttpResponse.json(
+              { message: 'Options are not allowed for this question type.' },
+              { status: 400 },
+            )
+          }
+          questions.push({
+            ...question,
+            id: questionId,
+          } as Question)
+          break
+        case 'single':
+        case 'multiple':
+          if (!question.options || question.options.length === 0) {
+            return HttpResponse.json(
+              { message: 'Options are required for this question type.' },
+              { status: 400 },
+            )
+          }
+          questions.push({
+            ...question,
+            id: questionId,
+            options: question.options.map((option) => ({
+              ...option,
+              id: nextOptionId++,
+            })),
+          } as Question)
+          break
+        default:
+          const _exhaustiveCheck: never = type
+          return HttpResponse.json({ message: 'Invalid question type.' }, { status: 400 })
       }
     }
 
@@ -482,42 +504,49 @@ export const questionsHandlers = [
       }
 
       const question = await request.json()
-      if (question.type === 'free_text' || question.type === 'free_number') {
-        if ('options' in question) {
-          return HttpResponse.json(
-            { message: 'Options are not allowed for this question type.' },
-            { status: 400 },
-          )
-        }
-        const createdQuestion: Question = {
-          ...question,
-          isRequired: question.isRequired ?? false,
-          id: nextQuestionId++,
-        }
-        questionGroup.questions.push(createdQuestion)
-        return HttpResponse.json(createdQuestion, { status: 201 })
-      } else {
-        if (!question.options || question.options.length === 0) {
-          return HttpResponse.json(
-            { message: 'Options are required for this question type.' },
-            { status: 400 },
-          )
-        }
-        const options: Option[] = []
-        for (const option of question.options) {
-          options.push({
-            ...option,
-            id: nextOptionId++,
-          })
-        }
-        const createdQuestion: Question = {
-          ...question,
-          isRequired: question.isRequired ?? false,
-          id: nextQuestionId++,
-          options: options,
-        }
-        questionGroup.questions.push(createdQuestion)
-        return HttpResponse.json(createdQuestion, { status: 201 })
+      const type = question.type
+      switch (type) {
+        case 'free_text':
+        case 'free_number':
+          if ('options' in question) {
+            return HttpResponse.json(
+              { message: 'Options are not allowed for this question type.' },
+              { status: 400 },
+            )
+          }
+          const createdQuestion: Question = {
+            ...question,
+            isRequired: question.isRequired ?? false,
+            id: nextQuestionId++,
+          }
+          questionGroup.questions.push(createdQuestion)
+          return HttpResponse.json(createdQuestion, { status: 201 })
+        case 'single':
+        case 'multiple':
+          if (!question.options || question.options.length === 0) {
+            return HttpResponse.json(
+              { message: 'Options are required for this question type.' },
+              { status: 400 },
+            )
+          }
+          const options: Option[] = []
+          for (const option of question.options) {
+            options.push({
+              ...option,
+              id: nextOptionId++,
+            })
+          }
+          const createdQuestionHasOptions: Question = {
+            ...question,
+            isRequired: question.isRequired ?? false,
+            id: nextQuestionId++,
+            options: options,
+          }
+          questionGroup.questions.push(createdQuestionHasOptions)
+          return HttpResponse.json(createdQuestionHasOptions, { status: 201 })
+        default:
+          const _exhaustiveCheck: never = type
+          return HttpResponse.json({ message: 'Invalid question type.' }, { status: 400 })
       }
     },
   ),
@@ -596,14 +625,8 @@ export const questionsHandlers = [
       return new HttpResponse(null, { status: 404 })
     }
 
-    const findContent = (questionId: number, optionId: number) => {
-      const question = questionGroups.flatMap((g) => g.questions).find((q) => q.id === questionId)
-      if (!question || question.type === 'free_text' || question.type === 'free_number') return ''
-      const option = question.options.find((o) => o.id === optionId)
-      return option ? option.content : ''
-    }
-
-    switch (updatedAnswerReq.type) {
+    const type = updatedAnswerReq.type
+    switch (type) {
       case 'free_text':
         if (answers[index].type !== 'free_text') {
           return HttpResponse.json({ message: 'Type cannot be changed.' }, { status: 400 })
@@ -635,7 +658,7 @@ export const questionsHandlers = [
         }))
         return HttpResponse.json(answers[index])
       default:
-        const _exhaustiveCheck: never = updatedAnswerReq
+        const _exhaustiveCheck: never = type
         return HttpResponse.json({ message: 'Invalid answer type.' }, { status: 400 })
     }
   }),
