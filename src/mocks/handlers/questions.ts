@@ -394,7 +394,7 @@ const answers: Answer[] = [
 let nextQuestionGroupId = 3
 let nextQuestionId = 10
 let nextOptionId = 17
-// let nextAnswerId = 27
+let nextAnswerId = 27
 
 const findContent = (questionId: number, optionId: number) => {
   const question = questionGroups.flatMap((g) => g.questions).find((q) => q.id === questionId)
@@ -614,6 +614,74 @@ export const questionsHandlers = [
     }
 
     return HttpResponse.json(filteredAnswers)
+  }),
+
+  http.post('/api/admin/users/{userId}/answers', async ({ params, request }) => {
+    const userId = params.userId
+    const answerReq = await request.json()
+    const type = answerReq.type
+    const questionType = questionGroups
+      .flatMap((g) => g.questions)
+      .find((q) => q.id === answerReq.questionId)?.type
+
+    if (answers.some((a) => a.questionId === answerReq.questionId && a.userId === userId)) {
+      return HttpResponse.json({ message: 'Answer already exists.' }, { status: 400 })
+    }
+    if (type !== questionType)
+      return HttpResponse.json({ message: 'Type mismatch.' }, { status: 400 })
+
+    const answerId = nextAnswerId++
+    switch (type) {
+      case 'free_text':
+        const freeTextAnswer: Answer = {
+          id: answerId,
+          type: 'free_text',
+          questionId: answerReq.questionId,
+          userId: userId,
+          content: answerReq.content,
+        }
+        answers.push(freeTextAnswer)
+        return HttpResponse.json(freeTextAnswer, { status: 201 })
+      case 'free_number':
+        const freeNumberAnswer: Answer = {
+          id: answerId,
+          type: 'free_number',
+          questionId: answerReq.questionId,
+          userId: userId,
+          content: answerReq.content,
+        }
+        answers.push(freeNumberAnswer)
+        return HttpResponse.json(freeNumberAnswer, { status: 201 })
+      case 'single':
+        const singleAnswer: Answer = {
+          id: answerId,
+          type: 'single',
+          questionId: answerReq.questionId,
+          userId: userId,
+          selectedOption: {
+            id: answerReq.optionId,
+            content: findContent(answerReq.questionId, answerReq.optionId),
+          },
+        }
+        answers.push(singleAnswer)
+        return HttpResponse.json(singleAnswer, { status: 201 })
+      case 'multiple':
+        const multipleAnswer: Answer = {
+          id: answerId,
+          type: 'multiple',
+          questionId: answerReq.questionId,
+          userId: userId,
+          selectedOptions: answerReq.optionIds.map((id: number) => ({
+            id,
+            content: findContent(answerReq.questionId, id),
+          })),
+        }
+        answers.push(multipleAnswer)
+        return HttpResponse.json(multipleAnswer, { status: 201 })
+      default:
+        const _exhaustiveCheck: never = type
+        return HttpResponse.json({ message: 'Invalid answer type.' }, { status: 400 })
+    }
   }),
 
   http.put('/api/admin/answers/{answerId}', async ({ params, request }) => {
