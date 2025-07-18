@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
-import AnswerCardText from '@/components/UserInformation/AnswerCard/AnswerCardText.vue'
-import AnswerCardNumber from '@/components/UserInformation/AnswerCard/AnswerCardNumber.vue'
-import AnswerCardSingle from '@/components/UserInformation/AnswerCard/AnswerCardSingle.vue'
-import AnswerCardMultiple from '@/components/UserInformation/AnswerCard/AnswerCardMultiple.vue'
+import AnswerCard from '@/components/UserInformation/AnswerCard.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
+
+type QuestionType = components['schemas']['QuestionResponse']['type']
 
 const props = defineProps<{
   userId: string
@@ -16,13 +15,13 @@ const props = defineProps<{
 const answers = ref<components['schemas']['AnswerResponse'][]>([])
 
 const fetchAnswers = async () => {
-  // TODO: エンドポイントを実際のものに変更する
-  const { data } = await apiClient.GET('/api/me/question-groups/{questionGroupId}/answers', {
-    params: { path: { questionGroupId: props.questionGroup.id } },
+  const { data } = await apiClient.GET('/api/admin/question-groups/{questionGroupId}/answers', {
+    params: { path: { questionGroupId: props.questionGroup.id }, query: { userId: props.userId } },
   })
   return data ?? []
 }
 
+// userIdが変わったときに回答を再取得
 watch(
   () => props.userId,
   async () => {
@@ -31,24 +30,9 @@ watch(
   { immediate: true },
 )
 
-const findAnswerText = (questionId: number) => {
-  return answers.value.find((a) => a.questionId === questionId && a.type === 'free_text') as
-    | components['schemas']['FreeTextAnswerResponse']
-    | undefined
-}
-const findAnswerNumber = (questionId: number) => {
-  return answers.value.find((a) => a.questionId === questionId && a.type === 'free_number') as
-    | components['schemas']['FreeNumberAnswerResponse']
-    | undefined
-}
-const findAnswerSingle = (questionId: number) => {
-  return answers.value.find((a) => a.questionId === questionId && a.type === 'single') as
-    | components['schemas']['SingleChoiceAnswerResponse']
-    | undefined
-}
-const findAnswerMultiple = (questionId: number) => {
-  return answers.value.find((a) => a.questionId === questionId && a.type === 'multiple') as
-    | components['schemas']['MultipleChoiceAnswerResponse']
+const findAnswer = <T extends QuestionType>(questionId: number, type: T) => {
+  return answers.value.find((a) => a.questionId === questionId && a.type === type) as
+    | Extract<components['schemas']['AnswerResponse'], { type: T }>
     | undefined
 }
 
@@ -62,42 +46,39 @@ const updateAnswer = async (
       body: updatedAnswer,
     })
   } else {
-    // TODO: POSTエンドポイント実装されたら追加
+    await apiClient.POST('/api/admin/users/{userId}/answers', {
+      params: { path: { userId: props.userId } },
+      body: updatedAnswer,
+    })
   }
+  answers.value = await fetchAnswers()
+}
+
+type Props = {
+  [T in QuestionType]: {
+    type: T
+    userId: string
+    question: Extract<components['schemas']['QuestionResponse'], { type: T }>
+    answer?: Extract<components['schemas']['AnswerResponse'], { type: T }> // 未回答のときundefined
+  }
+}[QuestionType]
+const answerCardProps = <T extends QuestionType>(
+  type: T,
+  question: components['schemas']['QuestionResponse'],
+): Props => {
+  return {
+    type: type,
+    userId: props.userId,
+    question: question as Extract<components['schemas']['QuestionResponse'], { type: T }>,
+    answer: findAnswer(question.id, type),
+  } as Props
 }
 </script>
 
 <template>
   <section-card>
     <template v-for="question in questionGroup.questions" :key="question.id">
-      <answer-card-text
-        v-if="question.type === 'free_text'"
-        :question="question"
-        :answer="findAnswerText(question.id)"
-        :user-id="userId"
-        @update="updateAnswer"
-      />
-      <answer-card-number
-        v-if="question.type === 'free_number'"
-        :question="question"
-        :answer="findAnswerNumber(question.id)"
-        :user-id="userId"
-        @update="updateAnswer"
-      />
-      <answer-card-single
-        v-if="question.type === 'single'"
-        :question="question"
-        :answer="findAnswerSingle(question.id)"
-        :user-id="userId"
-        @update="updateAnswer"
-      />
-      <answer-card-multiple
-        v-if="question.type === 'multiple'"
-        :question="question"
-        :answer="findAnswerMultiple(question.id)"
-        :user-id="userId"
-        @update="updateAnswer"
-      />
+      <answer-card :props="answerCardProps(question.type, question)" @update="updateAnswer" />
     </template>
   </section-card>
 </template>

@@ -4,9 +4,10 @@ import ContentCard from '@/components/shared/ContentCard.vue'
 
 defineProps<{
   questionTitle: string
-  AnswerExists: boolean
-  isEditing: boolean
   userId: string
+  answerExists: boolean // 回答がすでに存在するか
+  isEditing: boolean
+  isEmptyAnswer: boolean // 編集中の回答が空かどうか
 }>()
 
 const emit = defineEmits<{
@@ -28,7 +29,7 @@ const handleSave = () => {
     <div class="d-flex mb-1">
       <div class="d-flex align-end ga-2">
         <h3>{{ questionTitle }}</h3>
-        <div v-if="!AnswerExists && !isEditing" class="text-body-1 text-medium-emphasis">
+        <div v-if="!answerExists && !isEditing" class="text-body-1 text-medium-emphasis">
           (未回答)
         </div>
       </div>
@@ -46,7 +47,7 @@ const handleSave = () => {
     <div v-if="isEditing" class="d-flex ga-2">
       <v-spacer />
       <v-btn variant="outlined" @click="emit('cancel')">キャンセル</v-btn>
-      <v-btn color="primary" :disabled="!AnswerExists" @click="isModalOpen = true">保存</v-btn>
+      <v-btn color="primary" :disabled="isEmptyAnswer" @click="isModalOpen = true">保存</v-btn>
     </div>
   </content-card>
   <v-dialog v-model="isModalOpen" max-width="600">
