@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
 import AnswerCard from '@/components/UserInformation/AnswerCard.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
-
-type QuestionType = components['schemas']['QuestionResponse']['type']
+import type { Props as AnswerCardProps } from '@/components/UserInformation/AnswerCard.vue'
 
 const props = defineProps<{
   userId: string
@@ -30,7 +29,10 @@ watch(
   { immediate: true },
 )
 
-const findAnswer = <T extends QuestionType>(questionId: number, type: T) => {
+const findAnswer = <T extends components['schemas']['QuestionResponse']['type']>(
+  questionId: number,
+  type: T,
+) => {
   return answers.value.find((a) => a.questionId === questionId && a.type === type) as
     | Extract<components['schemas']['AnswerResponse'], { type: T }>
     | undefined
@@ -40,7 +42,7 @@ const updateAnswer = async (
   answerId: number | undefined,
   updatedAnswer: components['schemas']['AnswerRequest'],
 ) => {
-  if (answerId) {
+  if (answerId !== undefined) {
     await apiClient.PUT('/api/admin/answers/{answerId}', {
       params: { path: { answerId: answerId } },
       body: updatedAnswer,
@@ -54,31 +56,25 @@ const updateAnswer = async (
   answers.value = await fetchAnswers()
 }
 
-type Props = {
-  [T in QuestionType]: {
-    type: T
-    userId: string
-    question: Extract<components['schemas']['QuestionResponse'], { type: T }>
-    answer?: Extract<components['schemas']['AnswerResponse'], { type: T }> // 未回答のときundefined
-  }
-}[QuestionType]
-const answerCardProps = <T extends QuestionType>(
-  type: T,
-  question: components['schemas']['QuestionResponse'],
-): Props => {
-  return {
-    type: type,
-    userId: props.userId,
-    question: question as Extract<components['schemas']['QuestionResponse'], { type: T }>,
-    answer: findAnswer(question.id, type),
-  } as Props
-}
+const answerCardPropsArray = computed(() => {
+  return props.questionGroup.questions.map((question) => {
+    return {
+      type: question.type,
+      question: question,
+      answer: findAnswer(question.id, question.type),
+      userId: props.userId,
+    } as AnswerCardProps
+  })
+})
 </script>
 
 <template>
   <section-card>
-    <template v-for="question in questionGroup.questions" :key="question.id">
-      <answer-card :props="answerCardProps(question.type, question)" @update="updateAnswer" />
-    </template>
+    <answer-card
+      v-for="answerCardProps in answerCardPropsArray"
+      :key="answerCardProps.question.id"
+      :props="answerCardProps"
+      @update="updateAnswer"
+    />
   </section-card>
 </template>

@@ -5,7 +5,7 @@ import type { components } from '@/api/schema'
 import type { VTextField, VNumberInput } from 'vuetify/components'
 
 type QuestionType = 'free_text' | 'free_number' | 'single' | 'multiple'
-type Props = {
+export type Props = {
   [T in QuestionType]: {
     type: T
     userId: string
