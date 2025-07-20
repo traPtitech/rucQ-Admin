@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import { format, isAfter, isEqual, isValid, parse, parseISO } from 'date-fns'
 import EventEditorActions from '@/components/Events/EventEditorActions.vue'
-import TimeInputField from '@/components/shared/TimeInputField.vue'
+import TimeInputField from '@/components/Events/TimeInputField.vue'
 import { combineDateAndTime, isValidTime } from '@/utils/date-time-utils'
 import type { components } from '@/api/schema'
 import type { VForm } from 'vuetify/components'
