@@ -36,13 +36,8 @@ onMounted(async () => {
   participants.value = await fetchParticipants()
 })
 
-const deleteRegistration = async (campId: number, userId: string) => {
-  // TODO: 本番用のAPIエンドポイントに変更する
-  await apiClient.DELETE('/api/camps/{campId}/register', {
-    params: { path: { campId: campId, userId: userId } },
-  })
-  selectedId.value = undefined
-}
+// TODO: エンドポイントが作成され次第実装
+const deleteRegistration = () => {}
 
 // IDが変更されたときにフォーカスを外す
 watch(selectedId, (newId, oldId) => {

@@ -27,9 +27,8 @@ const handleDelete = () => {
   >
     参加登録の削除
   </v-btn>
-  <v-dialog v-model="isModalOpen" max-width="500">
-    <v-card>
-      <v-card-title class="headline">参加登録の削除</v-card-title>
+  <v-dialog v-model="isModalOpen" max-width="600">
+    <v-card title="参加登録の削除">
       <v-card-text>
         <p>
           本当に@{{ userId }}の参加登録を削除しますか？<br />
@@ -37,11 +36,10 @@ const handleDelete = () => {
         </p>
         <p>
           参加登録を削除すると、@{{ userId }}にDMで通知されます。<br />
-          トラブル防止のため、必ず本人の了解を得てから編集してください。
+          トラブル防止のため、必ず本人の了解を得てから操作してください。
         </p>
       </v-card-text>
       <v-card-actions>
-        <v-spacer />
         <v-btn text @click="isModalOpen = false">キャンセル</v-btn>
         <v-btn color="error" @click="handleDelete">削除</v-btn>
       </v-card-actions>

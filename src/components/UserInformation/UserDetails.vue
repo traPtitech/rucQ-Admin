@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import SectionTitle from '@/components/shared/SectionTitle.vue'
 import AnswerGroupCard from '@/components/UserInformation/AnswerGroupCard.vue'
-import DeleteRegistrationButton from '@/components/UserInformation/DeleteRegistrationButton.vue'
+// import DeleteRegistrationButton from '@/components/UserInformation/DeleteRegistrationButton.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 
@@ -11,10 +11,9 @@ const props = defineProps<{
   userId: string
 }>()
 
-const emit = defineEmits<{
-  // ユーザーの削除
-  (e: 'deleteRegistration', campId: number, userId: string): void
-}>()
+// const emit = defineEmits<{
+//   (e: 'deleteRegistration', campId: number, userId: string): void
+// }>()
 
 const questionGroups = ref<components['schemas']['QuestionGroupResponse'][]>([])
 
@@ -36,11 +35,11 @@ onMounted(async () => {
       <section-title :title="questionGroup.name" />
       <answer-group-card :user-id="userId" :question-group="questionGroup" />
     </div>
-    <div class="d-flex justify-center">
+    <!-- <div class="d-flex justify-center">
       <delete-registration-button
         :user-id="userId"
         @delete="emit('deleteRegistration', props.campId, userId)"
       />
-    </div>
+    </div> -->
   </div>
 </template>

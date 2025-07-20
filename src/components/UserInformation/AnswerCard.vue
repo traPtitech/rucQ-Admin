@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import AnswerCardBase from '@/components/UserInformation/AnswerCardBase.vue'
 import type { components } from '@/api/schema'
 import type { VTextField, VNumberInput } from 'vuetify/components'
@@ -69,10 +69,15 @@ const isEmptyAnswer = computed<boolean>(() => {
   }
 })
 
-const startEditing = () => {
+const startEditing = async () => {
   isEditing.value = true
-  freeTextFieldRef.value?.focus()
-  freeNumberFieldRef.value?.focus()
+  await nextTick()
+  if (editingAnswer.value?.type === 'free_text') {
+    freeTextFieldRef.value?.focus()
+  }
+  if (editingAnswer.value?.type === 'free_number') {
+    freeNumberFieldRef.value?.focus()
+  }
 }
 const cancelEditing = () => {
   initializeEditingAnswer()
