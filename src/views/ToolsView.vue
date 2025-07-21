@@ -18,12 +18,17 @@ const tools: Tool[] = [
     to: { name: 'Top' },
   },
   {
-    title: '質問編集',
+    title: '質問',
     icon: 'mdi-file-question',
     to: { name: 'QuestionsEdit', params: { campname } },
   },
   {
-    title: '部屋情報',
+    title: 'イベント',
+    icon: 'mdi-calendar',
+    to: { name: 'Events', params: { campname } },
+  },
+  {
+    title: '部屋',
     icon: 'mdi-door',
     to: { name: 'Rooms', params: { campname } },
   },
@@ -33,7 +38,7 @@ const tools: Tool[] = [
     to: { name: 'RollCallList', params: { campname } },
   },
   {
-    title: '支払い情報',
+    title: '支払い',
     icon: 'mdi-cash',
     to: { name: 'Payments', params: { campname } },
   },
