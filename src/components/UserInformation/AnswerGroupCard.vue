@@ -11,13 +11,13 @@ const props = defineProps<{
   questionGroup: components['schemas']['QuestionGroupResponse']
 }>()
 
-const answers = ref<components['schemas']['AnswerResponse'][]>([])
+const answers = ref<components['schemas']['AnswerResponse'][]>()
 
 const fetchAnswers = async () => {
   const { data } = await apiClient.GET('/api/admin/question-groups/{questionGroupId}/answers', {
     params: { path: { questionGroupId: props.questionGroup.id }, query: { userId: props.userId } },
   })
-  return data ?? []
+  return data
 }
 
 // userIdが変わったときに回答を再取得
@@ -33,7 +33,7 @@ const findAnswer = <T extends components['schemas']['QuestionResponse']['type']>
   questionId: number,
   type: T,
 ) => {
-  return answers.value.find((a) => a.questionId === questionId && a.type === type) as
+  return answers.value?.find((a) => a.questionId === questionId && a.type === type) as
     | Extract<components['schemas']['AnswerResponse'], { type: T }>
     | undefined
 }
@@ -69,12 +69,15 @@ const answerCardPropsArray = computed(() => {
 </script>
 
 <template>
-  <section-card>
+  <section-card v-if="answers !== undefined">
     <answer-card
       v-for="answerCardProps in answerCardPropsArray"
       :key="answerCardProps.question.id"
       :props="answerCardProps"
       @update="updateAnswer"
     />
+  </section-card>
+  <section-card v-else>
+    <p class="text-medium-emphasis">回答の取得に失敗しました</p>
   </section-card>
 </template>
