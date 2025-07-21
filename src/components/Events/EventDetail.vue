@@ -49,7 +49,8 @@ const formatTime = (time: string) => {
         </div>
         <div>
           <div class="text-body-2">場所</div>
-          <div class="text-h6">{{ event.location }}</div>
+          <div v-if="!!event.location" class="text-h6">{{ event.location }}</div>
+          <div v-else class="text-h6 text-medium-emphasis">未定</div>
         </div>
         <div>
           <div class="text-body-2">主催</div>

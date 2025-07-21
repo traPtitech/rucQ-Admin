@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { format, isAfter, isEqual, isValid, parse, parseISO } from 'date-fns'
+import { format, isAfter, isValid, parse, parseISO } from 'date-fns'
 import EventEditorActions from '@/components/Events/EventEditorActions.vue'
 import TimeInputField from '@/components/Events/TimeInputField.vue'
-import { combineDateAndTime, isValidTime } from '@/utils/date-time-utils'
+import { combineDateAndTime, isValidTime, isTimeAfterOrEqual } from '@/utils/date-time-utils'
 import type { components } from '@/api/schema'
 import type { VForm } from 'vuetify/components'
 
-interface EditedEvent {
+interface EditingEvent {
   name: string
-  timeStart?: string
-  timeEnd?: string
+  timeStart?: string // HH:mm
+  timeEnd?: string // HH:mm
   location: string
   description: string
 }
@@ -33,7 +33,7 @@ const formatDate = (date: string | undefined) => {
 }
 
 // momentイベントは開始時刻と終了時刻が同じイベントとして扱う
-const editingEvent = ref<EditedEvent>({
+const editingEvent = ref<EditingEvent>({
   name: props.event?.name ?? '',
   timeStart: formatDate(props.event?.type === 'moment' ? props.event.time : props.event?.timeStart),
   timeEnd: formatDate(props.event?.type === 'moment' ? props.event.time : props.event?.timeEnd),
@@ -43,17 +43,11 @@ const editingEvent = ref<EditedEvent>({
 const formRef = ref<VForm | null>(null)
 
 // バリデーション
-const required = (v: unknown) => !!v || '必須項目です'
-const time = (v: string | undefined) => {
-  if (!v) return true
-  return isValidTime(v) || '無効な時間です'
-}
-const endAfterStart = (timeStart: string | undefined) => (v: string | undefined) => {
-  if (!v || !timeStart) return true
-  const referenceDate = new Date()
-  const start = parse(timeStart, 'HH:mm', referenceDate)
-  const end = parse(v, 'HH:mm', referenceDate)
-  return isAfter(end, start) || isEqual(end, start) || '終了は開始より前に設定できません'
+const validationRules = {
+  required: (v: unknown) => !!v || '必須項目です',
+  time: (v: unknown) => isValidTime(v) || '無効な時間です',
+  endTime: (v: unknown) =>
+    isTimeAfterOrEqual(editingEvent.value.timeStart)(v) || '終了は開始より前に設定できません',
 }
 
 // 終了時刻を自動入力
@@ -77,7 +71,7 @@ const handleDelete = () => {
     emit('delete', props.event.id)
   }
 }
-const handleUpdate = (event: EditedEvent) => {
+const handleUpdate = (event: EditingEvent) => {
   if (!formRef.value?.isValid) return
   if (!event.timeStart || !event.timeEnd) return
 
@@ -128,7 +122,7 @@ const handleUpdate = (event: EditedEvent) => {
           label="イベント名*"
           variant="underlined"
           density="compact"
-          :rules="[required]"
+          :rules="[validationRules.required]"
           required
         />
         <v-row class="my-0">
@@ -136,14 +130,14 @@ const handleUpdate = (event: EditedEvent) => {
             <time-input-field
               v-model="editingEvent.timeStart"
               label="開始時刻*"
-              :rules="[required, time]"
+              :rules="[validationRules.required, validationRules.time]"
             />
           </v-col>
           <v-col cols="12" sm="6" class="py-0">
             <time-input-field
               v-model="editingEvent.timeEnd"
               label="終了時刻*"
-              :rules="[required, time, endAfterStart(editingEvent.timeStart)]"
+              :rules="[validationRules.required, validationRules.time, validationRules.endTime]"
             />
           </v-col>
         </v-row>
