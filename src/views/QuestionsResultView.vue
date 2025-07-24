@@ -34,13 +34,17 @@ const fetchParticipants = async () => {
 
 onMounted(async () => {
   camp.value = await fetchCamp()
-  questionGroups.value = await fetchQuestionGroups()
-  participants.value = await fetchParticipants()
+  const [fetchedQuestionGroups, fetchedParticipants] = await Promise.all([
+    fetchQuestionGroups(),
+    fetchParticipants(),
+  ])
+  questionGroups.value = fetchedQuestionGroups
+  participants.value = fetchedParticipants
 })
 </script>
 
 <template>
-  <v-container max-width="800">
+  <v-container max-width="1200">
     <question-group-card
       v-for="questionGroup in questionGroups"
       :key="questionGroup.id"

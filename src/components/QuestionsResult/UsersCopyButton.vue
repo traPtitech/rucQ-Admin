@@ -4,10 +4,11 @@ import { computed, ref } from 'vue'
 const props = defineProps<{
   users: string[]
 }>()
+
 const TOOLTIP_DISPLAY_DURATION_MS = 1000
 const copyIcon = ref('mdi-content-copy')
 const isTooltipOpen = ref(false)
-const copyTimeoutId = ref<number | undefined>(undefined)
+const copyTimeoutId = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
 
 // ['user1', 'user2'] -> '@user1 @user2 '
 const usersString = computed(() => {

@@ -89,7 +89,8 @@ export const groupSingleChoiceAnswers = (
   answers: Answer[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
-    (answer): answer is SingleChoiceAnswer => answer.type === 'single',
+    (answer): answer is SingleChoiceAnswer =>
+      answer.type === 'single' && answer.questionId === question.id,
   )
   const options: Extract<GroupedAnswer, { type: 'single' }>[] = question.options.map((option) => ({
     type: 'single',
@@ -109,7 +110,8 @@ export const groupMultipleChoiceAnswers = (
   answers: Answer[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
-    (answer): answer is MultipleChoiceAnswer => answer.type === 'multiple',
+    (answer): answer is MultipleChoiceAnswer =>
+      answer.type === 'multiple' && answer.questionId === question.id,
   )
   const options: Extract<GroupedAnswer, { type: 'multiple' }>[] = question.options.map(
     (option) => ({

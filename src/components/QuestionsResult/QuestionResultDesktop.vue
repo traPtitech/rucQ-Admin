@@ -9,7 +9,6 @@ import {
   answerContent,
   groupKey,
 } from '@/components/QuestionsResult/group-answers'
-
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
 type Answer = components['schemas']['AnswerResponse']
@@ -32,22 +31,24 @@ const unansweredUsers = computed(() =>
     <v-divider />
     <v-table>
       <tbody>
-        <tr v-for="group in groupedAnswers" :key="groupKey(group)" class="px-10">
-          <td v-if="answerContent(group)" class="text-body-1 px-2">{{ answerContent(group) }}</td>
-          <td v-else class="text-body-2 text-medium-emphasis px-2">(回答なし)</td>
+        <tr v-for="group in groupedAnswers" :key="groupKey(group)">
+          <td v-if="answerContent(group)" class="text-body-1 px-2" width="40%">
+            {{ answerContent(group) }}
+          </td>
+          <td v-else class="text-body-2 text-medium-emphasis px-2" width="40%">(回答なし)</td>
           <td class="text-body-1 text-right px-2" width="40px">{{ group.users.length }}</td>
-          <td class="px-0 ml-2" width="50%">
-            <user-avatar-list :users="group.users" />
+          <td class="px-0 ml-2">
+            <user-avatar-list :users="group.users" size="x-small" />
           </td>
           <td class="w-0 px-2">
             <users-copy-button :users="group.users" />
           </td>
         </tr>
-        <tr class="px-10">
+        <tr>
           <td class="text-body-2 text-medium-emphasis px-2">(未回答)</td>
           <td class="text-body-1 text-right px-2" width="40px">{{ unansweredUsers.length }}</td>
-          <td class="px-0 ml-2" width="40%">
-            <user-avatar-list :users="unansweredUsers" />
+          <td class="px-0 ml-2">
+            <user-avatar-list :users="unansweredUsers" size="x-small" />
           </td>
           <td class="w-0 px-2">
             <users-copy-button :users="unansweredUsers" />

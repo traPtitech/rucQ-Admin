@@ -9,7 +9,6 @@ import {
   answerContent,
   groupKey,
 } from '@/components/QuestionsResult/group-answers'
-
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
 type Answer = components['schemas']['AnswerResponse']
@@ -32,12 +31,12 @@ const unansweredUsers = computed(() =>
     <h3>{{ props.question.title }}</h3>
     <v-table>
       <tbody>
-        <tr v-for="group in groupedAnswers" :key="groupKey(group)" class="px-10">
+        <tr v-for="group in groupedAnswers" :key="groupKey(group)">
           <td v-if="answerContent(group)" class="text-subtitle-1">{{ answerContent(group) }}</td>
           <td v-else class="text-subtitle-2 text-medium-emphasis">(回答なし)</td>
           <td class="text-body-1 text-right" width="40px">{{ group.users.length }}</td>
         </tr>
-        <tr class="px-10">
+        <tr>
           <td class="text-subtitle-2 text-medium-emphasis">(未回答)</td>
           <td class="text-body-1 text-right" width="40px">{{ unansweredUsers.length }}</td>
         </tr>
