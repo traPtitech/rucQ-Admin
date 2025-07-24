@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 const props = defineProps<{
   users: string[]
 }>()
-
+const TOOLTIP_DISPLAY_DURATION_MS = 1000
 const copyIcon = ref('mdi-content-copy')
 const isTooltipOpen = ref(false)
 const copyTimeoutId = ref<number | undefined>(undefined)
@@ -29,7 +29,7 @@ const copyToClipboard = async () => {
     copyTimeoutId.value = setTimeout(() => {
       copyIcon.value = 'mdi-content-copy'
       isTooltipOpen.value = false
-    }, 1000)
+    }, TOOLTIP_DISPLAY_DURATION_MS)
   } catch (err) {
     console.error('クリップボードへのコピーに失敗しました:', err)
     alert('クリップボードへのコピーに失敗しました。')

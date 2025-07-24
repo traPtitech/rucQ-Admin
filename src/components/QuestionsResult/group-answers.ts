@@ -1,4 +1,5 @@
 import type { components } from '@/api/schema'
+type Question = components['schemas']['QuestionResponse']
 type FreeTextQuestion = components['schemas']['FreeTextQuestionResponse']
 type FreeNumberQuestion = components['schemas']['FreeNumberQuestionResponse']
 type SingleChoiceQuestion = components['schemas']['SingleChoiceQuestionResponse']
@@ -125,6 +126,34 @@ export const groupMultipleChoiceAnswers = (
     })
     return acc
   }, options)
+}
+
+// ある回答をしたユーザーをグループ化
+export const groupAnswers = (question: Question, answers: Answer[]): GroupedAnswer[] => {
+  switch (question.type) {
+    case 'free_text':
+      return groupFreeTextAnswers(question, answers)
+    case 'free_number':
+      return groupFreeNumberAnswers(question, answers)
+    case 'single':
+      return groupSingleChoiceAnswers(question, answers)
+    case 'multiple':
+      return groupMultipleChoiceAnswers(question, answers)
+    default:
+      const _exhaustiveCheck: never = question
+      throw new Error(`Unexpected type: ${(_exhaustiveCheck as Question).type}`)
+  }
+}
+
+// 未回答のユーザーを取得
+export const groupUnansweredUsers = (
+  question: Question,
+  answers: Answer[],
+  participants: string[],
+): string[] => {
+  const filteredAnswers = answers.filter((answer) => answer.questionId === question.id)
+  const answeredUserIds = new Set(filteredAnswers.map((answer) => answer.userId))
+  return participants.filter((userId) => !answeredUserIds.has(userId))
 }
 
 export const groupKey = (group: GroupedAnswer) => {
