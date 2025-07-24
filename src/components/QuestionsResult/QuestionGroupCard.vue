@@ -10,6 +10,7 @@ type Answer = components['schemas']['AnswerResponse']
 
 const props = defineProps<{
   questionGroup: QuestionGroup
+  participants: string[]
 }>()
 
 const answers = ref<Answer[]>([])
@@ -34,6 +35,7 @@ onMounted(async () => {
       :key="question.id"
       :question="question"
       :answers="answers"
+      :participants="participants"
     />
   </section-card>
 </template>

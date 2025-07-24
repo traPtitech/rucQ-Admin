@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useDisplay } from 'vuetify'
+import QuestionResultTableDesktop from '@/components/QuestionsResult/QuestionResultTableDesktop.vue'
+import QuestionResultTableMobile from '@/components/QuestionsResult/QuestionResultTableMobile.vue'
 import ContentCard from '@/components/shared/ContentCard.vue'
-import UserAvatar from '@/components/shared/UserAvatar.vue'
 import {
   groupFreeTextAnswers,
   groupFreeNumberAnswers,
@@ -17,10 +18,12 @@ type Answer = components['schemas']['AnswerResponse']
 const props = defineProps<{
   question: Question
   answers: Answer[]
+  participants: string[]
 }>()
 
-const route = useRoute()
-const campname = route.params.campname as string
+const display = useDisplay()
+const isSmAndUp = display.smAndUp
+const isModalOpen = ref(false)
 
 const groupedAnswers = computed<GroupedAnswer[]>(() => {
   switch (props.question.type) {
@@ -37,64 +40,29 @@ const groupedAnswers = computed<GroupedAnswer[]>(() => {
       throw new Error(`Unexpected type: ${(_exhaustiveCheck as Question).type}`)
   }
 })
-
-const groupKey = (group: GroupedAnswer) => {
-  switch (group.type) {
-    case 'free_text':
-    case 'free_number':
-      return group.answerContent
-    case 'single':
-    case 'multiple':
-      return group.answerContent.id
-    default:
-      const _exhaustiveCheck: never = group
-      throw new Error(`Unexpected type: ${(_exhaustiveCheck as GroupedAnswer).type}`)
-  }
-}
-const answerContent = (group: GroupedAnswer) => {
-  switch (group.type) {
-    case 'free_text':
-    case 'free_number':
-      return group.answerContent
-    case 'single':
-    case 'multiple':
-      return group.answerContent.content
-    default:
-      const _exhaustiveCheck: never = group
-      throw new Error(`Unexpected type: ${(_exhaustiveCheck as GroupedAnswer).type}`)
-  }
-}
+const unansweredUsers = computed<string[]>(() => {
+  const filteredAnswers = props.answers.filter((answer) => answer.questionId === props.question.id)
+  const answeredUserIds = new Set(filteredAnswers.map((answer) => answer.userId))
+  return props.participants.filter((userId) => !answeredUserIds.has(userId))
+})
 </script>
 
 <template>
-  <content-card>
+  <content-card v-if="isSmAndUp">
+    <h3 class="py-2">{{ props.question.title }}</h3>
+    <v-divider />
+    <question-result-table-desktop
+      :grouped-answers="groupedAnswers"
+      :unanswered-users="unansweredUsers"
+    />
+  </content-card>
+  <content-card v-else @click="isModalOpen = true">
     <h3>{{ props.question.title }}</h3>
-    <v-table>
-      <tbody>
-        <tr v-for="group in groupedAnswers" :key="groupKey(group)">
-          <td v-if="answerContent(group)" class="text-subtitle-1">{{ answerContent(group) }}</td>
-          <td v-else class="text-subtitle-2 text-medium-emphasis">(回答なし)</td>
-          <td class="text-body-1 text-right" width="60px">{{ group.users.length }}</td>
-          <td width="40%" class="pr-0">
-            <div class="flex flex-wrap">
-              <span v-for="userId in group.users" :key="userId">
-                <router-link
-                  :to="{
-                    name: 'UserInformation',
-                    params: { campname: campname },
-                    query: { id: userId },
-                  }"
-                >
-                  <user-avatar :user-id="userId" size="x-small" />
-                </router-link>
-              </span>
-            </div>
-          </td>
-          <td class="w-0">
-            <v-btn icon="mdi-content-copy" size="small" density="comfortable" variant="plain" />
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <question-result-table-mobile
+      :question-title="props.question.title"
+      :grouped-answers="groupedAnswers"
+      :unanswered-users="unansweredUsers"
+      v-model="isModalOpen"
+    />
   </content-card>
 </template>

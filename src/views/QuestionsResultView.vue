@@ -11,6 +11,7 @@ const route = useRoute()
 const campname = route.params.campname as string
 const camp = ref<Camp>()
 const questionGroups = ref<QuestionGroup[]>([])
+const participants = ref<string[]>([])
 
 const fetchCamp = async () => {
   const { data } = await apiClient.GET('/api/camps')
@@ -23,10 +24,18 @@ const fetchQuestionGroups = async () => {
   })
   return data ?? []
 }
+const fetchParticipants = async () => {
+  if (!camp.value) return []
+  const { data } = await apiClient.GET('/api/camps/{campId}/participants', {
+    params: { path: { campId: camp.value?.id } },
+  })
+  return data?.map((participant) => participant.id) ?? []
+}
 
 onMounted(async () => {
   camp.value = await fetchCamp()
   questionGroups.value = await fetchQuestionGroups()
+  participants.value = await fetchParticipants()
 })
 </script>
 
@@ -36,6 +45,7 @@ onMounted(async () => {
       v-for="questionGroup in questionGroups"
       :key="questionGroup.id"
       :question-group="questionGroup"
+      :participants="participants"
     />
   </v-container>
 </template>

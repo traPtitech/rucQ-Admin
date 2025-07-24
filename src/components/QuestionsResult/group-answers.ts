@@ -126,3 +126,31 @@ export const groupMultipleChoiceAnswers = (
     return acc
   }, options)
 }
+
+export const groupKey = (group: GroupedAnswer) => {
+  switch (group.type) {
+    case 'free_text':
+    case 'free_number':
+      return group.answerContent
+    case 'single':
+    case 'multiple':
+      return group.answerContent.id
+    default:
+      const _exhaustiveCheck: never = group
+      throw new Error(`Unexpected type: ${(_exhaustiveCheck as GroupedAnswer).type}`)
+  }
+}
+
+export const answerContent = (group: GroupedAnswer) => {
+  switch (group.type) {
+    case 'free_text':
+    case 'free_number':
+      return group.answerContent
+    case 'single':
+    case 'multiple':
+      return group.answerContent.content
+    default:
+      const _exhaustiveCheck: never = group
+      throw new Error(`Unexpected type: ${(_exhaustiveCheck as GroupedAnswer).type}`)
+  }
+}
