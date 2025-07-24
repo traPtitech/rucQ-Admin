@@ -38,7 +38,7 @@ const isModalOpen = defineModel<boolean>({ required: true })
           <div v-else class="text-subtitle-2 text-medium-emphasis">(回答なし)</div>
           <v-spacer />
           <div class="text-body-2 text-right">{{ group.users.length }}</div>
-          <users-copy-button />
+          <users-copy-button :users="group.users" />
         </div>
         <v-divider class="mb-1" />
         <user-avatar-list :users="group.users" size="x-small" />
@@ -48,7 +48,7 @@ const isModalOpen = defineModel<boolean>({ required: true })
           <div class="text-subtitle-2 text-medium-emphasis">(未回答)</div>
           <v-spacer />
           <div class="text-body-2 text-right">{{ unansweredUsers.length }}</div>
-          <users-copy-button />
+          <users-copy-button :users="unansweredUsers" />
         </div>
         <v-divider class="mb-1" />
         <user-avatar-list :users="unansweredUsers" size="x-small" />

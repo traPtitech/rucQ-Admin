@@ -24,7 +24,7 @@ defineProps<{
           <user-avatar-list :users="group.users" />
         </td>
         <td class="w-0 px-2">
-          <users-copy-button />
+          <users-copy-button :users="group.users" />
         </td>
       </tr>
       <tr class="px-10">
@@ -34,7 +34,7 @@ defineProps<{
           <user-avatar-list :users="unansweredUsers" />
         </td>
         <td class="w-0 px-2">
-          <users-copy-button />
+          <users-copy-button :users="unansweredUsers" />
         </td>
       </tr>
     </tbody>
