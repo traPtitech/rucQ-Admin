@@ -116,4 +116,24 @@ export const campsHandlers = [
   http.get('/api/camps/{campId}/participants', () => {
     return HttpResponse.json(participants, { status: 200 })
   }),
+
+  http.post('/api/admin/camps/{campId}/participants', async ({ request }) => {
+    const { userId } = await request.json()
+    const newUser: User = {
+      id: userId,
+      isStaff: false,
+    }
+    participants.push(newUser)
+    return new HttpResponse(null, { status: 204 })
+  }),
+
+  http.delete('/api/admin/camps/{campId}/participants/{userId}', ({ params }) => {
+    const userId = params.userId
+    const index = participants.findIndex((p) => p.id === userId)
+    if (index === -1) {
+      return HttpResponse.json({ message: 'Not Found' }, { status: 404 })
+    }
+    participants.splice(index, 1)
+    return new HttpResponse(null, { status: 204 })
+  }),
 ]
