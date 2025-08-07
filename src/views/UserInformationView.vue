@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
+import UnselectedSection from '@/components/UserInformation/UnselectedSection.vue'
 import UserAvatar from '@/components/shared/UserAvatar.vue'
 import UserDetails from '@/components/UserInformation/UserDetails.vue'
 import { apiClient } from '@/api/apiClient'
@@ -35,6 +36,18 @@ onMounted(async () => {
   camp.value = await fetchCamp()
   participants.value = await fetchParticipants()
 })
+
+const postRegistration = async (userId: string) => {
+  if (!camp.value) return
+  const { error } = await apiClient.POST('/api/admin/camps/{campId}/participants', {
+    params: { path: { campId: camp.value.id } },
+    body: { userId },
+  })
+  if (!error) {
+    participants.value.push({ id: userId, isStaff: false })
+    selectedId.value = userId
+  }
+}
 
 const deleteRegistration = async (campId: number, userId: string) => {
   if (!camp.value) return
@@ -89,7 +102,7 @@ watch(selectedId, (newId, oldId) => {
       :user-id="selectedId"
       @delete-registration="deleteRegistration"
     />
-    <div v-else class="mt-10 text-center text-h5 text-medium-emphasis">ユーザー未選択</div>
+    <unselected-section v-else class="mt-4" @registration="postRegistration" />
   </v-container>
 </template>
 
