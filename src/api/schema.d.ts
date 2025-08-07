@@ -91,6 +91,46 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/camps/{campId}/participants': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * ユーザーを合宿に参加させる（管理者用）
+     * @description 参加登録受付中かどうかに関わらず、ユーザーを合宿に参加させます。対象のユーザーにtraQのDMで通知します。
+     */
+    post: operations['adminAddCampParticipant']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/camps/{campId}/participants/{userId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    /**
+     * ユーザーの参加を取り消す（管理者用）
+     * @description ユーザーの合宿参加を取り消します。対象のユーザーにtraQのDMで通知します。
+     */
+    delete: operations['adminRemoveCampParticipant']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/camps/{campId}/events': {
     parameters: {
       query?: never
@@ -442,7 +482,10 @@ export interface paths {
       cookie?: never
     }
     get?: never
-    /** 管理者が回答を更新 */
+    /**
+     * 管理者が回答を更新
+     * @description QuestionのisOpenがfalseの場合でも回答を更新できます。更新するとユーザーにtraQでDMが送信されます。
+     */
     put: operations['adminPutAnswer']
     post?: never
     delete?: never
@@ -1353,6 +1396,57 @@ export interface operations {
           'application/json': components['schemas']['UserResponse'][]
         }
       }
+      500: components['responses']['InternalServerError']
+    }
+  }
+  adminAddCampParticipant: {
+    parameters: {
+      query?: never
+      header?: {
+        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
+        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
+      }
+      path: {
+        /** @description 合宿ID */
+        campId: components['parameters']['CampId']
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          userId: string
+        }
+      }
+    }
+    responses: {
+      204: components['responses']['NoContent']
+      400: components['responses']['BadRequest']
+      403: components['responses']['Forbidden']
+      404: components['responses']['NotFound']
+      500: components['responses']['InternalServerError']
+    }
+  }
+  adminRemoveCampParticipant: {
+    parameters: {
+      query?: never
+      header?: {
+        /** @description ログインしているユーザーのtraQ ID（NeoShowcaseが自動で付与） */
+        'X-Forwarded-User'?: components['parameters']['X-Forwarded-User']
+      }
+      path: {
+        /** @description 合宿ID */
+        campId: components['parameters']['CampId']
+        /** @description User ID */
+        userId: components['parameters']['UserId']
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      204: components['responses']['NoContent']
+      403: components['responses']['Forbidden']
+      404: components['responses']['NotFound']
       500: components['responses']['InternalServerError']
     }
   }

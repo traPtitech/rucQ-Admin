@@ -36,8 +36,18 @@ onMounted(async () => {
   participants.value = await fetchParticipants()
 })
 
-// TODO: エンドポイントが作成され次第実装
-const deleteRegistration = () => {}
+const deleteRegistration = async (campId: number, userId: string) => {
+  if (!camp.value) return
+  const { error } = await apiClient.DELETE('/api/admin/camps/{campId}/participants/{userId}', {
+    params: { path: { campId, userId } },
+  })
+  if (!error) {
+    participants.value = participants.value.filter((p) => p.id !== userId)
+    if (selectedId.value === userId) {
+      selectedId.value = undefined
+    }
+  }
+}
 
 // IDが変更されたときにフォーカスを外す
 watch(selectedId, (newId, oldId) => {
