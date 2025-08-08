@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
+import UnselectedSection from '@/components/UserInformation/UnselectedSection.vue'
 import UserAvatar from '@/components/shared/UserAvatar.vue'
 import UserDetails from '@/components/UserInformation/UserDetails.vue'
 import { apiClient } from '@/api/apiClient'
@@ -36,8 +37,30 @@ onMounted(async () => {
   participants.value = await fetchParticipants()
 })
 
-// TODO: エンドポイントが作成され次第実装
-const deleteRegistration = () => {}
+const postRegistration = async (userId: string) => {
+  if (!camp.value) return
+  const { error } = await apiClient.POST('/api/admin/camps/{campId}/participants', {
+    params: { path: { campId: camp.value.id } },
+    body: { userId },
+  })
+  if (!error) {
+    participants.value.push({ id: userId, isStaff: false })
+    selectedId.value = userId
+  }
+}
+
+const deleteRegistration = async (campId: number, userId: string) => {
+  if (!camp.value) return
+  const { error } = await apiClient.DELETE('/api/admin/camps/{campId}/participants/{userId}', {
+    params: { path: { campId, userId } },
+  })
+  if (!error) {
+    participants.value = participants.value.filter((p) => p.id !== userId)
+    if (selectedId.value === userId) {
+      selectedId.value = undefined
+    }
+  }
+}
 
 // IDが変更されたときにフォーカスを外す
 watch(selectedId, (newId, oldId) => {
@@ -79,7 +102,7 @@ watch(selectedId, (newId, oldId) => {
       :user-id="selectedId"
       @delete-registration="deleteRegistration"
     />
-    <div v-else class="mt-10 text-center text-h5 text-medium-emphasis">ユーザー未選択</div>
+    <unselected-section v-else class="mt-4" @registration="postRegistration" />
   </v-container>
 </template>
 
