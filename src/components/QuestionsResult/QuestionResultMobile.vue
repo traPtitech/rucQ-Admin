@@ -20,7 +20,9 @@ const props = defineProps<{
 }>()
 
 const isModalOpen = ref(false)
-const groupedAnswers = computed(() => groupAnswers(props.question, props.answers))
+const groupedAnswers = computed(() =>
+  groupAnswers(props.question, props.answers, props.participants),
+)
 const unansweredUsers = computed(() =>
   groupUnansweredUsers(props.question, props.answers, props.participants),
 )
