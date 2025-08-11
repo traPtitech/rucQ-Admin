@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { parseISO, format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import SectionTitle from '@/components/shared/SectionTitle.vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
 import UserAvatar from '@/components/shared/UserAvatar.vue'
-import UsersCopyButton from '@/components/shared/UsersCopyButton.vue'
 import CampNotifications from '@/components/CampTop/CampNotifications.vue'
 import CampSummaryEditor from '@/components/CampTop/CampSummaryEditor.vue'
 import type { components } from '@/api/schema'
 
-const props = defineProps<{
+defineProps<{
   camp?: components['schemas']['CampResponse']
   participants?: components['schemas']['UserResponse'][]
 }>()
@@ -20,7 +19,6 @@ const emit = defineEmits<{
 }>()
 
 const dialog = ref(false)
-const participantsIds = computed(() => props.participants?.map((p) => p.id) || [])
 
 const formatDate = (date: string) => {
   return format(parseISO(date), 'M/d(EEEEE)', { locale: ja })
@@ -46,10 +44,7 @@ const handleUpdate = (updatedCamp: components['schemas']['CampRequest']) => {
         </div>
         <div>
           <div class="text-body-2">参加人数</div>
-          <div class="d-flex align-end ga-2">
-            <div class="text-h5">{{ participants?.length }}</div>
-            <users-copy-button :users="participantsIds" />
-          </div>
+          <div class="text-h5">{{ participants?.length }}</div>
         </div>
         <div>
           <div class="text-body-2">参加者</div>
