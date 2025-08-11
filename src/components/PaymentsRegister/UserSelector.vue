@@ -12,6 +12,10 @@ defineProps<{
   users: User[]
 }>()
 
+const emit = defineEmits<{
+  (e: 'tab-pressed'): void
+}>()
+
 const display = useDisplay()
 const isSmAndUp = display.smAndUp
 
@@ -22,6 +26,13 @@ const paymentId = (id: string) => {
 const customFilter = (value: string, query: string, item: unknown) => {
   const id = (item as { raw: User }).raw.id
   return paymentId(id).startsWith(query.toUpperCase())
+}
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Tab') {
+    event.preventDefault()
+    emit('tab-pressed')
+  }
 }
 </script>
 
@@ -40,6 +51,7 @@ const customFilter = (value: string, query: string, item: unknown) => {
       variant="outlined"
       auto-select-first
       hide-details
+      @keydown="handleKeyDown"
     >
       <template #item="{ props, item }">
         <v-list-item v-bind="props" :title="paymentId(item.raw.id)">
