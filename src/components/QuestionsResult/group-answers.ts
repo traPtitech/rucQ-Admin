@@ -27,10 +27,13 @@ export type GroupedAnswer = {
 export const groupFreeTextAnswers = (
   question: FreeTextQuestion,
   answers: Answer[],
+  participants: string[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is FreeTextAnswer =>
-      answer.type === 'free_text' && answer.questionId === question.id,
+      answer.type === 'free_text' &&
+      answer.questionId === question.id &&
+      participants.includes(answer.userId),
   )
   const answerMap = filteredAnswers.reduce(
     (acc, answer) => {
@@ -58,10 +61,13 @@ export const groupFreeTextAnswers = (
 export const groupFreeNumberAnswers = (
   question: FreeNumberQuestion,
   answers: Answer[],
+  participants: string[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is FreeNumberAnswer =>
-      answer.type === 'free_number' && answer.questionId === question.id,
+      answer.type === 'free_number' &&
+      answer.questionId === question.id &&
+      participants.includes(answer.userId),
   )
   if (filteredAnswers.length === 0) return []
 
@@ -87,10 +93,13 @@ export const groupFreeNumberAnswers = (
 export const groupSingleChoiceAnswers = (
   question: SingleChoiceQuestion,
   answers: Answer[],
+  participants: string[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is SingleChoiceAnswer =>
-      answer.type === 'single' && answer.questionId === question.id,
+      answer.type === 'single' &&
+      answer.questionId === question.id &&
+      participants.includes(answer.userId),
   )
   const options: Extract<GroupedAnswer, { type: 'single' }>[] = question.options.map((option) => ({
     type: 'single',
@@ -108,10 +117,13 @@ export const groupSingleChoiceAnswers = (
 export const groupMultipleChoiceAnswers = (
   question: MultipleChoiceQuestion,
   answers: Answer[],
+  participants: string[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is MultipleChoiceAnswer =>
-      answer.type === 'multiple' && answer.questionId === question.id,
+      answer.type === 'multiple' &&
+      answer.questionId === question.id &&
+      participants.includes(answer.userId),
   )
   const options: Extract<GroupedAnswer, { type: 'multiple' }>[] = question.options.map(
     (option) => ({
@@ -131,16 +143,20 @@ export const groupMultipleChoiceAnswers = (
 }
 
 // ある回答をしたユーザーをグループ化
-export const groupAnswers = (question: Question, answers: Answer[]): GroupedAnswer[] => {
+export const groupAnswers = (
+  question: Question,
+  answers: Answer[],
+  participants: string[],
+): GroupedAnswer[] => {
   switch (question.type) {
     case 'free_text':
-      return groupFreeTextAnswers(question, answers)
+      return groupFreeTextAnswers(question, answers, participants)
     case 'free_number':
-      return groupFreeNumberAnswers(question, answers)
+      return groupFreeNumberAnswers(question, answers, participants)
     case 'single':
-      return groupSingleChoiceAnswers(question, answers)
+      return groupSingleChoiceAnswers(question, answers, participants)
     case 'multiple':
-      return groupMultipleChoiceAnswers(question, answers)
+      return groupMultipleChoiceAnswers(question, answers, participants)
     default:
       const _exhaustiveCheck: never = question
       throw new Error(`Unexpected type: ${(_exhaustiveCheck as Question).type}`)
