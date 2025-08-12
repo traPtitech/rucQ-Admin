@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import UserAvatar from '@/components/shared/UserAvatar.vue'
 import type { VAutocomplete } from 'vuetify/components'
@@ -6,7 +7,7 @@ import type { components } from '@/api/schema'
 type User = components['schemas']['UserResponse']
 
 const autocompleteRef = defineModel<VAutocomplete | null>('autocompleteRef', { default: null })
-const selectedId = defineModel<string | null>('selectedId', { default: null })
+const selectedId = defineModel<string | undefined>('selectedId', { default: undefined })
 
 defineProps<{
   users: User[]
@@ -18,6 +19,14 @@ const emit = defineEmits<{
 
 const display = useDisplay()
 const isSmAndUp = display.smAndUp
+const autocompleteModel = computed({
+  get() {
+    return selectedId.value ?? null
+  },
+  set(newValue: string | null) {
+    selectedId.value = newValue ?? undefined
+  },
+})
 
 const paymentId = (id: string) => {
   return id.toUpperCase().replace(/[-_]/g, '')
@@ -41,7 +50,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
     <user-avatar :user-id="selectedId ?? undefined" :size="isSmAndUp ? 64 : 48" />
     <v-autocomplete
       ref="autocompleteRef"
-      v-model="selectedId"
+      v-model="autocompleteModel"
       :class="isSmAndUp ? 'title-input-desktop' : 'title-input-mobile'"
       :items="users"
       item-title="id"

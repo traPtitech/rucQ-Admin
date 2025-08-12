@@ -21,11 +21,12 @@ const camp = ref<Camp>()
 const participants = ref<User[]>([])
 const payments = ref<Payment[]>([])
 
-const selectedId = ref<string | null>(null)
+const selectedId = ref<string | undefined>(undefined)
 const newAmountPaid = ref<number | null>(null)
 const selectedData = computed(() => {
   if (!selectedId.value || !camp.value) return undefined
-  return payments.value.find((p) => p.userId === selectedId.value)
+  const campId = camp.value.id
+  return payments.value.find((p) => p.userId === selectedId.value && p.campId === campId)
 })
 
 const fetchCamp = async () => {
@@ -64,7 +65,7 @@ const updatePayment = async (paymentId: number, payment: PaymentRequest) => {
   if (index !== -1) {
     payments.value[index] = data
   }
-  selectedId.value = null
+  selectedId.value = undefined
   autocompleteRef.value?.focus()
 }
 
@@ -91,8 +92,8 @@ const focusConfirmButton = async () => {
       :users="participants"
       @tab-pressed="focusConfirmButton"
     />
-    <section-card v-if="selectedId" class="mt-4">
-      <payment-status :data="selectedData" />
+    <section-card class="mt-4">
+      <payment-status :user="selectedId" :data="selectedData" />
       <payment-register-form
         v-model:confirm-button-ref="confirmButtonRef"
         v-model:new-amount-paid="newAmountPaid"
@@ -100,6 +101,5 @@ const focusConfirmButton = async () => {
         @update="updatePayment"
       />
     </section-card>
-    <div v-else class="text-h5 text-medium-emphasis text-center mt-8">ユーザー未選択</div>
   </v-container>
 </template>

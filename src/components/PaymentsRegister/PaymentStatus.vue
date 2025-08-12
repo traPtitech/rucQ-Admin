@@ -4,10 +4,12 @@ import type { components } from '@/api/schema'
 type Payment = components['schemas']['PaymentResponse']
 
 const props = defineProps<{
+  user?: string
   data?: Payment
 }>()
 
 const status = computed(() => {
+  if (props.user === undefined) return 'unselected'
   if (props.data === undefined) return 'unregistered'
   if (props.data.amount === props.data.amountPaid) return 'paid'
   if (props.data.amountPaid === 0) return 'pending'
@@ -17,6 +19,10 @@ const status = computed(() => {
 
 <template>
   <div class="text-center rounded pa-4 mb-6" :class="$style[status]">
+    <template v-if="status === 'unselected'">
+      <div class="text-h5 font-weight-bold">未選択</div>
+      <div class="text-subtitle-1">ユーザーが選択されていません</div>
+    </template>
     <template v-if="status === 'unregistered'">
       <div class="text-h5 font-weight-bold">未登録</div>
       <div class="text-subtitle-1">合宿費情報が登録されていません</div>
@@ -39,6 +45,7 @@ const status = computed(() => {
 </template>
 
 <style module>
+.unselected,
 .unregistered {
   background-color: rgba(128, 128, 128, 0.1);
   color: rgb(128, 128, 128);
