@@ -6,6 +6,7 @@ import PaymentStatus from '@/components/PaymentsRegister/PaymentStatus.vue'
 import PaymentRegisterForm from '@/components/PaymentsRegister/PaymentRegisterForm.vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
 import { apiClient } from '@/api/apiClient'
+import { getMessageContent, getMessageSendTime } from '@/components/PaymentsRegister/messages'
 import type { components } from '@/api/schema'
 import type { VAutocomplete, VBtn } from 'vuetify/components'
 type Camp = components['schemas']['CampResponse']
@@ -61,12 +62,30 @@ const updatePayment = async (paymentId: number, payment: PaymentRequest) => {
     alert('支払い情報の更新に失敗しました')
     return
   }
+  await sendDm()
   const index = payments.value.findIndex((p) => p.id === paymentId)
   if (index !== -1) {
     payments.value[index] = data
   }
+  newAmountPaid.value = null
   selectedId.value = undefined
   autocompleteRef.value?.focus()
+}
+
+const sendDm = async () => {
+  if (!camp.value || !selectedData.value) return
+  if (newAmountPaid.value == null || newAmountPaid.value === 0) return
+  await apiClient.POST('/api/admin/users/{userId}/messages', {
+    params: { path: { userId: selectedData.value.userId } },
+    body: {
+      content: getMessageContent(
+        selectedData.value.amount,
+        selectedData.value.amountPaid,
+        newAmountPaid.value,
+      ),
+      sendAt: getMessageSendTime(),
+    },
+  })
 }
 
 onMounted(async () => {

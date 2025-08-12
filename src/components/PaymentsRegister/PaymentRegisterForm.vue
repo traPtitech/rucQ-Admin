@@ -31,7 +31,6 @@ const handleUpdate = () => {
     amountPaid: props.data.amountPaid + newAmountPaid.value,
   }
   emit('update', props.data.id, payment)
-  newAmountPaid.value = null
 }
 </script>
 
