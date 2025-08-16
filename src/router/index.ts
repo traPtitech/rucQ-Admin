@@ -80,6 +80,12 @@ const router = createRouter({
           meta: { title: '支払い登録' },
         },
         {
+          path: 'payments/confirm',
+          name: 'PaymentsConfirm',
+          component: () => import('@/views/PaymentsConfirmView.vue'),
+          meta: { title: '支払い確認' },
+        },
+        {
           path: 'events',
           name: 'Events',
           component: () => import('@/views/EventsView.vue'),

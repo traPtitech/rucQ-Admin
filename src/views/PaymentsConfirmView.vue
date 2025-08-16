@@ -1,0 +1,124 @@
+<script setup lang="ts">
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import UserSelector from '@/components/PaymentsConfirm/UserSelector.vue'
+import PaymentStatus from '@/components/PaymentsConfirm/PaymentStatus.vue'
+import PaymentRegisterForm from '@/components/PaymentsConfirm/PaymentRegisterForm.vue'
+import SectionCard from '@/components/shared/SectionCard.vue'
+import { apiClient } from '@/api/apiClient'
+import { getMessageContent, getMessageSendTime } from '@/components/PaymentsConfirm/messages'
+import type { components } from '@/api/schema'
+import type { VAutocomplete, VBtn } from 'vuetify/components'
+type Camp = components['schemas']['CampResponse']
+type User = components['schemas']['UserResponse']
+type Payment = components['schemas']['PaymentResponse']
+type PaymentRequest = components['schemas']['PaymentRequest']
+
+const autocompleteRef = ref<VAutocomplete | null>(null)
+const confirmButtonRef = ref<VBtn | null>(null)
+const route = useRoute()
+const campname = route.params.campname as string
+const camp = ref<Camp>()
+const participants = ref<User[]>([])
+const payments = ref<Payment[]>([])
+
+const selectedId = ref<string | undefined>(undefined)
+const newAmountPaid = ref<number | null>(null)
+const selectedData = computed(() => {
+  if (!selectedId.value || !camp.value) return undefined
+  const campId = camp.value.id
+  return payments.value.find((p) => p.userId === selectedId.value && p.campId === campId)
+})
+
+const fetchCamp = async () => {
+  if (!campname) return
+  const { data } = await apiClient.GET('/api/camps')
+  return data?.find((c) => c.displayId === campname)
+}
+
+const fetchPayments = async () => {
+  if (!camp.value) return
+  const { data } = await apiClient.GET('/api/admin/camps/{campId}/payments', {
+    params: { path: { campId: camp.value.id } },
+  })
+  return data
+}
+
+const fetchParticipants = async () => {
+  if (!camp.value) return []
+  const { data } = await apiClient.GET('/api/camps/{campId}/participants', {
+    params: { path: { campId: camp.value.id } },
+  })
+  return data ?? []
+}
+
+const updatePayment = async (paymentId: number, payment: PaymentRequest) => {
+  if (!camp.value) return
+  const { data, error } = await apiClient.PUT('/api/admin/payments/{paymentId}', {
+    params: { path: { paymentId } },
+    body: payment,
+  })
+  if (error) {
+    alert('支払い情報の更新に失敗しました')
+    return
+  }
+  await sendDm()
+  const index = payments.value.findIndex((p) => p.id === paymentId)
+  if (index !== -1) {
+    payments.value[index] = data
+  }
+  newAmountPaid.value = null
+  selectedId.value = undefined
+  autocompleteRef.value?.focus()
+}
+
+const sendDm = async () => {
+  if (!camp.value || !selectedData.value) return
+  if (newAmountPaid.value == null || newAmountPaid.value === 0) return
+  await apiClient.POST('/api/admin/users/{userId}/messages', {
+    params: { path: { userId: selectedData.value.userId } },
+    body: {
+      content: getMessageContent(
+        selectedData.value.amount,
+        selectedData.value.amountPaid,
+        newAmountPaid.value,
+      ),
+      sendAt: getMessageSendTime(),
+    },
+  })
+}
+
+onMounted(async () => {
+  camp.value = await fetchCamp()
+  participants.value = (await fetchParticipants()) ?? []
+  payments.value = (await fetchPayments()) ?? []
+})
+
+const focusConfirmButton = async () => {
+  if (selectedData.value?.amountPaid === 0) {
+    newAmountPaid.value = selectedData.value.amount
+    await nextTick()
+    confirmButtonRef.value?.$el.focus()
+  }
+}
+</script>
+
+<template>
+  <v-container max-width="800">
+    <user-selector
+      v-model:autocomplete-ref="autocompleteRef"
+      v-model:selected-id="selectedId"
+      :users="participants"
+      @tab-pressed="focusConfirmButton"
+    />
+    <section-card class="mt-4">
+      <payment-status :user="selectedId" :data="selectedData" />
+      <payment-register-form
+        v-model:confirm-button-ref="confirmButtonRef"
+        v-model:new-amount-paid="newAmountPaid"
+        :data="selectedData"
+        @update="updatePayment"
+      />
+    </section-card>
+  </v-container>
+</template>
