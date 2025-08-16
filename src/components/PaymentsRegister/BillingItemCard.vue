@@ -5,6 +5,10 @@ import type { BillingItem } from '@/components/PaymentsRegister/billing-item'
 
 const billingItem = defineModel<BillingItem>({ required: true })
 
+const props = defineProps<{
+  targetUsers: string[]
+}>()
+
 const emit = defineEmits<{
   (e: 'delete', id: number): void
 }>()
@@ -25,6 +29,9 @@ const targetsInnerIcon = computed(() => {
   if (billingItem.value.targets.length > 0) return 'mdi-close'
   return undefined
 })
+const isTargetUser = computed(() => {
+  return billingItem.value.targets.every((target) => props.targetUsers.includes(target))
+})
 
 const handleAppendInnerClick = () => {
   if (billingItem.value.targets.length > 0) {
@@ -40,6 +47,7 @@ const handleAppendInnerClick = () => {
         <div class="text-body-2">対象</div>
         <v-text-field
           v-model="targetsModel"
+          :rules="[isTargetUser || '不明なユーザーです']"
           :append-inner-icon="targetsInnerIcon"
           variant="outlined"
           @click:append-inner="handleAppendInnerClick"
@@ -63,6 +71,7 @@ const handleAppendInnerClick = () => {
         <v-number-input
           v-model="billingItem.amount"
           class="amount-input"
+          :rules="[(v) => !!v]"
           variant="underlined"
           control-variant="hidden"
           density="compact"

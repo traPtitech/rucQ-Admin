@@ -97,6 +97,6 @@ const handleSubmit = async (billingItems: BillingItem[]) => {
     <section-title title="概要" />
     <payments-summary :participants="participants" :payments="payments" />
     <section-title title="登録" />
-    <payments-editor @submit="handleSubmit" />
+    <payments-editor :participants="participants" :payments="payments" @submit="handleSubmit" />
   </v-container>
 </template>

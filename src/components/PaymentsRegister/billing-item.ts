@@ -3,7 +3,7 @@ export interface BillingItem {
   targets: string[]
   amount: number | null
 }
-export interface UserBillingAddition {
+interface UserBillingAddition {
   userId: string
   amount: number
 }
