@@ -22,9 +22,15 @@ const targetsModel = computed({
   },
 })
 const targetsInnerIcon = computed(() => {
-  if (billingItem.value.targets.length > 0) return undefined
-  return 'mdi-account-multiple-plus'
+  if (billingItem.value.targets.length > 0) return 'mdi-close'
+  return undefined
 })
+
+const handleAppendInnerClick = () => {
+  if (billingItem.value.targets.length > 0) {
+    billingItem.value.targets = []
+  }
+}
 </script>
 
 <template>
@@ -36,6 +42,7 @@ const targetsInnerIcon = computed(() => {
           v-model="targetsModel"
           :append-inner-icon="targetsInnerIcon"
           variant="outlined"
+          @click:append-inner="handleAppendInnerClick"
         />
       </div>
       <v-btn
