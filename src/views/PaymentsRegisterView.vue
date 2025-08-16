@@ -41,7 +41,7 @@ const fetchPayments = async () => {
 
 const createPayment = async (payment: PaymentRequest) => {
   if (!camp.value) return
-  const { data, error } = await apiClient.POST('/api/admin/camps/{campId}/payments', {
+  const { error } = await apiClient.POST('/api/admin/camps/{campId}/payments', {
     params: { path: { campId: camp.value.id } },
     body: payment,
   })
@@ -49,22 +49,17 @@ const createPayment = async (payment: PaymentRequest) => {
     alert(`@${payment.userId}の支払い情報の登録に失敗しました: ${error.message}`)
     return
   }
-  payments.value.push(data)
 }
 
 const updatePayment = async (id: number, payment: PaymentRequest) => {
   if (!camp.value) return
-  const { data, error } = await apiClient.PUT('/api/admin/payments/{paymentId}', {
+  const { error } = await apiClient.PUT('/api/admin/payments/{paymentId}', {
     params: { path: { paymentId: id } },
     body: payment,
   })
   if (error) {
     alert(`@${payment.userId}の支払い情報の更新に失敗しました: ${error.message}`)
     return
-  }
-  const index = payments.value.findIndex((p) => p.id === id)
-  if (index !== -1) {
-    payments.value[index] = data
   }
 }
 
@@ -89,6 +84,7 @@ const handleSubmit = async (billingItems: BillingItem[]) => {
     if (payment) await updatePayment(payment.id, paymentRequest)
     else await createPayment(paymentRequest)
   }
+  payments.value = (await fetchPayments()) ?? []
 }
 </script>
 
