@@ -22,7 +22,8 @@ const isFormValid = ref(false)
 const billingItems = ref<BillingItem[]>([])
 const totalAmount = computed(() => {
   return billingItems.value.reduce((sum, item) => {
-    return sum + (item.amount ?? 0) * item.targets.length
+    const totalUsers = new Set(item.targets.filter((user) => user)).size
+    return sum + (item.amount ?? 0) * totalUsers
   }, 0)
 })
 const targetUsers = computed(() => {

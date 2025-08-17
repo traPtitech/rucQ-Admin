@@ -13,28 +13,31 @@ const emit = defineEmits<{
   (e: 'delete', id: number): void
 }>()
 
+const totalUsers = computed(() => {
+  return new Set(billingItem.value.targets.filter((user) => user)).size
+})
 const totalAmount = computed(() => {
-  return (billingItem.value.amount ?? 0) * billingItem.value.targets.length
+  return (billingItem.value.amount ?? 0) * totalUsers.value
 })
 const targetsModel = computed({
-  get: () => billingItem.value.targets.map((user) => `@${user}`).join(' '),
+  get: () => billingItem.value.targets.map((user) => (user ? `@${user}` : '')).join(' '),
   set: (value) => {
-    billingItem.value.targets = value
-      .split(' ')
-      .map((user) => user.replace(/^@/, ''))
-      .filter((user) => user)
+    billingItem.value.targets = value.split(' ').map((user) => user.replace(/^@/, ''))
   },
 })
 const targetsInnerIcon = computed(() => {
-  if (billingItem.value.targets.length > 0) return 'mdi-close'
+  if (totalUsers.value > 0) return 'mdi-close'
   return undefined
 })
 const isTargetUser = computed(() => {
-  return billingItem.value.targets.every((target) => props.targetUsers.includes(target))
+  return billingItem.value.targets.every((target) => props.targetUsers.includes(target) || !target)
 })
 
+const targetUserRule = () => isTargetUser.value || '不明なユーザーです'
+const requiredRule = () => totalUsers.value > 0 || '対象ユーザーを選択してください'
+
 const handleAppendInnerClick = () => {
-  if (billingItem.value.targets.length > 0) {
+  if (totalUsers.value > 0) {
     billingItem.value.targets = []
   }
 }
@@ -47,7 +50,7 @@ const handleAppendInnerClick = () => {
         <div class="text-body-2">対象</div>
         <v-text-field
           v-model="targetsModel"
-          :rules="[isTargetUser || '不明なユーザーです']"
+          :rules="[targetUserRule, requiredRule]"
           :append-inner-icon="targetsInnerIcon"
           variant="outlined"
           @click:append-inner="handleAppendInnerClick"
@@ -64,7 +67,7 @@ const handleAppendInnerClick = () => {
     <div class="d-flex ga-4">
       <div class="w-33">
         <div class="text-body-2">人数</div>
-        <div class="text-h5">{{ billingItem.targets.length }}</div>
+        <div class="text-h5">{{ totalUsers }}</div>
       </div>
       <div class="w-33">
         <div class="text-body-2">費用</div>
