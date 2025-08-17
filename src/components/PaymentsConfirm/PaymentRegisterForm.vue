@@ -64,9 +64,4 @@ const handleUpdate = () => {
 .payment-input :deep(.v-field__input) {
   font-size: 1.25rem;
 }
-
-.amount {
-  width: 80px;
-  text-align: right;
-}
 </style>

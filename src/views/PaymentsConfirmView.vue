@@ -45,11 +45,11 @@ const fetchPayments = async () => {
 }
 
 const fetchParticipants = async () => {
-  if (!camp.value) return []
+  if (!camp.value) return
   const { data } = await apiClient.GET('/api/camps/{campId}/participants', {
     params: { path: { campId: camp.value.id } },
   })
-  return data ?? []
+  return data
 }
 
 const updatePayment = async (paymentId: number, payment: PaymentRequest) => {
