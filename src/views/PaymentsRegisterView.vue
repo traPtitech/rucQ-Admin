@@ -73,11 +73,10 @@ const handleSubmit = async (billingItems: BillingItem[]) => {
   if (!camp.value) return
   const aggregatedItems = aggregateBillingItems(billingItems)
   for (const item of aggregatedItems) {
-    console.log(item)
     const payment = payments.value.find((p) => p.userId === item.userId)
     const paymentRequest: PaymentRequest = {
       userId: item.userId,
-      campId: camp.value!.id,
+      campId: camp.value.id,
       amount: item.amount + (payment?.amount ?? 0),
       amountPaid: payment?.amountPaid ?? 0,
     }
