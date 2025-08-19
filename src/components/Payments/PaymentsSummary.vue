@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 import SectionTitle from '@/components/shared/SectionTitle.vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
 import type { components } from '@/api/schema'
@@ -10,6 +11,9 @@ const props = defineProps<{
   participants: User[]
   payments: Payment[]
 }>()
+
+const route = useRoute()
+const campname = route.params.campname as string
 
 const totalAmount = computed(() => {
   return props.payments.reduce((sum, payment) => sum + payment.amount, 0)
@@ -60,6 +64,30 @@ const unregisteredUsers = computed(() => {
         <div class="text-body-2">未登録</div>
         <div class="text-h5">{{ unregisteredUsers.length }}</div>
       </div>
+    </div>
+    <div class="d-flex ga-4">
+      <v-btn
+        color="info"
+        variant="tonal"
+        prepend-icon="mdi-plus"
+        :to="{
+          name: 'PaymentsRegister',
+          params: { campname },
+        }"
+      >
+        合宿費の登録
+      </v-btn>
+      <v-btn
+        color="success"
+        variant="tonal"
+        prepend-icon="mdi-check"
+        :to="{
+          name: 'PaymentsConfirm',
+          params: { campname },
+        }"
+      >
+        振込の確認
+      </v-btn>
     </div>
   </section-card>
 </template>
