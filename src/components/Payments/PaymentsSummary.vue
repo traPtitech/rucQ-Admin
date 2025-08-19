@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import SectionTitle from '@/components/shared/SectionTitle.vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
+import UsersCopyButton from '@/components/shared/UsersCopyButton.vue'
 import type { components } from '@/api/schema'
 type User = components['schemas']['UserResponse']
 type Payment = components['schemas']['PaymentResponse']
@@ -54,15 +55,24 @@ const unregisteredUsers = computed(() => {
     <div class="d-flex ga-4">
       <div class="w-33">
         <div class="text-body-2">完了</div>
-        <div class="text-h5">{{ settledUsers.length }}</div>
+        <div class="d-flex align-end ga-2">
+          <div class="text-h5">{{ settledUsers.length }}</div>
+          <users-copy-button :users="settledUsers" />
+        </div>
       </div>
       <div class="w-33">
         <div class="text-body-2">未精算</div>
-        <div class="text-h5">{{ unsettledUsers.length }}</div>
+        <div class="d-flex align-end ga-2">
+          <div class="text-h5">{{ unsettledUsers.length }}</div>
+          <users-copy-button :users="unsettledUsers" />
+        </div>
       </div>
       <div class="w-33">
         <div class="text-body-2">未登録</div>
-        <div class="text-h5">{{ unregisteredUsers.length }}</div>
+        <div class="d-flex align-end ga-2">
+          <div class="text-h5">{{ unregisteredUsers.length }}</div>
+          <users-copy-button :users="unregisteredUsers" />
+        </div>
       </div>
     </div>
     <div class="d-flex ga-4">
