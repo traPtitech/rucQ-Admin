@@ -19,6 +19,13 @@ const payments: Payment[] = [
     amount: 29800,
     amountPaid: 0,
   },
+  {
+    id: 2,
+    userId: 'trap4',
+    campId: 2,
+    amount: 35000,
+    amountPaid: 10000,
+  },
 ]
 
 let nextPaymentId = payments.length
