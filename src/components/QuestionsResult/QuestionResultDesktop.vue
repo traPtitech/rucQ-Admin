@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import ContentCard from '@/components/shared/ContentCard.vue'
 import UserAvatarList from '@/components/shared/UserAvatarList.vue'
-import UsersCopyButton from '@/components/QuestionsResult/UsersCopyButton.vue'
+import UsersCopyButton from '@/components/shared/UsersCopyButton.vue'
 import {
   groupAnswers,
   groupUnansweredUsers,
