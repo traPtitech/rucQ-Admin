@@ -3,14 +3,12 @@ import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import UserAvatar from '@/components/shared/UserAvatar.vue'
 import type { VAutocomplete } from 'vuetify/components'
-import type { components } from '@/api/schema'
-type User = components['schemas']['UserResponse']
 
 const autocompleteRef = defineModel<VAutocomplete | null>('autocompleteRef', { default: null })
 const selectedId = defineModel<string | undefined>('selectedId', { default: undefined })
 
 defineProps<{
-  users: User[]
+  users: string[]
 }>()
 
 const emit = defineEmits<{
@@ -33,7 +31,7 @@ const paymentId = (id: string) => {
 }
 
 const customFilter = (value: string, query: string, item: unknown) => {
-  const id = (item as { raw: User }).raw.id
+  const id = (item as { raw: string }).raw
   return paymentId(id).startsWith(query.toUpperCase())
 }
 
@@ -53,8 +51,6 @@ const handleKeyDown = (event: KeyboardEvent) => {
       v-model="autocompleteModel"
       :class="isSmAndUp ? 'title-input-desktop' : 'title-input-mobile'"
       :items="users"
-      item-title="id"
-      item-value="id"
       :custom-filter="customFilter"
       label="振込名義ID"
       variant="outlined"
@@ -63,9 +59,9 @@ const handleKeyDown = (event: KeyboardEvent) => {
       @keydown="handleKeyDown"
     >
       <template #item="{ props, item }">
-        <v-list-item v-bind="props" :title="paymentId(item.raw.id)">
+        <v-list-item v-bind="props" :title="paymentId(item.raw)">
           <template #prepend>
-            <user-avatar :user-id="item.raw.id" />
+            <user-avatar :user-id="item.raw" />
           </template>
         </v-list-item>
       </template>
