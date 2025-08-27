@@ -5,7 +5,6 @@ import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 
 type Camp = components['schemas']['CampResponse']
-type User = components['schemas']['UserResponse']
 type CampRequest = components['schemas']['CampRequest']
 
 const fetchCamps = async (): Promise<Camp[]> => {
@@ -14,19 +13,32 @@ const fetchCamps = async (): Promise<Camp[]> => {
   return data
 }
 
-const fetchParticipants = async (campId: number): Promise<User[]> => {
-  const { data, error } = await apiClient.GET('/api/camps/{campId}/participants', {
-    params: { path: { campId } },
+const createCamp = async (variables: { newCamp: CampRequest }): Promise<Camp> => {
+  const { newCamp } = variables
+  const { data, error } = await apiClient.POST('/api/admin/camps', {
+    body: newCamp,
   })
   if (error) throw error
   return data
 }
 
-const updateCamp = async (variables: { campId: number; updatedCamp: CampRequest }) => {
+const updateCamp = async (variables: {
+  campId: number
+  updatedCamp: CampRequest
+}): Promise<Camp> => {
   const { campId, updatedCamp } = variables
-  const { error } = await apiClient.PUT('/api/admin/camps/{campId}', {
+  const { data, error } = await apiClient.PUT('/api/admin/camps/{campId}', {
     params: { path: { campId } },
     body: updatedCamp,
+  })
+  if (error) throw error
+  return data
+}
+
+const deleteCamp = async (variables: { campId: number }): Promise<void> => {
+  const { campId } = variables
+  const { error } = await apiClient.DELETE('/api/admin/camps/{campId}', {
+    params: { path: { campId } },
   })
   if (error) throw error
 }
@@ -49,13 +61,15 @@ export const useCurrentCampQuery = () => {
   })
 }
 
-export const useParticipantsQuery = () => {
-  const { data: camp } = useCurrentCampQuery()
-  const campId = computed(() => camp.value?.id)
-  return useQuery({
-    queryKey: ['participants', campId],
-    queryFn: () => fetchParticipants(campId.value!),
-    enabled: computed(() => campId.value !== undefined),
+export const useCreateCampMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: createCamp,
+    onSuccess: (data) => {
+      queryClient.setQueryData(['camps'], (old: Camp[] | undefined) =>
+        old ? [...old, data] : [data],
+      )
+    },
   })
 }
 
@@ -63,8 +77,22 @@ export const useUpdateCampMutation = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: updateCamp,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['camps'] })
+    onSuccess: (data) => {
+      queryClient.setQueryData(['camps'], (old: Camp[] | undefined) =>
+        old ? old.map((camp) => (camp.id === data.id ? data : camp)) : [data],
+      )
+    },
+  })
+}
+
+export const useDeleteCampMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deleteCamp,
+    onSuccess: (_data, variables) => {
+      queryClient.setQueryData(['camps'], (old: Camp[] | undefined) =>
+        old ? old.filter((camp) => camp.id !== variables.campId) : [],
+      )
     },
   })
 }
