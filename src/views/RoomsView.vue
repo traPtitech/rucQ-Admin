@@ -2,7 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import RoomGroup from '@/components/Rooms/RoomGroup.vue'
-import CreateRoomGroupDialog from '@/components/Rooms/CreateRoomGroupDialog.vue'
+import CreateRoomGroupButton from '@/components/Rooms/CreateRoomGroupButton.vue'
+import RoomGroupEditor from '@/components/Rooms/RoomGroupEditor.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 type Camp = components['schemas']['CampResponse']
@@ -118,10 +119,15 @@ const deleteRoom = async (roomId: number) => {
     }
   }
 }
+
+const handleCreateRoomGroup = (roomGroup: RoomGroupRequest) => {
+  createRoomGroup(roomGroup)
+  isModalOpen.value = false
+}
 </script>
 
 <template>
-  <v-container>
+  <v-container max-width="800">
     <room-group
       v-for="group in roomGroups"
       :key="group.id"
@@ -132,17 +138,9 @@ const deleteRoom = async (roomId: number) => {
       @updateRoomGroup="updateRoomGroup"
       @deleteRoomGroup="deleteRoomGroup"
     />
-    <div class="d-flex justify-center">
-      <v-btn
-        color="primary"
-        class="flex-grow-1"
-        prepend-icon="mdi-plus"
-        max-width="400"
-        @click="isModalOpen = true"
-      >
-        部屋グループを作成
-      </v-btn>
-    </div>
-    <create-room-group-dialog v-model="isModalOpen" @create="createRoomGroup" />
+    <create-room-group-button @click="isModalOpen = true" />
+    <v-dialog v-model="isModalOpen" max-width="600" persistent>
+      <room-group-editor @save="handleCreateRoomGroup" @cancel="isModalOpen = false" />
+    </v-dialog>
   </v-container>
 </template>
