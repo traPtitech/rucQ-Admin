@@ -4,7 +4,6 @@ import GuidebookCard from '@/components/CampTop/GuidebookCard.vue'
 import { useCurrentCampQuery, useUpdateCampMutation } from '@/api/queries/camps'
 import { useParticipantsQuery } from '@/api/queries/participants'
 import type { components } from '@/api/schema'
-
 type CampRequest = components['schemas']['CampRequest']
 
 const { data: camp } = useCurrentCampQuery()

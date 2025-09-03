@@ -9,7 +9,6 @@ import {
   useDeleteEventMutation,
 } from '@/api/queries/events'
 import type { components } from '@/api/schema'
-
 type EventRequest = components['schemas']['EventRequest']
 
 const { data: camp } = useCurrentCampQuery()
@@ -18,7 +17,10 @@ const { mutate: createEvent } = useCreateEventMutation()
 const { mutate: updateEvent } = useUpdateEventMutation()
 const { mutate: deleteEvent } = useDeleteEventMutation()
 
-const handleCreate = (newEvent: EventRequest) => createEvent({ newEvent })
+const handleCreate = (newEvent: EventRequest) => {
+  if (!camp.value) return
+  createEvent({ campId: camp.value.id, newEvent })
+}
 const handleUpdate = (eventId: number, updatedEvent: EventRequest) =>
   updateEvent({ eventId, updatedEvent })
 const handleDelete = (eventId: number) => deleteEvent({ eventId })

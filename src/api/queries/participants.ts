@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useCurrentCampQuery } from '@/api/queries/camps'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
-
 type User = components['schemas']['UserResponse']
 
 const fetchParticipants = async (campId: number): Promise<User[]> => {
@@ -43,28 +42,20 @@ export const useParticipantsQuery = () => {
 
 export const useCreateParticipantMutation = () => {
   const queryClient = useQueryClient()
-  const { data: camp } = useCurrentCampQuery()
   return useMutation({
-    mutationFn: (variables: { userId: string }) => {
-      if (camp.value?.id === undefined) throw new Error('campId is undefined')
-      return createParticipant({ ...variables, campId: camp.value.id })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['participants', camp.value?.id] })
+    mutationFn: createParticipant,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['participants', variables.campId] })
     },
   })
 }
 
 export const useDeleteParticipantMutation = () => {
   const queryClient = useQueryClient()
-  const { data: camp } = useCurrentCampQuery()
   return useMutation({
-    mutationFn: (variables: { userId: string }) => {
-      if (camp.value?.id === undefined) throw new Error('campId is undefined')
-      return deleteParticipant({ ...variables, campId: camp.value.id })
-    },
+    mutationFn: deleteParticipant,
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData(['participants', camp.value?.id], (old: User[] | undefined) =>
+      queryClient.setQueryData<User[]>(['participants', variables.campId], (old) =>
         old ? old.filter((user) => user.id !== variables.userId) : [],
       )
     },

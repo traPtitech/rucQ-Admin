@@ -3,7 +3,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
-
 type Camp = components['schemas']['CampResponse']
 type CampRequest = components['schemas']['CampRequest']
 
@@ -54,10 +53,9 @@ export const useCurrentCampQuery = () => {
   const route = useRoute()
   const campname = computed(() => route.params.campname as string)
   return useQuery({
-    queryKey: ['camps'],
+    queryKey: ['camps', campname.value],
     queryFn: fetchCamps,
     select: (camps) => camps.find((camp) => camp.displayId === campname.value),
-    enabled: computed(() => !!campname.value),
   })
 }
 
@@ -66,9 +64,7 @@ export const useCreateCampMutation = () => {
   return useMutation({
     mutationFn: createCamp,
     onSuccess: (data) => {
-      queryClient.setQueryData(['camps'], (old: Camp[] | undefined) =>
-        old ? [...old, data] : [data],
-      )
+      queryClient.setQueryData<Camp[]>(['camps'], (old) => (old ? [...old, data] : [data]))
     },
   })
 }
@@ -78,7 +74,7 @@ export const useUpdateCampMutation = () => {
   return useMutation({
     mutationFn: updateCamp,
     onSuccess: (data) => {
-      queryClient.setQueryData(['camps'], (old: Camp[] | undefined) =>
+      queryClient.setQueryData<Camp[]>(['camps'], (old) =>
         old ? old.map((camp) => (camp.id === data.id ? data : camp)) : [data],
       )
     },
@@ -90,7 +86,7 @@ export const useDeleteCampMutation = () => {
   return useMutation({
     mutationFn: deleteCamp,
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData(['camps'], (old: Camp[] | undefined) =>
+      queryClient.setQueryData<Camp[]>(['camps'], (old) =>
         old ? old.filter((camp) => camp.id !== variables.campId) : [],
       )
     },
