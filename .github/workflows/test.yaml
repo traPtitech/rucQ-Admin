@@ -1,0 +1,22 @@
+name: test
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    permissions:
+      contents: read
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run generate:api
+      - run: npm test

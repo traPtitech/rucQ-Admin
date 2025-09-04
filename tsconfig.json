@@ -6,11 +6,14 @@
     },
     {
       "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
     }
   ],
   "compilerOptions": {
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "noUncheckedIndexedAccess": true,
-  },
+    "noUncheckedIndexedAccess": true
+  }
 }
