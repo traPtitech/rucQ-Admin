@@ -53,7 +53,7 @@ export const useCurrentCampQuery = () => {
   const route = useRoute()
   const campname = computed(() => route.params.campname as string)
   return useQuery({
-    queryKey: ['camps', campname.value],
+    queryKey: ['camps'],
     queryFn: fetchCamps,
     select: (camps) => camps.find((camp) => camp.displayId === campname.value),
   })
@@ -75,7 +75,7 @@ export const useUpdateCampMutation = () => {
     mutationFn: updateCamp,
     onSuccess: (data) => {
       queryClient.setQueryData<Camp[]>(['camps'], (old) =>
-        old ? old.map((camp) => (camp.id === data.id ? data : camp)) : [data],
+        old?.map((camp) => (camp.id === data.id ? data : camp)),
       )
     },
   })
@@ -86,8 +86,9 @@ export const useDeleteCampMutation = () => {
   return useMutation({
     mutationFn: deleteCamp,
     onSuccess: (_data, variables) => {
+      const { campId } = variables
       queryClient.setQueryData<Camp[]>(['camps'], (old) =>
-        old ? old.filter((camp) => camp.id !== variables.campId) : [],
+        old?.filter((camp) => camp.id !== campId),
       )
     },
   })

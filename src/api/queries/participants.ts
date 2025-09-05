@@ -45,7 +45,8 @@ export const useCreateParticipantMutation = () => {
   return useMutation({
     mutationFn: createParticipant,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['participants', variables.campId] })
+      const { campId } = variables
+      queryClient.invalidateQueries({ queryKey: ['participants', campId] })
     },
   })
 }
@@ -55,8 +56,9 @@ export const useDeleteParticipantMutation = () => {
   return useMutation({
     mutationFn: deleteParticipant,
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData<User[]>(['participants', variables.campId], (old) =>
-        old ? old.filter((user) => user.id !== variables.userId) : [],
+      const { campId, userId } = variables
+      queryClient.setQueryData<User[]>(['participants', campId], (old) =>
+        old?.filter((user) => user.id !== userId),
       )
     },
   })

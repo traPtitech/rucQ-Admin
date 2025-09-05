@@ -63,7 +63,8 @@ export const useCreateEventMutation = () => {
   return useMutation({
     mutationFn: createEvent,
     onSuccess: (data, variables) => {
-      queryClient.setQueryData<Event[]>(['events', variables.campId], (old) =>
+      const { campId } = variables
+      queryClient.setQueryData<Event[]>(['events', campId], (old) =>
         old ? [...old, data] : [data],
       )
     },
@@ -77,8 +78,8 @@ export const useUpdateEventMutation = () => {
   return useMutation({
     mutationFn: updateEvent,
     onSuccess: (data) => {
-      queryClient.setQueryData<Event[]>(['events', campId.value], (old) =>
-        old ? old.map((event) => (event.id === data.id ? data : event)) : [data],
+      queryClient.setQueryData<Event[]>(['events', campId], (old) =>
+        old?.map((event) => (event.id === data.id ? data : event)),
       )
     },
   })
@@ -91,8 +92,9 @@ export const useDeleteEventMutation = () => {
   return useMutation({
     mutationFn: deleteEvent,
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData<Event[]>(['events', campId.value], (old) =>
-        old ? old.filter((event) => event.id !== variables.eventId) : [],
+      const { eventId } = variables
+      queryClient.setQueryData<Event[]>(['events', campId], (old) =>
+        old?.filter((event) => event.id !== eventId),
       )
     },
   })
