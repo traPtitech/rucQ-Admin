@@ -65,7 +65,9 @@ export const useCreateCampMutation = () => {
   return useMutation({
     mutationFn: createCamp,
     onSuccess: (data) => {
-      queryClient.setQueryData<Camp[]>(queryKeys.camps.all, (old) => (old ? [...old, data] : [data]))
+      queryClient.setQueryData<Camp[]>(queryKeys.camps.all, (old) =>
+        old ? [...old, data] : [data],
+      )
     },
   })
 }

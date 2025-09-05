@@ -47,12 +47,9 @@ const updateQuestionGroup = async (variables: {
 
 const deleteQuestionGroup = async (variables: { questionGroupId: number }): Promise<void> => {
   const { questionGroupId } = variables
-  const { data, error } = await apiClient.DELETE(
-    '/api/admin/question-groups/{questionGroupId}',
-    {
-      params: { path: { questionGroupId } },
-    },
-  )
+  const { data, error } = await apiClient.DELETE('/api/admin/question-groups/{questionGroupId}', {
+    params: { path: { questionGroupId } },
+  })
   if (error) throw error
   return data
 }
@@ -155,14 +152,16 @@ export const useCreateQuestionMutation = () => {
     mutationFn: createQuestion,
     onSuccess: (data, variables) => {
       const { questionGroupId } = variables
-      queryClient.setQueryData<QuestionGroup[]>(queryKeys.questionGroups.all(campId.value), (old) =>
-        old
-          ? old.map((group) =>
-              group.id === questionGroupId
-                ? { ...group, questions: [...group.questions, data] }
-                : group,
-            )
-          : [],
+      queryClient.setQueryData<QuestionGroup[]>(
+        queryKeys.questionGroups.all(campId.value),
+        (old) =>
+          old
+            ? old.map((group) =>
+                group.id === questionGroupId
+                  ? { ...group, questions: [...group.questions, data] }
+                  : group,
+              )
+            : [],
       )
     },
   })
