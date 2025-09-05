@@ -1,98 +1,56 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, nextTick, ref } from 'vue'
 import UserSelector from '@/components/PaymentsConfirm/UserSelector.vue'
 import PaymentStatus from '@/components/PaymentsConfirm/PaymentStatus.vue'
 import PaymentRegisterForm from '@/components/PaymentsConfirm/PaymentRegisterForm.vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
-import { apiClient } from '@/api/apiClient'
+import { usePaymentsQuery, useUpdatePaymentMutation } from '@/api/queries/payments'
+import { useParticipantsQuery } from '@/api/queries/participants'
+import { useCreateMessageMutation } from '@/api/queries/users'
 import { getMessageContent, getMessageSendTime } from '@/components/PaymentsConfirm/messages'
 import type { components } from '@/api/schema'
 import type { VAutocomplete, VBtn } from 'vuetify/components'
-type Camp = components['schemas']['CampResponse']
-type User = components['schemas']['UserResponse']
-type Payment = components['schemas']['PaymentResponse']
 type PaymentRequest = components['schemas']['PaymentRequest']
+
+const { data: payments } = usePaymentsQuery()
+const { data: participants } = useParticipantsQuery()
+const { mutate: updatePayment } = useUpdatePaymentMutation()
+const { mutate: createMessage } = useCreateMessageMutation()
 
 const autocompleteRef = ref<VAutocomplete | null>(null)
 const confirmButtonRef = ref<VBtn | null>(null)
-const route = useRoute()
-const campname = route.params.campname as string
-const camp = ref<Camp>()
-const participants = ref<User[]>([])
-const payments = ref<Payment[]>([])
 
 const selectedId = ref<string | undefined>(undefined)
 const newAmountPaid = ref<number | null>(null)
-const selectedData = computed(() => {
-  if (!selectedId.value || !camp.value) return undefined
-  const campId = camp.value.id
-  return payments.value.find((p) => p.userId === selectedId.value && p.campId === campId)
-})
+const selectedData = computed(() => payments.value?.find((p) => p.userId === selectedId.value))
 
-const fetchCamp = async () => {
-  if (!campname) return
-  const { data } = await apiClient.GET('/api/camps')
-  return data?.find((c) => c.displayId === campname)
-}
-
-const fetchPayments = async () => {
-  if (!camp.value) return
-  const { data } = await apiClient.GET('/api/admin/camps/{campId}/payments', {
-    params: { path: { campId: camp.value.id } },
-  })
-  return data
-}
-
-const fetchParticipants = async () => {
-  if (!camp.value) return
-  const { data } = await apiClient.GET('/api/camps/{campId}/participants', {
-    params: { path: { campId: camp.value.id } },
-  })
-  return data
-}
-
-const updatePayment = async (paymentId: number, payment: PaymentRequest) => {
-  if (!camp.value) return
-  const { data, error } = await apiClient.PUT('/api/admin/payments/{paymentId}', {
-    params: { path: { paymentId } },
-    body: payment,
-  })
-  if (error) {
-    alert('支払い情報の更新に失敗しました')
-    return
-  }
-  await sendDm()
-  const index = payments.value.findIndex((p) => p.id === paymentId)
-  if (index !== -1) {
-    payments.value[index] = data
-  }
-  newAmountPaid.value = null
-  selectedId.value = undefined
-  autocompleteRef.value?.focus()
-}
-
-const sendDm = async () => {
-  if (!camp.value || !selectedData.value) return
+const sendDm = () => {
+  if (!selectedData.value) return
   if (newAmountPaid.value == null || newAmountPaid.value === 0) return
-  await apiClient.POST('/api/admin/users/{userId}/messages', {
-    params: { path: { userId: selectedData.value.userId } },
-    body: {
-      content: getMessageContent(
-        selectedData.value.amount,
-        selectedData.value.amountPaid,
-        newAmountPaid.value,
-      ),
-      sendAt: getMessageSendTime(),
-    },
-  })
+  const newMessage = {
+    content: getMessageContent(
+      selectedData.value.amount,
+      selectedData.value.amountPaid,
+      newAmountPaid.value,
+    ),
+    sendAt: getMessageSendTime(),
+  }
+  createMessage({ userId: selectedData.value.userId, newMessage })
 }
 
-onMounted(async () => {
-  camp.value = await fetchCamp()
-  participants.value = (await fetchParticipants()) ?? []
-  payments.value = (await fetchPayments()) ?? []
-})
+const handleUpdate = (paymentId: number, updatedPayment: PaymentRequest) => {
+  updatePayment(
+    { paymentId, updatedPayment },
+    {
+      onSuccess: () => {
+        sendDm()
+        newAmountPaid.value = null
+        selectedId.value = undefined
+        autocompleteRef.value?.focus()
+      },
+    },
+  )
+}
 
 const focusConfirmButton = async () => {
   if (selectedData.value?.amountPaid === 0) {
@@ -104,7 +62,7 @@ const focusConfirmButton = async () => {
 </script>
 
 <template>
-  <v-container max-width="800">
+  <v-container v-if="participants !== undefined" max-width="800">
     <user-selector
       v-model:autocomplete-ref="autocompleteRef"
       v-model:selected-id="selectedId"
@@ -117,7 +75,7 @@ const focusConfirmButton = async () => {
         v-model:confirm-button-ref="confirmButtonRef"
         v-model:new-amount-paid="newAmountPaid"
         :data="selectedData"
-        @update="updatePayment"
+        @update="handleUpdate"
       />
     </section-card>
   </v-container>
