@@ -12,18 +12,19 @@ import {
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
 type Answer = components['schemas']['AnswerResponse']
+type User = components['schemas']['UserResponse']
 
 const props = defineProps<{
   question: Question
   answers: Answer[]
-  participants: string[]
+  participants: User[]
 }>()
 
 const groupedAnswers = computed(() =>
   groupAnswers(props.question, props.answers, props.participants),
 )
 const unansweredUsers = computed(() =>
-  groupUnansweredUsers(props.question, props.answers, props.participants),
+  groupUnansweredUsers(props.question, props.answers, props.participants).map((u) => u.id),
 )
 </script>
 

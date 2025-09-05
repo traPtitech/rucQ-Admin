@@ -9,6 +9,7 @@ type FreeTextAnswer = components['schemas']['FreeTextAnswerResponse']
 type FreeNumberAnswer = components['schemas']['FreeNumberAnswerResponse']
 type SingleChoiceAnswer = components['schemas']['SingleChoiceAnswerResponse']
 type MultipleChoiceAnswer = components['schemas']['MultipleChoiceAnswerResponse']
+type User = components['schemas']['UserResponse']
 
 type QuestionType = components['schemas']['QuestionResponse']['type']
 export type GroupedAnswer = {
@@ -27,13 +28,13 @@ export type GroupedAnswer = {
 export const groupFreeTextAnswers = (
   question: FreeTextQuestion,
   answers: Answer[],
-  participants: string[],
+  participants: User[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is FreeTextAnswer =>
       answer.type === 'free_text' &&
       answer.questionId === question.id &&
-      participants.includes(answer.userId),
+      participants.some((p) => p.id === answer.userId),
   )
   const answerMap = filteredAnswers.reduce(
     (acc, answer) => {
@@ -61,13 +62,13 @@ export const groupFreeTextAnswers = (
 export const groupFreeNumberAnswers = (
   question: FreeNumberQuestion,
   answers: Answer[],
-  participants: string[],
+  participants: User[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is FreeNumberAnswer =>
       answer.type === 'free_number' &&
       answer.questionId === question.id &&
-      participants.includes(answer.userId),
+      participants.some((p) => p.id === answer.userId),
   )
   if (filteredAnswers.length === 0) return []
 
@@ -93,13 +94,13 @@ export const groupFreeNumberAnswers = (
 export const groupSingleChoiceAnswers = (
   question: SingleChoiceQuestion,
   answers: Answer[],
-  participants: string[],
+  participants: User[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is SingleChoiceAnswer =>
       answer.type === 'single' &&
       answer.questionId === question.id &&
-      participants.includes(answer.userId),
+      participants.some((p) => p.id === answer.userId),
   )
   const options: Extract<GroupedAnswer, { type: 'single' }>[] = question.options.map((option) => ({
     type: 'single',
@@ -117,13 +118,13 @@ export const groupSingleChoiceAnswers = (
 export const groupMultipleChoiceAnswers = (
   question: MultipleChoiceQuestion,
   answers: Answer[],
-  participants: string[],
+  participants: User[],
 ): GroupedAnswer[] => {
   const filteredAnswers = answers.filter(
     (answer): answer is MultipleChoiceAnswer =>
       answer.type === 'multiple' &&
       answer.questionId === question.id &&
-      participants.includes(answer.userId),
+      participants.some((p) => p.id === answer.userId),
   )
   const options: Extract<GroupedAnswer, { type: 'multiple' }>[] = question.options.map(
     (option) => ({
@@ -146,7 +147,7 @@ export const groupMultipleChoiceAnswers = (
 export const groupAnswers = (
   question: Question,
   answers: Answer[],
-  participants: string[],
+  participants: User[],
 ): GroupedAnswer[] => {
   switch (question.type) {
     case 'free_text':
@@ -167,11 +168,11 @@ export const groupAnswers = (
 export const groupUnansweredUsers = (
   question: Question,
   answers: Answer[],
-  participants: string[],
-): string[] => {
+  participants: User[],
+): User[] => {
   const filteredAnswers = answers.filter((answer) => answer.questionId === question.id)
   const answeredUserIds = new Set(filteredAnswers.map((answer) => answer.userId))
-  return participants.filter((userId) => !answeredUserIds.has(userId))
+  return participants.filter((p) => !answeredUserIds.has(p.id))
 }
 
 export const groupKey = (group: GroupedAnswer) => {
