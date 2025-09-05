@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useRoute } from 'vue-router'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type Camp = components['schemas']['CampResponse']
 type CampRequest = components['schemas']['CampRequest']
@@ -44,7 +45,7 @@ const deleteCamp = async (variables: { campId: number }): Promise<void> => {
 
 export const useCampsQuery = () => {
   return useQuery({
-    queryKey: ['camps'],
+    queryKey: queryKeys.camps.all,
     queryFn: fetchCamps,
   })
 }
@@ -53,7 +54,7 @@ export const useCurrentCampQuery = () => {
   const route = useRoute()
   const campname = computed(() => route.params.campname as string)
   return useQuery({
-    queryKey: ['camps'],
+    queryKey: queryKeys.camps.all,
     queryFn: fetchCamps,
     select: (camps) => camps.find((camp) => camp.displayId === campname.value),
   })
@@ -64,7 +65,7 @@ export const useCreateCampMutation = () => {
   return useMutation({
     mutationFn: createCamp,
     onSuccess: (data) => {
-      queryClient.setQueryData<Camp[]>(['camps'], (old) => (old ? [...old, data] : [data]))
+      queryClient.setQueryData<Camp[]>(queryKeys.camps.all, (old) => (old ? [...old, data] : [data]))
     },
   })
 }
@@ -74,7 +75,7 @@ export const useUpdateCampMutation = () => {
   return useMutation({
     mutationFn: updateCamp,
     onSuccess: (data) => {
-      queryClient.setQueryData<Camp[]>(['camps'], (old) =>
+      queryClient.setQueryData<Camp[]>(queryKeys.camps.all, (old) =>
         old?.map((camp) => (camp.id === data.id ? data : camp)),
       )
     },
@@ -87,7 +88,7 @@ export const useDeleteCampMutation = () => {
     mutationFn: deleteCamp,
     onSuccess: (_data, variables) => {
       const { campId } = variables
-      queryClient.setQueryData<Camp[]>(['camps'], (old) =>
+      queryClient.setQueryData<Camp[]>(queryKeys.camps.all, (old) =>
         old?.filter((camp) => camp.id !== campId),
       )
     },

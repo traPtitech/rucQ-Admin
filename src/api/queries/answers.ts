@@ -1,6 +1,7 @@
 import { computed, toValue, type MaybeRef } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type Answer = components['schemas']['AnswerResponse']
 type AnswerRequest = components['schemas']['AnswerRequest']
@@ -58,7 +59,7 @@ export const useAnswersQuery = (
   userId?: MaybeRef<string | undefined>,
 ) => {
   return useQuery({
-    queryKey: ['answers', questionId, userId],
+    queryKey: queryKeys.answers.list(toValue(questionId), toValue(userId)),
     queryFn: () => fetchAnswers(toValue(questionId)!, toValue(userId)),
     enabled: computed(() => toValue(questionId) !== undefined),
   })
@@ -69,7 +70,7 @@ export const useAnswersForQuestionGroupQuery = (
   userId?: MaybeRef<string | undefined>,
 ) => {
   return useQuery({
-    queryKey: ['answers', 'groups', questionGroupId, userId],
+    queryKey: queryKeys.answers.group(toValue(questionGroupId), toValue(userId)),
     queryFn: () => fetchAnswersForQuestionGroup(toValue(questionGroupId)!, toValue(userId)),
     enabled: computed(() => toValue(questionGroupId) !== undefined),
   })
@@ -80,7 +81,7 @@ export const useCreateAnswerMutation = () => {
   return useMutation({
     mutationFn: createAnswer,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['answers'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.answers.root })
     },
   })
 }
@@ -90,7 +91,7 @@ export const useUpdateAnswerMutation = () => {
   return useMutation({
     mutationFn: updateAnswer,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['answers'] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.answers.root })
     },
   })
 }

@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useCurrentCampQuery } from '@/api/queries/camps'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type Payment = components['schemas']['PaymentResponse']
 type PaymentRequest = components['schemas']['PaymentRequest']
@@ -44,7 +45,7 @@ export const usePaymentsQuery = () => {
   const { data: camp } = useCurrentCampQuery()
   const campId = computed(() => camp.value?.id)
   return useQuery({
-    queryKey: ['payments', campId],
+    queryKey: queryKeys.payments.all(campId.value),
     queryFn: () => fetchPayments(campId.value!),
     enabled: computed(() => campId.value !== undefined),
   })
@@ -55,7 +56,7 @@ export const useCreatePaymentMutation = () => {
   return useMutation({
     mutationFn: createPayment,
     onSuccess: (data) => {
-      queryClient.setQueryData<Payment[]>(['payments', data.campId], (old) =>
+      queryClient.setQueryData<Payment[]>(queryKeys.payments.all(data.campId), (old) =>
         old ? [...old, data] : [data],
       )
     },
@@ -67,7 +68,7 @@ export const useUpdatePaymentMutation = () => {
   return useMutation({
     mutationFn: updatePayment,
     onSuccess: (data) => {
-      queryClient.setQueryData<Payment[]>(['payments', data.campId], (old) =>
+      queryClient.setQueryData<Payment[]>(queryKeys.payments.all(data.campId), (old) =>
         old?.map((payment) => (payment.id === data.id ? data : payment)),
       )
     },

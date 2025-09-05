@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useCurrentCampQuery } from '@/api/queries/camps'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type Event = components['schemas']['EventResponse']
 type EventRequest = components['schemas']['EventRequest']
@@ -52,7 +53,7 @@ export const useEventsQuery = () => {
   const { data: camp } = useCurrentCampQuery()
   const campId = computed(() => camp.value?.id)
   return useQuery({
-    queryKey: ['events', campId],
+    queryKey: queryKeys.events.all(campId.value),
     queryFn: () => fetchEvents(campId.value!),
     enabled: computed(() => campId.value !== undefined),
   })
@@ -64,7 +65,7 @@ export const useCreateEventMutation = () => {
     mutationFn: createEvent,
     onSuccess: (data, variables) => {
       const { campId } = variables
-      queryClient.setQueryData<Event[]>(['events', campId], (old) =>
+      queryClient.setQueryData<Event[]>(queryKeys.events.all(campId), (old) =>
         old ? [...old, data] : [data],
       )
     },
@@ -78,7 +79,7 @@ export const useUpdateEventMutation = () => {
   return useMutation({
     mutationFn: updateEvent,
     onSuccess: (data) => {
-      queryClient.setQueryData<Event[]>(['events', campId], (old) =>
+      queryClient.setQueryData<Event[]>(queryKeys.events.all(campId.value), (old) =>
         old?.map((event) => (event.id === data.id ? data : event)),
       )
     },
@@ -93,7 +94,7 @@ export const useDeleteEventMutation = () => {
     mutationFn: deleteEvent,
     onSuccess: (_data, variables) => {
       const { eventId } = variables
-      queryClient.setQueryData<Event[]>(['events', campId], (old) =>
+      queryClient.setQueryData<Event[]>(queryKeys.events.all(campId.value), (old) =>
         old?.filter((event) => event.id !== eventId),
       )
     },

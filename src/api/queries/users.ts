@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type User = components['schemas']['UserResponse']
 type UserRequest = components['schemas']['UserRequest']
@@ -47,14 +48,14 @@ const createMessage = async (variables: {
 
 export const useStaffsQuery = () => {
   return useQuery({
-    queryKey: ['staffs'],
+    queryKey: queryKeys.staffs.all,
     queryFn: fetchStaffs,
   })
 }
 
 export const useUserQuery = (userId: string) => {
   return useQuery({
-    queryKey: ['users', userId],
+    queryKey: queryKeys.users.detail(userId),
     queryFn: () => fetchUser({ userId }),
   })
 }
@@ -64,7 +65,7 @@ export const useUpdateUserMutation = () => {
   return useMutation({
     mutationFn: updateUser,
     onSuccess: (data) => {
-      queryClient.setQueryData<User>(['users', data.id], data)
+      queryClient.setQueryData<User>(queryKeys.users.detail(data.id), data)
     },
   })
 }

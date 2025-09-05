@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useCurrentCampQuery } from '@/api/queries/camps'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type RoomGroup = components['schemas']['RoomGroupResponse']
 type RoomGroupRequest = components['schemas']['RoomGroupRequest']
@@ -84,7 +85,7 @@ export const useRoomGroupsQuery = () => {
   const { data: camp } = useCurrentCampQuery()
   const campId = computed(() => camp.value?.id)
   return useQuery({
-    queryKey: ['roomGroups', campId],
+    queryKey: queryKeys.roomGroups.all(campId.value),
     queryFn: () => fetchRoomGroups(campId.value!),
     enabled: computed(() => campId.value !== undefined),
   })
@@ -96,7 +97,7 @@ export const useCreateRoomGroupMutation = () => {
     mutationFn: createRoomGroup,
     onSuccess: (data, variables) => {
       const { campId } = variables
-      queryClient.setQueryData<RoomGroup[]>(['roomGroups', campId], (old) =>
+      queryClient.setQueryData<RoomGroup[]>(queryKeys.roomGroups.all(campId), (old) =>
         old ? [...old, data] : [data],
       )
     },
@@ -110,7 +111,7 @@ export const useUpdateRoomGroupMutation = () => {
   return useMutation({
     mutationFn: updateRoomGroup,
     onSuccess: (data) => {
-      queryClient.setQueryData<RoomGroup[]>(['roomGroups', campId], (old) =>
+      queryClient.setQueryData<RoomGroup[]>(queryKeys.roomGroups.all(campId.value), (old) =>
         old?.map((group) => (group.id === data.id ? data : group)),
       )
     },
@@ -124,7 +125,7 @@ export const useDeleteRoomGroupMutation = () => {
   return useMutation({
     mutationFn: deleteRoomGroup,
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData<RoomGroup[]>(['roomGroups', campId], (old) =>
+      queryClient.setQueryData<RoomGroup[]>(queryKeys.roomGroups.all(campId.value), (old) =>
         old?.filter((group) => group.id !== variables.roomGroupId),
       )
     },
@@ -139,7 +140,7 @@ export const useCreateRoomMutation = () => {
     mutationFn: createRoom,
     onSuccess: (data, variables) => {
       const { newRoom } = variables
-      queryClient.setQueryData<RoomGroup[]>(['roomGroups', campId], (old) =>
+      queryClient.setQueryData<RoomGroup[]>(queryKeys.roomGroups.all(campId.value), (old) =>
         old?.map((group) =>
           group.id === newRoom.roomGroupId
             ? {
@@ -161,7 +162,7 @@ export const useUpdateRoomMutation = () => {
     mutationFn: updateRoom,
     onSuccess: (data, variables) => {
       const { roomId, updatedRoom } = variables
-      queryClient.setQueryData<RoomGroup[]>(['roomGroups', campId], (old) =>
+      queryClient.setQueryData<RoomGroup[]>(queryKeys.roomGroups.all(campId.value), (old) =>
         old?.map((group) =>
           group.id === updatedRoom.roomGroupId
             ? {
@@ -183,7 +184,7 @@ export const useDeleteRoomMutation = () => {
     mutationFn: deleteRoom,
     onSuccess: (_data, variables) => {
       const { roomId } = variables
-      queryClient.setQueryData<RoomGroup[]>(['roomGroups', campId], (old) =>
+      queryClient.setQueryData<RoomGroup[]>(queryKeys.roomGroups.all(campId.value), (old) =>
         old?.map((group) => ({
           ...group,
           rooms: group.rooms.filter((room) => room.id !== roomId),

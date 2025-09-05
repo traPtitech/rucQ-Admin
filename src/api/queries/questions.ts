@@ -2,6 +2,7 @@ import { computed } from 'vue'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useCurrentCampQuery } from '@/api/queries/camps'
 import { apiClient } from '@/api/apiClient'
+import { queryKeys } from '@/api/query-keys'
 import type { components } from '@/api/schema'
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
 type PostQuestionGroupRequest = components['schemas']['PostQuestionGroupRequest']
@@ -46,9 +47,12 @@ const updateQuestionGroup = async (variables: {
 
 const deleteQuestionGroup = async (variables: { questionGroupId: number }): Promise<void> => {
   const { questionGroupId } = variables
-  const { data, error } = await apiClient.DELETE('/api/admin/question-groups/{questionGroupId}', {
-    params: { path: { questionGroupId } },
-  })
+  const { data, error } = await apiClient.DELETE(
+    '/api/admin/question-groups/{questionGroupId}',
+    {
+      params: { path: { questionGroupId } },
+    },
+  )
   if (error) throw error
   return data
 }
@@ -95,7 +99,7 @@ export const useQuestionGroupsQuery = () => {
   const { data: camp } = useCurrentCampQuery()
   const campId = computed(() => camp.value?.id)
   return useQuery({
-    queryKey: ['questionGroups', campId],
+    queryKey: queryKeys.questionGroups.all(campId.value),
     queryFn: () => fetchQuestionGroups(campId.value!),
     enabled: computed(() => campId.value !== undefined),
   })
@@ -107,7 +111,7 @@ export const useCreateQuestionGroupMutation = () => {
     mutationFn: createQuestionGroup,
     onSuccess: (data, variables) => {
       const { campId } = variables
-      queryClient.setQueryData<QuestionGroup[]>(['questionGroups', campId], (old) =>
+      queryClient.setQueryData<QuestionGroup[]>(queryKeys.questionGroups.all(campId), (old) =>
         old ? [...old, data] : [data],
       )
     },
@@ -121,7 +125,7 @@ export const useUpdateQuestionGroupMutation = () => {
   return useMutation({
     mutationFn: updateQuestionGroup,
     onSuccess: (data) => {
-      queryClient.setQueryData<QuestionGroup[]>(['questionGroups', campId], (old) =>
+      queryClient.setQueryData<QuestionGroup[]>(queryKeys.questionGroups.all(campId.value), (old) =>
         old?.map((group) => (group.id === data.id ? data : group)),
       )
     },
@@ -136,7 +140,7 @@ export const useDeleteQuestionGroupMutation = () => {
     mutationFn: deleteQuestionGroup,
     onSuccess: (_data, variables) => {
       const { questionGroupId } = variables
-      queryClient.setQueryData<QuestionGroup[]>(['questionGroups', campId], (old) =>
+      queryClient.setQueryData<QuestionGroup[]>(queryKeys.questionGroups.all(campId.value), (old) =>
         old?.filter((group) => group.id !== questionGroupId),
       )
     },
@@ -151,7 +155,7 @@ export const useCreateQuestionMutation = () => {
     mutationFn: createQuestion,
     onSuccess: (data, variables) => {
       const { questionGroupId } = variables
-      queryClient.setQueryData<QuestionGroup[]>(['questionGroups', campId], (old) =>
+      queryClient.setQueryData<QuestionGroup[]>(queryKeys.questionGroups.all(campId.value), (old) =>
         old
           ? old.map((group) =>
               group.id === questionGroupId
@@ -171,7 +175,7 @@ export const useUpdateQuestionMutation = () => {
   return useMutation({
     mutationFn: updateQuestion,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['questionGroups', campId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.questionGroups.all(campId.value) })
     },
   })
 }
@@ -184,7 +188,7 @@ export const useDeleteQuestionMutation = () => {
     mutationFn: deleteQuestion,
     onSuccess: (_data, variables) => {
       const { questionId } = variables
-      queryClient.setQueryData<QuestionGroup[]>(['questionGroups', campId], (old) =>
+      queryClient.setQueryData<QuestionGroup[]>(queryKeys.questionGroups.all(campId.value), (old) =>
         old?.map((group) => ({
           ...group,
           questions: group.questions.filter((question) => question.id !== questionId),
