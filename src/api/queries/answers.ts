@@ -59,7 +59,7 @@ export const useAnswersQuery = (
   userId?: MaybeRef<string | undefined>,
 ) => {
   return useQuery({
-    queryKey: queryKeys.answers.list(toValue(questionId), toValue(userId)),
+    queryKey: computed(() => queryKeys.answers.list(toValue(questionId), toValue(userId))),
     queryFn: () => fetchAnswers(toValue(questionId)!, toValue(userId)),
     enabled: computed(() => toValue(questionId) !== undefined),
   })
@@ -70,7 +70,7 @@ export const useAnswersForQuestionGroupQuery = (
   userId?: MaybeRef<string | undefined>,
 ) => {
   return useQuery({
-    queryKey: queryKeys.answers.group(toValue(questionGroupId), toValue(userId)),
+    queryKey: computed(() => queryKeys.answers.group(toValue(questionGroupId), toValue(userId))),
     queryFn: () => fetchAnswersForQuestionGroup(toValue(questionGroupId)!, toValue(userId)),
     enabled: computed(() => toValue(questionGroupId) !== undefined),
   })
