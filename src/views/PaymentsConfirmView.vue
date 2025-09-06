@@ -23,8 +23,8 @@ const confirmButtonRef = ref<VBtn | null>(null)
 const targetUsers = computed(() => {
   return [
     ...new Set([
-      ...participants.value.map((user) => user.id),
-      ...payments.value.map((payment) => payment.userId),
+      ...(participants.value?.map((user) => user.id) ?? []),
+      ...(payments.value?.map((payment) => payment.userId) ?? []),
     ]),
   ]
 })
