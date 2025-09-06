@@ -20,6 +20,14 @@ const { mutate: createMessage } = useCreateMessageMutation()
 const autocompleteRef = ref<VAutocomplete | null>(null)
 const confirmButtonRef = ref<VBtn | null>(null)
 
+const targetUsers = computed(() => {
+  return [
+    ...new Set([
+      ...participants.value.map((user) => user.id),
+      ...payments.value.map((payment) => payment.userId),
+    ]),
+  ]
+})
 const selectedId = ref<string | undefined>(undefined)
 const newAmountPaid = ref<number | null>(null)
 const selectedData = computed(() => payments.value?.find((p) => p.userId === selectedId.value))
@@ -66,7 +74,7 @@ const focusConfirmButton = async () => {
     <user-selector
       v-model:autocomplete-ref="autocompleteRef"
       v-model:selected-id="selectedId"
-      :users="participants"
+      :users="targetUsers"
       @tab-pressed="focusConfirmButton"
     />
     <section-card class="mt-4">
