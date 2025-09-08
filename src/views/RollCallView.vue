@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import RollCallSummary from '@/components/RollCall/RollCallSummary.vue'
+import RollCallReactions from '@/components/RollCall/RollCallReactions.vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 type Camp = components['schemas']['CampResponse']
@@ -9,7 +11,7 @@ type RollCallReaction = components['schemas']['RollCallReactionResponse']
 
 const route = useRoute()
 const campname = route.params.campname as string
-const rollCallId: number = Number(route.params.rollCallId)
+const rollCallId: number = Number(route.params.rollcallid)
 
 let eventSource: EventSource | null = null
 const camp = ref<Camp>()
@@ -67,5 +69,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <v-container> Roll Call </v-container>
+  <v-container v-if="rollCall !== undefined && reactions !== undefined" max-width="800">
+    <roll-call-summary :roll-call="rollCall" :reactions="reactions" />
+    <roll-call-reactions :roll-call="rollCall" :reactions="reactions" />
+  </v-container>
 </template>
