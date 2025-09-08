@@ -44,15 +44,6 @@ const onClicked = async (questionId: number, optionId: number) => {
         <template v-slot:activator="{ props }">
           <v-list-item v-bind="props" :title="group.name" :value="`${group.id}`" />
         </template>
-        <!-- <v-list-item
-          v-for="question in group.questions.filter(
-            (q) => q.type === 'single' || q.type === 'multiple',
-          )"
-          :key="question.id"
-          :value="`${group.id}-${question.id}`"
-          :title="question.title"
-          @click="onClicked(question.id)"
-        /> -->
         <v-list-group
           v-for="question in group.questions.filter(
             (q) => q.type === 'single' || q.type === 'multiple',
