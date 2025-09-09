@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
@@ -21,31 +21,53 @@ const filteredQuestionGroups = computed(() =>
       questions: g.questions.filter((q: Question) => q.type === 'single' || q.type === 'multiple'),
     })),
 )
-const selectedIDs = ref<string[]>([])
-const onSelected = async () => {
-  const userIds = (
+const _selectedIDs = ref<string[]>([])
+const answers = ref<SelectQuestion[]>([])
+const fetchAnswers = async () => {
+  return (
     await Promise.all(
-      selectedIDs.value.map(async (id) => {
-        const [questionId, optionId] = (id as string)
-          .split('-')
-          .map((s) => Number(s))
-          .slice(1)
-        const { data } = await apiClient.GET('/api/admin/questions/{questionId}/answers', {
-          params: { path: { questionId } },
-        })
-        if (!data) return []
-        return (data as SelectQuestion[])
-          .filter((a) =>
-            a.type === 'single'
-              ? a.selectedOption.id === optionId
-              : a.selectedOptions.some((o) => o.id === optionId),
+      filteredQuestionGroups.value
+        .map((g) => g.questions)
+        .map(async (qs) => {
+          return Promise.all(
+            qs.map(async (q) => {
+              const { data } = await apiClient.GET('/api/admin/questions/{questionId}/answers', {
+                params: { path: { questionId: q.id } },
+              })
+              return data as SelectQuestion[]
+            }),
           )
-          .map((a) => a.userId)
-      }),
+        }),
     )
-  ).flat()
+  ).flat(2)
+}
+const onSelected = async () => {
+  console.log(selectedIDs.value)
+  const userIds = selectedIDs.value
+    .map((id) => {
+      const [questionId, optionId] = (id as string)
+        .split('-')
+        .map((s) => Number(s))
+        .slice(1)
+      return answers.value
+        .filter((a) => a.questionId === questionId)
+        .filter((a) =>
+          a.type === 'single'
+            ? a.selectedOption.id === optionId
+            : a.selectedOptions.some((o) => o.id === optionId),
+        )
+        .map((a) => a.userId)
+    })
+    .flat()
   target.value = [...new Set(userIds)].join(' ')
 }
+const selectedIDs = computed({
+  get: () => _selectedIDs.value,
+  set: (val: string[]) => {
+    _selectedIDs.value = val
+    onSelected()
+  },
+})
 
 const treeItems = computed(() =>
   filteredQuestionGroups.value.map((g) => ({
@@ -61,18 +83,21 @@ const treeItems = computed(() =>
     })),
   })),
 )
+
+onMounted(async () => {
+  answers.value = await fetchAnswers()
+})
 </script>
 
 <template>
   <v-card>
     <v-treeview
-      v-model="selectedIDs"
+      v-model:selected="selectedIDs"
       :items="treeItems"
       select-strategy="classic"
       item-value="id"
       selectable
       single-line
-      @click:select="onSelected"
     />
   </v-card>
 </template>
