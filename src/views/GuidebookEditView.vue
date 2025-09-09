@@ -1,46 +1,32 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import GuidebookEditorDesktop from '@/components/GuidebookEdit/GuidebookEditorDesktop.vue'
 import GuidebookEditorMobile from '@/components/GuidebookEdit/GuidebookEditorMobile.vue'
-import { apiClient } from '@/api/apiClient'
+import { useCurrentCampQuery, useUpdateCampMutation } from '@/api/queries/camps'
 import type { components } from '@/api/schema'
+type CampRequest = components['schemas']['CampRequest']
 
-const route = useRoute()
+const { data: camp } = useCurrentCampQuery()
+const { mutate: updateCamp } = useUpdateCampMutation()
+
 const router = useRouter()
 const display = useDisplay()
-const campname = route.params.campname as string
 const isLgAndUp = display.lgAndUp
-
-const camp = ref<components['schemas']['CampResponse']>()
-
-const fetchCamp = async () => {
-  if (!campname) return
-  const { data } = await apiClient.GET('/api/camps')
-  return data?.find((c) => c.displayId === campname)
-}
-
-onMounted(async () => {
-  camp.value = await fetchCamp()
-})
 
 const handleUpdate = async (updatedGuidebook: string) => {
   if (!camp.value) return
-  const updatedCamp: components['schemas']['CampRequest'] = {
+  const updatedCamp: CampRequest = {
     ...camp.value,
     guidebook: updatedGuidebook,
   }
-  const { error } = await apiClient.PUT('/api/admin/camps/{campId}', {
-    params: { path: { campId: camp.value.id } },
-    body: updatedCamp,
-  })
-  if (error) return
+  updateCamp({ campId: camp.value.id, updatedCamp })
   goToCampTop()
 }
 
 const goToCampTop = () => {
-  router.push({ name: 'CampTop', params: { campname: campname } })
+  if (!camp.value) return
+  router.push({ name: 'CampTop', params: { campname: camp.value.displayId } })
 }
 </script>
 

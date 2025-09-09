@@ -1,39 +1,30 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { toRef } from 'vue'
 import { useDisplay } from 'vuetify'
 import SectionTitle from '@/components/shared/SectionTitle.vue'
 import SectionCard from '@/components/shared/SectionCard.vue'
 import QuestionResultDesktop from '@/components/QuestionsResult/QuestionResultDesktop.vue'
 import QuestionResultMobile from '@/components/QuestionsResult/QuestionResultMobile.vue'
-import { apiClient } from '@/api/apiClient'
+import { useAnswersForQuestionGroupQuery } from '@/api/queries/answers'
 import type { components } from '@/api/schema'
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
-type Answer = components['schemas']['AnswerResponse']
+type User = components['schemas']['UserResponse']
 
 const props = defineProps<{
   questionGroup: QuestionGroup
-  participants: string[]
+  participants: User[]
 }>()
+
+const questionGroupId = toRef(() => props.questionGroup.id)
+const { data: answers } = useAnswersForQuestionGroupQuery(questionGroupId)
 
 const display = useDisplay()
 const isSmAndUp = display.smAndUp
-const answers = ref<Answer[]>([])
-
-const fetchAnswers = async () => {
-  const { data } = await apiClient.GET('/api/admin/question-groups/{questionGroupId}/answers', {
-    params: { path: { questionGroupId: props.questionGroup.id } },
-  })
-  return data ?? []
-}
-
-onMounted(async () => {
-  answers.value = await fetchAnswers()
-})
 </script>
 
 <template>
   <section-title :title="questionGroup.name" />
-  <section-card>
+  <section-card v-if="answers !== undefined">
     <template v-if="isSmAndUp">
       <question-result-desktop
         v-for="question in questionGroup.questions"

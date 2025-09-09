@@ -1,15 +1,29 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 import { eachDayOfInterval, format, isSameDay, isValid, parseISO } from 'date-fns'
 import EventsCard from '@/components/Events/EventsCard.vue'
-import { apiClient } from '@/api/apiClient'
+import { useCurrentCampQuery } from '@/api/queries/camps'
+import {
+  useEventsQuery,
+  useCreateEventMutation,
+  useUpdateEventMutation,
+  useDeleteEventMutation,
+} from '@/api/queries/events'
 import type { components } from '@/api/schema'
+type EventRequest = components['schemas']['EventRequest']
 
-const route = useRoute()
-const campname = route.params.campname as string
-const camp = ref<components['schemas']['CampResponse']>()
-const events = ref<components['schemas']['EventResponse'][]>()
+const { data: camp } = useCurrentCampQuery()
+const { data: events } = useEventsQuery()
+const { mutate: createEvent } = useCreateEventMutation()
+const { mutate: updateEvent } = useUpdateEventMutation()
+const { mutate: deleteEvent } = useDeleteEventMutation()
+
+const handleCreate = (newEvent: EventRequest) => {
+  if (!camp.value) return
+  createEvent({ campId: camp.value.id, newEvent })
+}
+const handleUpdate = (eventId: number, updatedEvent: EventRequest) =>
+  updateEvent({ eventId, updatedEvent })
+const handleDelete = (eventId: number) => deleteEvent({ eventId })
 
 // 日付ごとにイベントをグループ化
 const groupedEvents = (
@@ -39,48 +53,6 @@ const groupedEvents = (
     return { date: formattedDate, events: dailyEvents }
   })
 }
-
-const fetchCamp = async () => {
-  if (!campname) return
-  const { data } = await apiClient.GET('/api/camps')
-  return data?.find((c) => c.displayId === campname)
-}
-const fetchEvents = async () => {
-  if (!camp.value) return
-  const response = await apiClient.GET('/api/camps/{campId}/events', {
-    params: { path: { campId: camp.value.id } },
-  })
-  return response.data
-}
-
-onMounted(async () => {
-  camp.value = await fetchCamp()
-  events.value = await fetchEvents()
-})
-
-const createEvent = async (event: components['schemas']['EventRequest']) => {
-  if (!camp.value) return
-  await apiClient.POST('/api/camps/{campId}/events', {
-    params: { path: { campId: camp.value.id } },
-    body: event,
-  })
-  events.value = await fetchEvents()
-}
-const updateEvent = async (id: number, event: components['schemas']['EventRequest']) => {
-  if (!camp.value) return
-  await apiClient.PUT('/api/events/{eventId}', {
-    params: { path: { eventId: id } },
-    body: event,
-  })
-  events.value = await fetchEvents()
-}
-const deleteEvent = async (eventId: number) => {
-  if (!camp.value) return
-  await apiClient.DELETE('/api/events/{eventId}', {
-    params: { path: { eventId } },
-  })
-  events.value = await fetchEvents()
-}
 </script>
 
 <template>
@@ -90,9 +62,9 @@ const deleteEvent = async (eventId: number) => {
       :key="group.date"
       :date="group.date"
       :events="group.events"
-      @create="createEvent"
-      @update="updateEvent"
-      @delete="deleteEvent"
+      @create="handleCreate"
+      @update="handleUpdate"
+      @delete="handleDelete"
     />
   </v-container>
 </template>
