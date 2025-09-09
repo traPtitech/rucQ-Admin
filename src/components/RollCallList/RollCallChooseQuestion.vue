@@ -66,7 +66,7 @@ const treeItems = computed(() =>
 <template>
   <v-card>
     <v-treeview
-      :v-model="selectedIDs"
+      v-model="selectedIDs"
       :items="treeItems"
       select-strategy="classic"
       item-value="id"
