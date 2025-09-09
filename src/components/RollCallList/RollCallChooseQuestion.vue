@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
@@ -9,19 +9,23 @@ type SelectQuestion =
   | components['schemas']['MultipleChoiceAnswerResponse']
 
 const target = defineModel<string>({ required: true })
-
+interface itemType {
+  id: string
+  title: string
+  data: { questionId: number; optionId: number }
+}
 const { questionGroups } = defineProps<{
   questionGroups: QuestionGroup[]
 }>()
 const filteredQuestionGroups = computed(() =>
   questionGroups
-    .filter((g) => g.questions.some((q: Question) => q.type === 'single' || q.type === 'multiple'))
     .map((g) => ({
       ...g,
       questions: g.questions.filter((q: Question) => q.type === 'single' || q.type === 'multiple'),
-    })),
+    }))
+    .filter((g) => g.questions.length > 0),
 )
-const _selectedIDs = ref<string[]>([])
+const selectedIDs = ref<itemType[]>([])
 const answers = ref<SelectQuestion[]>([])
 const fetchAnswers = async () => {
   return (
@@ -42,13 +46,9 @@ const fetchAnswers = async () => {
   ).flat(2)
 }
 const onSelected = async () => {
-  console.log(selectedIDs.value)
   const userIds = selectedIDs.value
     .map((id) => {
-      const [questionId, optionId] = (id as string)
-        .split('-')
-        .map((s) => Number(s))
-        .slice(1)
+      const { questionId, optionId } = id.data
       return answers.value
         .filter((a) => a.questionId === questionId)
         .filter((a) =>
@@ -61,24 +61,20 @@ const onSelected = async () => {
     .flat()
   target.value = [...new Set(userIds)].join(' ')
 }
-const selectedIDs = computed({
-  get: () => _selectedIDs.value,
-  set: (val: string[]) => {
-    _selectedIDs.value = val
-    onSelected()
-  },
-})
+
+watch(() => selectedIDs.value, onSelected, { deep: true })
 
 const treeItems = computed(() =>
   filteredQuestionGroups.value.map((g) => ({
-    id: `${g.id}`,
+    id: `group-${g.id}`,
     title: g.name,
     children: g.questions.map((q) => ({
-      id: `${g.id}-${q.id}`,
+      id: `question-${q.id}`,
       title: q.title,
       children: q.options.map((o) => ({
-        id: `${g.id}-${q.id}-${o.id}`,
+        id: `option-${o.id}`,
         title: o.content,
+        data: { questionId: q.id, optionId: o.id },
       })),
     })),
   })),
@@ -94,9 +90,10 @@ onMounted(async () => {
     <v-treeview
       v-model:selected="selectedIDs"
       :items="treeItems"
-      select-strategy="classic"
+      select-strategy="leaf"
       item-value="id"
       selectable
+      return-object
       single-line
     />
   </v-card>
