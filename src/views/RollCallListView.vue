@@ -77,11 +77,10 @@ const handleCreateRollCall = (rollcall: RollCallRequest) => {
   </v-container>
   <v-dialog v-model="isModalOpen" max-width="600" persistent>
     <roll-call-editor
-      v-if="isModalOpen"
+      :participants="participants"
+      :question-groups="questionGroups"
       @create="handleCreateRollCall"
       @cancel="isModalOpen = false"
-      :participants="participants"
-      :questionGroups="questionGroups"
     />
   </v-dialog>
 </template>

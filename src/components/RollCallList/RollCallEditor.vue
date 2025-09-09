@@ -62,7 +62,7 @@ const handleCreate = () => {
     <v-card title="点呼の作成">
       <div class="d-flex flex-column ga-1 px-4">
         <v-text-field label="点呼名" v-model="name" :rules="[required]" />
-        <v-text-field label="説明" v-model="description" :rules="[required]" />
+        <v-text-field label="説明" v-model="description" />
         <content-card title="選択肢" class="ga-1">
           <v-text-field
             v-for="(_, index) in options"
@@ -72,12 +72,12 @@ const handleCreate = () => {
           >
             <template #append>
               <v-btn
-                icon="mdi-close"
-                @click="options.splice(index, 1)"
                 v-if="index !== options.length - 1"
+                icon="mdi-close"
                 variant="plain"
+                @click="options.splice(index, 1)"
               />
-              <v-btn icon="mdi-plus" @click="options.push('')" v-else variant="plain" />
+              <v-btn v-else icon="mdi-plus" variant="plain" @click="options.push('')" />
             </template>
           </v-text-field>
         </content-card>
@@ -89,14 +89,14 @@ const handleCreate = () => {
           </v-btn-toggle>
           <div v-if="rollcallType === 'specific'">
             <v-text-field
-              label="対象者 (ユーザーIDをスペースかカンマで区切って入力)"
               v-model="subjectsString"
+              label="対象者 (ユーザーIDをスペースかカンマで区切って入力)"
             />
           </div>
           <roll-call-choose-question
             v-if="rollcallType === 'question'"
             v-model="subjectsString"
-            :questionGroups="questionGroups"
+            :question-groups="questionGroups"
           />
         </content-card>
       </div>

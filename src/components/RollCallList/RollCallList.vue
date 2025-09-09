@@ -8,7 +8,7 @@ type RollCall = components['schemas']['RollCallResponse']
 
 const route = useRoute()
 const campname = route.params.campname as string
-const { rollCalls } = defineProps<{
+defineProps<{
   rollCalls: RollCall[]
 }>()
 </script>
@@ -19,12 +19,11 @@ const { rollCalls } = defineProps<{
     <content-card
       v-for="rollCall in rollCalls"
       :key="rollCall.id"
-      class="mb-4"
       :title="rollCall.name"
       :to="{ name: 'RollCall', params: { campname, rollcallid: rollCall.id } }"
     >
-      <div class="text-body-2 mb-2">{{ rollCall.description }}</div>
-      <div class="text-caption">対象者: {{ rollCall.subjects.length }}名</div>
+      <div class="text-body-1 mb-2">{{ rollCall.description }}</div>
+      <div class="text-body-2">対象者: {{ rollCall.subjects.length }}名</div>
     </content-card>
   </section-card>
 </template>

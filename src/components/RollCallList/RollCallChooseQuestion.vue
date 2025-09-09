@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
@@ -9,14 +10,22 @@ const target = defineModel<string>({ required: true })
 const { questionGroups } = defineProps<{
   questionGroups: QuestionGroup[]
 }>()
-const filteredQuestionGroups = questionGroups.filter((g) =>
-  g.questions.some((q: Question) => q.type === 'single' || q.type === 'multiple'),
+const filteredQuestionGroups = computed(() =>
+  questionGroups
+    .filter((g) => g.questions.some((q: Question) => q.type === 'single' || q.type === 'multiple'))
+    .map((g) => ({
+      ...g,
+      questions: g.questions.filter((q: Question) => q.type === 'single' || q.type === 'multiple'),
+    })),
 )
 const onClicked = async (questionId: number, optionId: number) => {
   const { data } = await apiClient.GET('/api/admin/questions/{questionId}/answers', {
     params: { path: { questionId } },
   })
-  if (!data) return
+  if (!data) {
+    target.value = ''
+    return
+  }
   if (data.every((a) => a.type === 'single')) {
     target.value = data
       .filter((a) => a.selectedOption.id === optionId)
@@ -45,9 +54,7 @@ const onClicked = async (questionId: number, optionId: number) => {
           <v-list-item v-bind="props" :title="group.name" :value="`${group.id}`" />
         </template>
         <v-list-group
-          v-for="question in group.questions.filter(
-            (q) => q.type === 'single' || q.type === 'multiple',
-          )"
+          v-for="question in group.questions"
           :key="question.id"
           :value="`${group.id}-${question.id}`"
           :title="question.title"
