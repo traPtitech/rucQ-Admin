@@ -29,33 +29,29 @@ const reactions: RollCallReaction[] = [
     content: '宿',
   },
   {
-    id: 0,
+    id: 1,
     userId: 'trap2',
     content: '宿',
   },
   {
-    id: 0,
+    id: 2,
     userId: 'trap3',
     content: '宿',
   },
   {
-    id: 0,
+    id: 3,
     userId: 'trap4',
     content: '宿',
   },
   {
-    id: 0,
+    id: 4,
     userId: 'trap5',
     content: 'バス',
   },
-  {
-    id: 1,
-    userId: 'trap2',
-    content: '1号車',
-  },
 ]
 
-let nextRollCallId = 2
+let nextRollCallId = rollCalls.length
+let nextReactionId = reactions.length
 
 export const rollCallsHandlers = [
   http.get('/api/camps/{campId}/roll-calls', () => {
@@ -72,25 +68,14 @@ export const rollCallsHandlers = [
     return HttpResponse.json(newRollCall, { status: 201 })
   }),
 
-  http.get('/api/roll-calls/{rollCallId}/reactions', ({ params }) => {
-    const rollCallId = Number(params.rollCallId)
-    const rollCall = rollCalls.find((rc) => rc.id === rollCallId)
-    if (!rollCall) {
-      return HttpResponse.json({ message: 'Not Found' }, { status: 404 })
-    }
-    const rollCallReactions = reactions.filter((reaction) => reaction.id === rollCallId)
-    return HttpResponse.json(rollCallReactions, { status: 200 })
+  http.get('/api/roll-calls/{rollCallId}/reactions', () => {
+    return HttpResponse.json(reactions, { status: 200 })
   }),
 
-  http.post('/api/roll-calls/{rollCallId}/reactions', async ({ params, request }) => {
-    const rollCallId = Number(params.rollCallId)
-    const rollCall = rollCalls.find((rc) => rc.id === rollCallId)
-    if (!rollCall) {
-      return HttpResponse.json({ message: 'Not Found' }, { status: 404 })
-    }
+  http.post('/api/roll-calls/{rollCallId}/reactions', async ({ request }) => {
     const body = await request.json()
     const newReaction: RollCallReaction = {
-      id: rollCallId,
+      id: nextReactionId++,
       userId: 'traP',
       ...body,
     }
