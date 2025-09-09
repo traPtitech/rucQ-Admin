@@ -3,7 +3,6 @@ import { http } from '@/mocks/http'
 import type { components } from '@/api/schema'
 
 type RollCall = components['schemas']['RollCallResponse']
-type RollCallRequest = components['schemas']['RollCallRequest']
 type Reaction = components['schemas']['RollCallReactionResponse']
 const rollCalls: RollCall[] = [
   {
