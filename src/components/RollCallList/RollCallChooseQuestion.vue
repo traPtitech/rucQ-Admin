@@ -4,19 +4,20 @@ import { apiClient } from '@/api/apiClient'
 import type { components } from '@/api/schema'
 type Question = components['schemas']['QuestionResponse']
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
-type SelectQuestion =
+type ChoiceQuestionAnswer =
   | components['schemas']['SingleChoiceAnswerResponse']
   | components['schemas']['MultipleChoiceAnswerResponse']
-
-const target = defineModel<string>({ required: true })
-interface itemType {
+interface ItemType {
   id: string
   title: string
   data: { questionId: number; optionId: number }
 }
+
+const target = defineModel<string>({ required: true })
 const { questionGroups } = defineProps<{
   questionGroups: QuestionGroup[]
 }>()
+
 const filteredQuestionGroups = computed(() =>
   questionGroups
     .map((g) => ({
@@ -25,28 +26,22 @@ const filteredQuestionGroups = computed(() =>
     }))
     .filter((g) => g.questions.length > 0),
 )
-const selectedIDs = ref<itemType[]>([])
-const answers = ref<SelectQuestion[]>([])
-const fetchAnswers = async () => {
-  return (
-    await Promise.all(
-      filteredQuestionGroups.value
-        .map((g) => g.questions)
-        .map(async (qs) => {
-          return Promise.all(
-            qs.map(async (q) => {
-              const { data } = await apiClient.GET('/api/admin/questions/{questionId}/answers', {
-                params: { path: { questionId: q.id } },
-              })
-              return data as SelectQuestion[]
-            }),
-          )
-        }),
-    )
-  ).flat(2)
+
+const answers = ref<ChoiceQuestionAnswer[]>([])
+const fetchAnswersForQuestion = async (questionId: number) => {
+  const { data } = await apiClient.GET('/api/admin/questions/{questionId}/answers', {
+    params: { path: { questionId } },
+  })
+  return data as ChoiceQuestionAnswer[]
 }
+const fetchAnswers = async (questionIds: number[]) => {
+  const responses = await Promise.all(questionIds.map((id) => fetchAnswersForQuestion(id)))
+  return responses.flat()
+}
+
+const selectedItems = ref<ItemType[]>([])
 const onSelected = async () => {
-  const userIds = selectedIDs.value
+  const userIds = selectedItems.value
     .map((id) => {
       const { questionId, optionId } = id.data
       return answers.value
@@ -62,7 +57,11 @@ const onSelected = async () => {
   target.value = [...new Set(userIds)].join(' ')
 }
 
-watch(() => selectedIDs.value, onSelected, { deep: true })
+watch(() => selectedItems.value, onSelected, { deep: true })
+onMounted(async () => {
+  const questionIds = filteredQuestionGroups.value.flatMap((g) => g.questions.map((q) => q.id))
+  answers.value = await fetchAnswers(questionIds)
+})
 
 const treeItems = computed(() =>
   filteredQuestionGroups.value.map((g) => ({
@@ -79,22 +78,17 @@ const treeItems = computed(() =>
     })),
   })),
 )
-
-onMounted(async () => {
-  answers.value = await fetchAnswers()
-})
 </script>
 
 <template>
   <v-card>
     <v-treeview
-      v-model:selected="selectedIDs"
+      v-model:selected="selectedItems"
       :items="treeItems"
       select-strategy="leaf"
       item-value="id"
       selectable
       return-object
-      single-line
     />
   </v-card>
 </template>
