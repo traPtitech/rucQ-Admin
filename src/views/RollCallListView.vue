@@ -64,8 +64,8 @@ onMounted(async () => {
   questionGroups.value = (await fetchQuestionGroups()) ?? []
 })
 
-const handleCreateRollCall = (rollcall: RollCallRequest) => {
-  createRollCall(rollcall)
+const handleCreateRollCall = async (rollcall: RollCallRequest) => {
+  await createRollCall(rollcall)
   isModalOpen.value = false
 }
 </script>
