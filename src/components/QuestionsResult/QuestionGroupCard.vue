@@ -8,11 +8,10 @@ import QuestionResultMobile from '@/components/QuestionsResult/QuestionResultMob
 import { useAnswersForQuestionGroupQuery } from '@/api/queries/answers'
 import type { components } from '@/api/schema'
 type QuestionGroup = components['schemas']['QuestionGroupResponse']
-type User = components['schemas']['UserResponse']
 
 const props = defineProps<{
   questionGroup: QuestionGroup
-  participants: User[]
+  participants: string[]
 }>()
 
 const questionGroupId = toRef(() => props.questionGroup.id)
