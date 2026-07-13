@@ -105,7 +105,6 @@ const handleTypeChange = () => {
           label="必須"
           color="primary"
           density="compact"
-          :disabled="isAssignedId(question.id)"
           hide-details
         />
         <v-checkbox
