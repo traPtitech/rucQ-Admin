@@ -101,6 +101,13 @@ const handleTypeChange = () => {
       />
       <div class="d-flex ga-2">
         <v-checkbox
+          v-model="question.isRequired"
+          label="必須"
+          color="primary"
+          density="compact"
+          hide-details
+        />
+        <v-checkbox
           v-model="question.isPublic"
           label="回答を公開"
           color="primary"
