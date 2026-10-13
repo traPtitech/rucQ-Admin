@@ -17,8 +17,9 @@ const required = [(v: unknown) => !!v]
 const questionTypes = [
   { value: 'free_text', title: '記述式', props: { prependIcon: 'mdi-text-short' } },
   { value: 'free_number', title: '数値', props: { prependIcon: 'mdi-numeric' } },
-  { value: 'single', title: 'ラジオボタン', props: { prependIcon: 'mdi-radiobox-marked' } },
-  { value: 'multiple', title: 'チェックボックス', props: { prependIcon: 'mdi-checkbox-outline' } },
+  //「ラジオボタン」「チェックボックス」といった表記が分かりにくかったので「単一回答」「複数回答」に変更しました(2026/10/13)
+  { value: 'single', title: '単一回答', props: { prependIcon: 'mdi-radiobox-marked' } },
+  { value: 'multiple', title: '複数回答', props: { prependIcon: 'mdi-checkbox-outline' } },
 ]
 const selectedIcon = computed(() => {
   const type = question.value.type
