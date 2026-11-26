@@ -92,11 +92,13 @@ const handleTypeChange = () => {
       </v-col>
     </v-row>
     <div class="d-flex flex-column flex-sm-row align-sm-center ga-2 mx-2">
-      <v-text-field
+      <v-textarea
         v-model="question.description"
         label="説明"
         variant="underlined"
         density="comfortable"
+        rows="1"
+        auto-grow
         hide-details
       />
       <div class="d-flex ga-2">
